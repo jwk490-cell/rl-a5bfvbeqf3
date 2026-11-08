@@ -613,6 +613,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="ushigh">美 신고가 (20·60일·52주)</button>
     <button class="navitem" data-tab="jphigh">日 신고가 (20·60일·52주) <small>NEW</small></button>
     <button class="navitem" data-tab="jpflow">日 수급 (신용·공매도·주체) <small>NEW</small></button>
+    <button class="navitem" data-tab="jpsector">日 주도 섹터 (33업종) <small>NEW</small></button>
     <button class="navitem" data-tab="jpearn">日 결산 스크리닝 <small>NEW</small></button>
     <button class="navitem" data-tab="rs">RS 분석</button>
     <button class="navitem" data-tab="semietf">반도체 ETF 수혜</button>
@@ -723,6 +724,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
           <button class="card" data-go="ushigh"><h3>美 신고가 (20·60일·52주) <span class="tag">매일 아침</span></h3><p>미국 세션 20일·60일·52주 신고가 종목 — 섹터별 분류, 시총·등락</p></button>
           <button class="card" data-go="jphigh"><h3>日 신고가 (20·60일·52주) <span class="tag">평일 16:45</span></h3><p>도쿄증권거래소 프라임·스탠다드·그로스 20일·60일(장중 고가)·52주(종가) 신고가 · 거래대금 3억엔↑ — 일본거래소 공식 일봉 전수판정, 33업종별 분류</p></button>
           <button class="card" data-go="jpflow"><h3>日 수급 (신용·공매도·주체) <span class="tag">평일 17:50</span></h3><p>일본은 종목별 투자주체 순매수를 공개하지 않아 대체 지표로 구성 — 신용 매수·매도잔고 시총대비 변화, 공매도 잔고 보고(0.5%↑ 보고자·펀드), 시장별 투자주체 주간 순매수</p></button>
+          <button class="card" data-go="jpsector"><h3>日 주도 섹터 (33업종) <span class="tag">평일 17:50</span></h3><p>도쿄증권거래소 33업종의 TOPIX 대비 상대강도(5·20·60·120일)·거래대금 쏠림·신고가 비율·20일선 위 비율·신용·공매도 비율을 점수화 — 사분면 지도와 업종별 신고가 종목</p></button>
           <button class="card" data-go="jpearn"><h3>日 결산 스크리닝 <span class="tag">평일 18:40·07:30</span></h3><p>決算短信 전수 — 회사 가이던스 상향·하향, 진척률 vs 예년 5년 중앙값, 남은 기간 감익을 가정한 '보수적' 가이던스 태그, 발표 반응·이후 수익률, 2019~ 태그 검증 백테스트</p></button>
           <button class="card" data-go="rs"><h3>RS 분석 <span class="tag">韓·美 ETF</span></h3><p>섹터·테마 ETF 상대강도 60/120/250일 + 소티노 — Norm ≥70 주도 시그널</p></button>
           <button class="card" data-go="semietf"><h3>반도체 ETF 수혜 <span class="tag">장중 1시간</span></h3><p>ETF 자금 유입 ÷ 유통시총 — 매수 압력 랭킹</p></button>
@@ -868,6 +870,12 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
       <div class="ptitle">日 수급 <span style="font-size:12px;font-weight:600;color:var(--dim2)">신용잔고 · 공매도 잔고 보고 · 투자주체별 주간 순매수 — 도쿄증권거래소</span></div>
       <div class="pdesc" id="jfMeta">불러오는 중…</div>
       <div id="jfBody"></div>
+    </section>
+
+    <section class="panel" id="tab-jpsector">
+      <div class="ptitle">日 주도 섹터 <span style="font-size:12px;font-weight:600;color:var(--dim2)">도쿄증권거래소 33업종 · TOPIX 대비 상대강도 · 거래대금 쏠림 · 신고가 비율</span></div>
+      <div class="pdesc" id="jsMeta">불러오는 중…</div>
+      <div id="jsBody"></div>
     </section>
 
     <section class="panel" id="tab-ushigh">
@@ -2490,6 +2498,76 @@ function jfRender(){
   on('jfTabBar','t',v=>jfTab=v);on('jfMgBar','m',v=>jfMg=v);on('jfShBar','s',v=>jfSh=v);on('jfSecBar','c',v=>jfSec=v);
 }
 
+/* ══════════ 日 주도 섹터 (data/jpsector.json — jp_sector_build.py, 33업종) ══════════ */
+let JS_=null,JSHI=null,jsSort='score',jsOpen=null;
+async function jsLoad(){
+  if(!JS_){
+    try{JS_=await getJson('data/jpsector.json');}
+    catch(e){document.getElementById('jsMeta').textContent='데이터가 아직 없습니다 — 평일 17:50 빌드 후 이용 가능합니다.';return;}
+    try{JSHI=await getJson('data/jphigh.json');}catch(e){JSHI=null;}
+  }
+  jsRender();
+}
+function jsMap(rows){
+  /* 사분면 지도: 가로=60일 상대강도, 세로=20일 상대강도, 원 크기=거래대금 비중 */
+  const W=760,H=420,P=46,xs=rows.map(r=>r.rs60).filter(v=>v!=null),ys=rows.map(r=>r.rs20).filter(v=>v!=null);
+  const mx=Math.max(5,...xs.map(Math.abs))*1.1,my=Math.max(5,...ys.map(Math.abs))*1.1;
+  const X=v=>P+(v+mx)/(2*mx)*(W-2*P),Y=v=>H-P-(v+my)/(2*my)*(H-2*P);
+  const col={'주도':'var(--up)','부상':'var(--accent)','쇠퇴':'#e0a457','소외':'var(--down)'};
+  let g=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" font-size="11">
+    <line x1="${X(0)}" y1="${P/2}" x2="${X(0)}" y2="${H-P/2}" stroke="var(--line)"/><line x1="${P/2}" y1="${Y(0)}" x2="${W-P/2}" y2="${Y(0)}" stroke="var(--line)"/>
+    <text x="${W-P}" y="${P-14}" text-anchor="end" fill="var(--dim2)" font-weight="700">주도</text><text x="${P}" y="${P-14}" fill="var(--dim2)" font-weight="700">부상</text>
+    <text x="${P}" y="${H-12}" fill="var(--dim2)" font-weight="700">소외</text><text x="${W-P}" y="${H-12}" text-anchor="end" fill="var(--dim2)" font-weight="700">쇠퇴</text>
+    <text x="${W/2}" y="${H-12}" text-anchor="middle" fill="var(--faint)">60일 상대강도(%p) →</text>
+    <text x="14" y="${H/2}" fill="var(--faint)" transform="rotate(-90 14 ${H/2})" text-anchor="middle">20일 상대강도(%p) →</text>`;
+  rows.filter(r=>r.rs60!=null&&r.rs20!=null).forEach(r=>{
+    const rad=4+Math.sqrt(r.va_share||0)*3.2;
+    g+=`<g data-js="${r.s33}" style="cursor:pointer"><circle cx="${X(r.rs60).toFixed(1)}" cy="${Y(r.rs20).toFixed(1)}" r="${rad.toFixed(1)}" fill="${col[r.quad]||'var(--dim2)'}" fill-opacity=".28" stroke="${col[r.quad]||'var(--dim2)'}"/>
+      <text x="${X(r.rs60).toFixed(1)}" y="${(Y(r.rs20)-rad-3).toFixed(1)}" text-anchor="middle" fill="var(--text)">${esc(r.name)}</text></g>`;
+  });
+  return g+'</svg>';
+}
+function jsSpark(a){
+  if(!a||a.length<2)return '';
+  const w=80,h=22,mn=Math.min(0,...a),mx=Math.max(0,...a),sc=v=>h-2-(v-mn)/((mx-mn)||1)*(h-4);
+  const pts=a.map((v,i)=>`${(i/(a.length-1)*w).toFixed(1)},${sc(v).toFixed(1)}`).join(' ');
+  return `<svg width="${w}" height="${h}" style="vertical-align:middle"><line x1="0" x2="${w}" y1="${sc(0)}" y2="${sc(0)}" stroke="var(--line)"/><polyline points="${pts}" fill="none" stroke="${a[a.length-1]>=0?'var(--up)':'var(--down)'}" stroke-width="1.5"/></svg>`;
+}
+function jsRender(){
+  const D=JS_,meta=document.getElementById('jsMeta'),body=document.getElementById('jsBody');
+  const sg=(v,d=1,u='%')=>v==null?'—':`<span class="${v>=0?'up':'down'}">${v>=0?'+':''}${v.toFixed(d)}${u}</span>`;
+  const T=D.topix,bd=D.base_dt;
+  meta.innerHTML=`기준일 <b>${khFmtD(bd)}(${khWd(bd)})</b> · TOPIX ${T.close.toLocaleString('en-US',{maximumFractionDigits:2})} (1일 ${sg(T.r1,2)} · 5일 ${sg(T.r5)} · 20일 ${sg(T.r20)} · 60일 ${sg(T.r60)}) · ${esc(D.updated)} 갱신`;
+  const rows=D.rows.slice().sort((a,b)=>jsSort==='score'?(b.score??-1)-(a.score??-1):jsSort==='rs20'?(b.rs20??-99)-(a.rs20??-99):jsSort==='rs5'?(b.rs5??-99)-(a.rs5??-99):(b.va_tilt??0)-(a.va_tilt??0));
+  const qc={'주도':'var(--up)','부상':'var(--accent)','쇠퇴':'#e0a457','소외':'var(--down)'};
+  const hiBy=s=>{if(!JSHI)return [];const nm=(D.rows.find(r=>r.s33===s)||{}).name;const seen=new Set();
+    return [...(JSHI.w52?JSHI.w52.items:[]).map(r=>({...r,w:'52주'})),...(JSHI.d60?JSHI.d60.items:[]).map(r=>({...r,w:'60일'}))]
+      .filter(r=>r.s33===nm&&!seen.has(r.code)&&seen.add(r.code));};
+  const lead=D.rows.filter(r=>r.quad==='주도').slice(0,5).map(r=>r.name).join(' · ');
+  body.innerHTML=`
+  <div class="rgrid2" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px">
+    ${['주도','부상','쇠퇴','소외'].map(q=>`<div class="rcard" style="padding:12px 15px"><div style="font-size:11.5px;color:${qc[q]};font-weight:700">${q}</div><div style="font-size:19px;font-weight:800">${D.rows.filter(r=>r.quad===q).length}개 업종</div></div>`).join('')}</div>
+  <div class="rcard" style="margin-bottom:14px"><h3 style="font-size:13.5px;margin-bottom:4px">업종 사분면 <span style="font-size:10.5px;color:var(--dim2);font-weight:600">가로=60일·세로=20일 TOPIX 대비 초과수익 · 원 크기=최근 5일 거래대금 비중 · 점수 상위 주도: ${esc(lead||'—')}</span></h3>${jsMap(D.rows)}</div>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+    <div class="rngwrap" id="jsSortBar">${[['score','점수순'],['rs5','5일 강도순'],['rs20','20일 강도순'],['tilt','거래대금 쏠림순']].map(([k,v])=>`<button class="rng${jsSort===k?' on':''}" data-s="${k}">${v}</button>`).join('')}</div>
+    <span style="font-size:11.5px;color:var(--dim2)">업종을 누르면 그 업종의 오늘 60일·52주 신고가 종목이 펼쳐집니다</span></div>
+  <div class="rcard"><div style="overflow-x:auto"><table class="ddt"><thead><tr>
+    <th>#</th><th style="text-align:left">업종</th><th>점수</th><th>국면</th><th>1일</th><th>5일 RS</th><th>20일 RS</th><th>60일 RS</th><th>120일 RS</th><th>20일 RS 추이</th>
+    <th>거래대금 비중</th><th>쏠림</th><th>60일 신고가</th><th>20일선 위</th><th>신용 매수 5일Δ/시총</th><th>공매도 비율</th></tr></thead><tbody>
+    ${rows.map((r,i)=>{const hi=jsOpen===r.s33?hiBy(r.s33):null;return `<tr data-js="${r.s33}" style="cursor:pointer${jsOpen===r.s33?';background:var(--surface2,rgba(127,127,127,.08))':''}"><td style="color:var(--dim2)">${i+1}</td>
+      <td style="text-align:left;font-weight:700">${esc(r.name)}</td><td><b>${r.score??'—'}</b></td>
+      <td style="color:${qc[r.quad]||'var(--dim2)'};font-weight:700">${r.quad||'—'}</td>
+      <td>${sg(r.r1)}</td><td>${sg(r.rs5)}</td><td>${sg(r.rs20)}</td><td>${sg(r.rs60)}</td><td>${sg(r.rs120)}</td><td>${jsSpark(r.trail)}</td>
+      <td>${r.va_share!=null?r.va_share.toFixed(1)+'%':'—'}</td><td>${r.va_tilt!=null?`<b style="color:${r.va_tilt>=1.2?'var(--up)':r.va_tilt<=0.8?'var(--down)':'var(--text)'}">${r.va_tilt.toFixed(2)}배</b>`:'—'}</td>
+      <td>${r.h60p!=null?r.h60p.toFixed(1)+'%':'—'} <span style="color:var(--dim2);font-size:11px">${r.h60n}/${r.n}</span></td><td>${r.ma20p!=null?r.ma20p.toFixed(0)+'%':'—'}</td>
+      <td>${sg(r.mg5,3,'%')}</td><td>${r.short!=null?r.short.toFixed(1)+'%':'—'} <span style="color:var(--dim2);font-size:11px">${r.short20!=null?'평균 '+r.short20.toFixed(1):''}</span></td></tr>
+      ${hi?`<tr><td></td><td colspan="15" style="text-align:left;font-size:12px;line-height:1.7;padding:8px 6px 12px">${hi.length?hi.map(x=>`<b>${esc(x.name)}</b> <span style="color:var(--dim2)">${esc(x.code)} · ${x.w}</span> ${qtChg(x.flu)}`).join(' &nbsp;·&nbsp; '):'<span style="color:var(--dim2)">오늘 이 업종의 60일·52주 신고가 종목(거래대금 3억엔↑)이 없습니다</span>'}</td></tr>`:''}`;}).join('')}</tbody></table></div>
+    <div style="font-size:11px;color:var(--dim2);margin-top:9px;line-height:1.6">RS = 업종 지수 수익률 − TOPIX 수익률(%p) · 국면: 주도(60·20일 모두 +) · 부상(20일만 +) · 쇠퇴(60일만 +) · 소외(둘 다 −) · 쏠림 = 최근 5일 거래대금 비중 ÷ 직전 60일 평균 비중 · 신고가·20일선 = 업종 내 보통주 기준 · 신용 = 매수잔고 5영업일 변화(신청일 ${D.margin_date?D.margin_date.slice(4,6)+'/'+D.margin_date.slice(6):'—'}) · 공매도 비율 = 업종 매도대금 중 공매도 비중<br>점수 = 20일 RS·60일 RS·거래대금 쏠림·60일 신고가 비율의 33업종 내 백분위 평균(0~100)</div></div>`;
+  document.getElementById('jsSortBar').onclick=e=>{const b=e.target.closest('[data-s]');if(b){jsSort=b.dataset.s;jsRender();}};
+  body.querySelectorAll('[data-js]').forEach(el=>el.addEventListener('click',()=>{const k=el.dataset.js;jsOpen=jsOpen===k?null:k;jsRender();
+    if(el.tagName.toLowerCase()==='g'){const tr=document.querySelector(`#jsBody tr[data-js="${k}"]`);if(tr)tr.scrollIntoView({block:'center',behavior:'smooth'});}}));
+}
+
 /* ══════════ 美 신고가 20일·60일·52주 (data/usnewhigh.json — TradingView 스캐너) ══════════ */
 let UH=null,uhSector='all',uhWin='w52',UHTXT=null;
 async function uhLoad(){
@@ -3552,6 +3630,7 @@ function openTab(tab){
   if(tab==='ushigh')uhLoad();
   if(tab==='jphigh')jhLoad();
   if(tab==='jpflow')jfLoad();
+  if(tab==='jpsector')jsLoad();
   if(tab==='raoni')raStart();
   if(tab==='caps')capsInit();
   if(tab==='gap')gapInit();
@@ -3816,7 +3895,7 @@ const RR_TABS={
   weekly:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'},
   ircal:{m:'x',note:'30분마다 자동 동기화됩니다 — 탭 안의 ↻ 버튼으로 최신 파일을 다시 읽습니다'},
   krwrap:{m:'a',eta:'~2분'}, uswrap:{m:'a',eta:'~2분'}, sector:{m:'a',eta:'~3분'}, disparity:{m:'a',eta:'~2분'},
-  supply:{m:'a',eta:'~7분'}, invflow:{m:'x',note:'장중 5분마다 잠정치, 장 마감 후 KRX 확정치로 자동 교체됩니다'}, streak:{m:'a',eta:'~3분'}, flowosc:{m:'a',eta:'~3분'}, binjip:{m:'x',note:'평일 21:25 확정치로 자동 갱신됩니다'}, creditdd:{m:'x',note:'금투협 공시(1~2영업일 지연)를 평일 아침·저녁 자동 반영합니다'}, krhigh:{m:'a',eta:'~10분'}, ushigh:{m:'a',eta:'~5분'}, jphigh:{m:'a',eta:'~1분'}, jpflow:{m:'a',eta:'~2분'},
+  supply:{m:'a',eta:'~7분'}, invflow:{m:'x',note:'장중 5분마다 잠정치, 장 마감 후 KRX 확정치로 자동 교체됩니다'}, streak:{m:'a',eta:'~3분'}, flowosc:{m:'a',eta:'~3분'}, binjip:{m:'x',note:'평일 21:25 확정치로 자동 갱신됩니다'}, creditdd:{m:'x',note:'금투협 공시(1~2영업일 지연)를 평일 아침·저녁 자동 반영합니다'}, krhigh:{m:'a',eta:'~10분'}, ushigh:{m:'a',eta:'~5분'}, jphigh:{m:'a',eta:'~1분'}, jpflow:{m:'a',eta:'~2분'}, jpsector:{m:'a',eta:'~1분'},
   rs:{m:'a',eta:'~5분'}, semietf:{m:'a',eta:'~2분'}, semirebal:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, semicand:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, align:{m:'a',eta:'~15분'}, macd:{m:'a',eta:'~2분'}, buyback:{m:'a',eta:'~4분'}, pbrgrowth:{m:'a',eta:'~3분'}, kospitop:{m:'a',eta:'~1분'}, kosdaqtop:{m:'a',eta:'~1분'}, brregime:{m:'a',eta:'~3분'}, etccorp:{m:'a',eta:'~1분'},
   caps:{m:'a',eta:'~2분'}, gap:{m:'a',eta:'~2분'}, dd:{m:'a',eta:'~2분'}, ram:{m:'a',eta:'~2분'},
   etfgap:{m:'l'}, basket7:{m:'a',eta:'~5분'}, semiexport:{m:'a',eta:'~2분'},
