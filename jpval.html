@@ -1,0 +1,356 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>日 밸류에이션 · 가이던스</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
+<script>
+(function(){var t="dark";try{t=localStorage.getItem("rl-theme")||"dark";}catch(e){}if(t==="dark")document.documentElement.classList.add("dark");})();
+</script>
+<style>
+:root{
+  --bg:#f2f4f6; --surface:#ffffff; --surface2:#f2f4f6; --line:#e7eaee; --line2:#eef0f3;
+  --text:#191f28; --sub:#4e5968; --faint:#8b95a1;
+  --accent:#3168f0; --accent-soft:rgba(49,104,240,.08); --accent-line:rgba(49,104,240,.28);
+  --up:#e34948; --down:#2a78d6; --warn:#c98500; --shadow:0 1px 3px rgba(25,31,40,.04); --bar:#3168f0; --bar-e:#9db8f7; --bar-n:#e34948;
+}
+html.dark{
+  --bg:#101014; --surface:#1a1b20; --surface2:#232530; --line:#272930; --line2:#232530;
+  --text:#e9ebee; --sub:#9aa2ad; --faint:#6d7480;
+  --accent:#4d7df5; --accent-soft:rgba(77,125,245,.14); --accent-line:rgba(77,125,245,.4);
+  --up:#e66767; --down:#3987e5; --warn:#e0a640; --shadow:0 1px 3px rgba(0,0,0,.3); --bar:#4d7df5; --bar-e:#2f4a86; --bar-n:#8a3a3a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{font-family:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",-apple-system,sans-serif}
+body{background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;padding:20px 22px 64px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1500px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--sub);font-size:12px;margin-top:3px}.sub b{color:var(--text)}
+.card{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:16px 18px;min-width:0}
+.card h2{font-size:14.5px;font-weight:800;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.card h2 small{font-size:11.5px;font-weight:500;color:var(--faint)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface2);border-radius:12px;padding:10px 12px;min-width:0}
+.kpi .k{font-size:11px;color:var(--faint);font-weight:700}
+.kpi .v{font-size:17px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:11px;color:var(--sub);margin-top:1px}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button,select,input{border:1px solid var(--line);background:var(--surface);color:var(--sub);font:inherit;font-size:12.5px;font-weight:600;height:32px;padding:0 10px;border-radius:9px}
+.seg button{cursor:pointer;padding:0 12px}.seg button.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:800}
+.seg.big button{height:36px;font-size:13.5px;padding:0 16px}
+input::placeholder{color:var(--faint)}
+.ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.ctrl .lab{font-size:11.5px;font-weight:700;color:var(--faint)}
+label.ck{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:600}
+.stats{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--sub);margin-bottom:8px}.stats b{color:var(--text)}
+.tw{overflow-x:auto;margin:0 -4px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1180px;font-variant-numeric:tabular-nums}
+th{font-size:11px;font-weight:700;color:var(--faint);text-align:right;padding:6px 7px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none;vertical-align:bottom;background:var(--surface)}
+th:hover{color:var(--text)} th.s{color:var(--accent)}
+th.grp{cursor:default;text-align:center;color:var(--sub);border-left:1px solid var(--line);padding:4px 7px 2px;font-size:10.5px}
+th.grp:first-child{border-left:0}
+th small{display:block;font-weight:500;font-size:10px;color:var(--faint)}
+td{padding:6px 7px;border-bottom:1px solid var(--line2);text-align:right;vertical-align:top;white-space:nowrap;font-size:12.5px}
+td.gb,th.gb{border-left:1px solid var(--line)}
+td.n,th.n{text-align:left}
+th.stk,td.stk{position:sticky;left:0;z-index:2;background:var(--surface);min-width:200px;box-shadow:1px 0 0 var(--line)}
+td.n b{font-weight:700}.f{color:var(--faint);font-size:11.5px}
+.up{color:var(--up)}.dn{color:var(--down)}.beat{font-weight:700}
+i.t{font-style:normal;font-size:10.5px;font-weight:700;border:1px solid currentColor;border-radius:5px;padding:0 5px;margin:1px 2px;white-space:nowrap;display:inline-block;color:var(--faint)}
+i.warn{color:var(--warn)} i.acc{color:var(--accent)}
+.rk{color:var(--faint);font-size:11px;margin-right:6px;display:inline-block;min-width:22px}
+tbody tr.row{cursor:pointer}tbody tr.row:hover td{background:var(--surface2)}tbody tr.row.sel td{background:var(--accent-soft)}
+tbody tr.idx td{background:var(--surface2);color:var(--sub);font-style:italic}tbody tr.idx td.stk{color:var(--text);font-style:normal;font-weight:700}
+tr.det td{background:var(--surface2);padding:12px 14px 14px;white-space:normal;cursor:default;position:static;text-align:left}
+.det{position:sticky;left:14px;max-width:calc(100vw - 80px)}
+.det .grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px}
+@media(max-width:1150px){.det .grid{grid-template-columns:minmax(0,1fr)}}
+.det table{min-width:0;font-size:12px}.det th{cursor:default;padding:4px 7px;position:static;min-width:0;box-shadow:none;background:transparent}
+.det td{padding:4px 7px;position:static;min-width:0;box-shadow:none;background:transparent;font-size:12px}
+.det h4{font-size:12px;color:var(--sub);margin:0 0 5px;font-weight:700}
+.det svg{width:100%;height:140px;display:block;margin:4px 0 8px}.det svg text{fill:var(--sub);font-size:10px}
+.det svg rect.a{fill:var(--bar)}.det svg rect.e{fill:var(--bar-e)}.det svg rect.neg{fill:var(--bar-n)}
+.det svg.rkc{height:100px}.det svg.rkc polyline{fill:none;stroke:var(--accent);stroke-width:1.6}.det svg.rkc line{stroke:var(--line)}
+.det .links{margin-top:10px;font-size:12px;color:var(--sub)}.det a{color:var(--accent);text-decoration:none}
+.chg{background:var(--surface2);border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:12.5px;color:var(--sub);line-height:1.8}
+.chg b{color:var(--text)}.chg .k{color:var(--faint);font-size:11px;margin-right:6px;font-weight:700}.chg .it{display:inline-block;margin-right:10px;white-space:nowrap}
+.new{color:var(--warn);font-weight:700;font-size:11px}
+.more{margin-top:10px;border:1px solid var(--line);background:var(--surface);color:var(--sub);font:inherit;font-weight:600;height:32px;padding:0 14px;border-radius:9px;cursor:pointer}
+ul.note{color:var(--sub);font-size:12px;padding-left:18px;display:flex;flex-direction:column;gap:3px}ul.note b{color:var(--text)}
+.sc{width:100%;height:340px;display:block}.sc circle{cursor:pointer}.sc text{fill:var(--faint);font-size:10px}.sc line.ax{stroke:var(--line)}.sc line.tr{stroke:var(--warn);stroke-dasharray:4 3}
+.sc circle.lo{fill:var(--down);opacity:.55}.sc circle.hi{fill:var(--faint);opacity:.45}.sc circle.sel{stroke:var(--text);stroke-width:1.5;opacity:1}
+.tip{position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:11.5px;box-shadow:var(--shadow);display:none;z-index:9}
+.rkbar{display:inline-block;height:6px;background:var(--accent-soft);border-radius:3px;vertical-align:middle;margin-left:4px}
+.rkbar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+@media (max-width:640px){body{padding:14px 12px 48px}.card{padding:14px 12px}}
+</style></head><body><div class="wrap">
+<div><h1>日 밸류에이션 · 가이던스</h1><div class="sub" id="meta">불러오는 중…</div></div>
+<div class="seg big" id="sec"><button data-v="top" class="on">시총 상위 × 이익 가이던스</button><button data-v="scr">저PBR × 가이던스 성장 스크리너</button></div>
+
+<div id="secTop">
+<div class="card">
+ <div class="ctrl">
+  <span class="lab">시장</span><div class="seg" id="mk"></div>
+  <span class="lab">표시</span><div class="seg" id="tn"></div>
+  <span class="lab">순위 변동</span><div class="seg" id="rb"></div>
+  <label class="ck"><input type="checkbox" id="rel"> 수익률을 <span id="ixl">시장 지수</span> 대비 초과수익으로</label>
+  <input id="q" placeholder="종목명·코드·업종" style="width:160px">
+ </div>
+ <div class="kpis" id="kpis" style="margin-bottom:12px"></div>
+ <div class="chg" id="chg"></div>
+ <div class="tw"><table id="tb"><thead></thead><tbody></tbody></table></div>
+</div>
+<div class="card"><h2>읽는 법</h2><ul class="note" id="noteTop"></ul></div>
+</div>
+
+<div id="secScr" style="display:none">
+<div class="card">
+ <div class="ctrl">
+  <span class="lab">PBR</span><div class="seg" id="pb"></div>
+  <select id="smk"><option value="">전 시장</option><option>프라임</option><option>스탠다드</option><option>그로스</option></select>
+  <span class="lab">시총 ≥</span><input id="scap" type="number" value="300" step="100" style="width:80px"><span class="lab">억엔</span>
+  <label class="ck"><input type="checkbox" id="pos" checked> 직전 FY·진행 FY 이익·순이익 흑자만</label>
+  <label class="ck"><input type="checkbox" id="upo"> 가이던스 상향 종목만</label>
+  <input id="sq" placeholder="종목명·코드·업종" style="width:160px">
+ </div>
+ <div class="stats" id="sstats"></div>
+ <div class="ctrl" style="margin:4px 0 0"><span class="lab">산점도 X</span><select id="sx"></select><span class="lab">Y</span><select id="sy"></select><label class="ck"><input type="checkbox" id="slog" checked> Y 로그축</label><span class="f">점 크기 = 시총 · 추세선 아래(파란 점) = 같은 X 대비 PBR 낮음 · 클릭하면 표에서 펼침</span></div>
+ <svg class="sc" id="sc"></svg>
+ <div class="tw"><table id="stb"><thead></thead><tbody></tbody></table></div>
+ <button class="more" id="smore">더 보기</button>
+</div>
+<div class="card"><h2>읽는 법</h2><ul class="note" id="noteScr"></ul></div>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+const $=id=>document.getElementById(id);
+const PKL={OP:"영업이익",OdP:"경상이익",NP:"순이익"};
+const fmt=n=>n==null?"–":Math.round(n).toLocaleString();
+const f1=n=>n==null?"–":(+n).toFixed(1), f2=n=>n==null?"–":(+n).toFixed(2);
+const oku=v=>v==null?"–":Math.abs(v)>=1e4?(v/1e4).toFixed(1)+"조":fmt(v)+"억";
+const money=v=>v==null?"–":`<span class="${v<0?"dn":""}">${fmt(v)}</span>`;
+const pct=(g,fl)=>g==null?(fl?`<span class="f" style="color:var(--warn)">${fl}</span>`:"–"):`<span class="${g>0?"up":g<0?"dn":""}">${g>0?"+":""}${(+g).toFixed(1)}%</span>`;
+const pp=(g)=>g==null?"–":`<span class="${g>0?"up":g<0?"dn":""}">${g>0?"+":""}${(+g).toFixed(1)}%p</span>`;
+const fd=d=>d?`${d.slice(4,6)}/${d.slice(6,8)}`:"";
+const fdi=d=>d?d.slice(5):"";
+const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[a.length>>1]:null};
+const RET=[["r1m","1M"],["r3m","3M"],["r6m","6M"],["ytd","YTD"],["r1y","1Y"],["r2y","2Y"]];
+const nm=(r,rank)=>`${rank!=null?`<span class="rk">${rank}</span>`:""}<b>${r.name}</b> <span class="f">${r.code}</span><br><span class="f">${r.s33||""}${r.scale?" · "+r.scale:""}${r.mkt?" · "+r.mkt:""}</span> ${r.fin&&r.pk&&r.pk!=="OP"?`<i class="t">${PKL[r.pk]} 기준</i>`:""}${r.fin===false?`<i class="t">재무 없음</i>`:(r.guide===false?`<i class="t">가이던스 없음</i>`:"")}${r.ifrs?`<i class="t">IFRS</i>`:""}`;
+const links=r=>`<div class="links"><a href="https://kabutan.jp/stock/?code=${r.code}" target="_blank" rel="noopener">株探 ↗</a> · <a href="https://finance.yahoo.co.jp/quote/${r.code}.T" target="_blank" rel="noopener">Yahoo!ファイナンス ↗</a> · <a href="https://www.release.tdnet.info/inbs/I_main_00.html" target="_blank" rel="noopener">TDnet ↗</a></div>`;
+let D=null,SC=null;
+
+/* ───────── ① 시총 상위 × 이익 가이던스 ───────── */
+let mk="prime",topN=50,rbase=1,sortK="mcap",sortD=-1,sel=null;
+const TOPS=[50,100,150],RB=[[1,"전일"],[5,"1주 (5거래일)"],[20,"1개월 (20거래일)"]];
+const T=()=>D.top[mk], rows=()=>T().rows, IDX=()=>D.index[mk]||{};
+function baseDate(){const ds=T().hist.dates||[];return ds.length>rbase?ds[ds.length-1-rbase]:null}
+function prevRank(code){const bd=baseDate();return bd?T().hist.rank[bd][code]:undefined}
+function rkDelta(r){const p=prevRank(r.code);return p==null?null:p-r.rank}
+function rkCell(r){const bd=baseDate();if(!bd)return '<span class="f">–</span>';const p=prevRank(r.code);if(p==null)return '<span class="new">NEW</span>';const d=p-r.rank;return d>0?`<span class="up">▲${d}</span>`:d<0?`<span class="dn">▼${-d}</span>`:'<span class="f">=</span>'}
+const rv=(r,k)=>{const v=r[k];if(v==null)return null;const ix=IDX();return $("rel").checked&&ix[k]!=null?+(v-ix[k]).toFixed(1):v};
+const retCell=(r,k)=>{const v=rv(r,k);if(v==null)return "–";const ix=IDX(),beat=!$("rel").checked&&ix[k]!=null&&r[k]>ix[k];return `<span class="${v>0?"up":v<0?"dn":""} ${beat?"beat":""}">${v>0?"+":""}${v.toFixed(1)}%</span>`};
+const gi=(r,i)=>r.fin?r.op[i]:null;
+const COLS=[
+ ["rkd","순위 Δ<small id=\"rbl\"></small>",r=>rkDelta(r)],["mcap","시총<small>억엔</small>",r=>r.mcap],["price","주가<small>엔</small>",r=>r.price],
+ ...RET.map(([k,l],i)=>[k,l,r=>rv(r,k),i===0]),
+ ["op0","FY-2A",r=>gi(r,0),true],["op1","FY-1A",r=>gi(r,1)],["op2","직전 FY A",r=>gi(r,2)],["op3","진행 FY E<small>회사 가이던스</small>",r=>gi(r,3)],
+ ["g1","FY-2→FY-1",r=>r.fin?r.g_op[1-1]:null,true],["g2","FY-1→직전",r=>r.fin?r.g_op[1]:null],["g3","직전→진행E",r=>r.fin?r.g_op[2]:null],
+ ["rev","가이던스 수정<small>초기 → 현재</small>",r=>r.rev,true],["prog","진척률<small>누적 ÷ 가이던스</small>",r=>r.cum&&r.cum.prog!=null?r.cum.prog:null],
+ ["per","PER<small>TTM</small>",r=>r.per,true],["fper","PER<small>Fwd</small>",r=>r.fper],["pbr","PBR",r=>r.pbr],["roe","ROE<small>TTM</small>",r=>r.roe],["froe","ROE<small>Fwd</small>",r=>r.froe],["dy","배당<small>예상</small>",r=>r.dy],
+];
+const CM=Object.fromEntries(COLS.map(c=>[c[0],c]));
+const ASC=new Set(["rank","name","per","fper","pbr"]);
+const val=(r,k)=>k==="name"?r.name:k==="rank"?r.rank:CM[k][2](r);
+function filtered(){const q=$("q").value.trim().toLowerCase();return rows().filter(r=>r.rank<=topN&&(!q||r.name.toLowerCase().includes(q)||r.code.includes(q)||(r.s33||"").includes(q)||(r.en||"").toLowerCase().includes(q)))}
+function render(){
+ const R=filtered(); R.sort((a,b)=>{const x=val(a,sortK),y=val(b,sortK);if(x==null&&y==null)return a.rank-b.rank;if(x==null)return 1;if(y==null)return -1;return typeof x==="string"?x.localeCompare(y)*sortD:(x-y)*sortD});
+ const rel=$("rel").checked,ix=IDX(),M=D.mkts.find(m=>m.slug===mk),bd=baseDate();
+ $("ixl").textContent=M.ko+" 시장 지수";
+ $("tb").querySelector("thead").innerHTML=`<tr><th class="grp stk n" rowspan="2" data-k="name">종목 <small>시총 순위 · 클릭 정렬 · 행 클릭 상세</small></th><th class="grp" colspan="3"></th><th class="grp gb" colspan="6">주가 수익률${rel?` · ${M.ko} 지수 대비 초과`:""}</th><th class="grp gb" colspan="4">이익 (억엔) · 영업이익, 없으면 경상·순이익</th><th class="grp gb" colspan="3">증가율</th><th class="grp gb" colspan="2">진행 FY 가이던스</th><th class="grp gb" colspan="6">밸류에이션 (J-Quants 산출)</th></tr>
+ <tr>${COLS.map(([k,l,,gb])=>`<th class="${gb?"gb":""} ${sortK===k?"s":""}" data-k="${k}">${l}${sortK===k?(sortD>0?" ▲":" ▼"):""}</th>`).join("")}</tr>`;
+ const rbl=$("rbl");if(rbl)rbl.textContent=bd?`${RB.find(x=>x[0]===rbase)[1].split(" ")[0]} ${fd(bd)} 대비`:"이력 없음";
+ document.querySelectorAll("#tb thead th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortK===k)sortD=-sortD;else{sortK=k;sortD=ASC.has(k)?1:-1}render()});
+ const idxRow=`<tr class="idx"><td class="stk n"><span class="rk">–</span>${M.ko} 시장 지수 <span class="f">${ix.px!=null?ix.px.toFixed(2):""}</span></td><td></td><td></td><td></td>${RET.map(([k],i)=>`<td class="${i===0?"gb":""}">${rel?"0.0%":ix[k]==null?"–":`<span class="${ix[k]>0?"up":ix[k]<0?"dn":""}">${ix[k]>0?"+":""}${ix[k].toFixed(1)}%</span>`}</td>`).join("")}<td class="gb" colspan="4" style="text-align:left;color:var(--faint)">기준일 ${fd(D.asof)} · TOPIX YTD ${D.index.topix.ytd==null?"–":(D.index.topix.ytd>0?"+":"")+D.index.topix.ytd.toFixed(1)+"%"}</td><td class="gb" colspan="3"></td><td class="gb" colspan="2"></td><td class="gb" colspan="6"></td></tr>`;
+ const tb=$("tb").querySelector("tbody");
+ if(!R.length){tb.innerHTML=idxRow+`<tr><td colspan="${COLS.length+1}" style="text-align:center;color:var(--faint);padding:24px">조건에 맞는 종목이 없습니다</td></tr>`;return}
+ tb.innerHTML=idxRow+R.map(r=>`<tr class="row ${sel===r.code?"sel":""}" data-c="${r.code}">
+  <td class="stk n">${nm(r,r.rank)}</td><td>${rkCell(r)}</td><td>${fmt(r.mcap)}</td><td>${fmt(r.price)}</td>
+  ${RET.map(([k],i)=>`<td class="${i===0?"gb":""}">${retCell(r,k)}</td>`).join("")}
+  <td class="gb">${money(gi(r,0))}</td><td>${money(gi(r,1))}</td><td>${money(gi(r,2))}</td><td>${r.fin&&r.guide?money(r.op[3]):'<span class="f">–</span>'}</td>
+  <td class="gb">${r.fin?pct(r.g_op[0],r.f_op[0]):"–"}</td><td>${r.fin?pct(r.g_op[1],r.f_op[1]):"–"}</td><td>${r.fin&&r.guide?pct(r.g_op[2],r.f_op[2]):"–"}</td>
+  <td class="gb">${r.rev!=null?pct(r.rev):r.rev_f?pct(null,r.rev_f):(r.guide?'<span class="f">유지</span>':"–")}${r.n_rev?` <span class="f">×${r.n_rev}</span>`:""}</td><td>${r.cum&&r.cum.prog!=null?`${f1(r.cum.prog)}% <span class="f">${r.cum.per}</span>`:(r.cum?`<span class="f">${r.cum.per}</span>`:"–")}</td>
+  <td class="gb">${f1(r.per)}</td><td>${f1(r.fper)}</td><td>${f2(r.pbr)}</td><td>${f1(r.roe)}${r.roe!=null?"%":""}</td><td>${f1(r.froe)}${r.froe!=null?"%":""}</td><td>${r.dy!=null?f2(r.dy)+"%":"–"}</td>
+ </tr>${sel===r.code?detail(r):""}`).join("");
+ tb.querySelectorAll("tr.row").forEach(tr=>tr.onclick=()=>{sel=sel===tr.dataset.c?null:tr.dataset.c;render()});
+}
+function barChart(labs,v,g,fl,isE){
+ const W=520,H=140,m={l:8,r:8,t:30,b:20},n=labs.length,vals=v.filter(x=>x!=null);if(!vals.length)return "";
+ const hi=Math.max(0,...vals),lo=Math.min(0,...vals),span=(hi-lo)||1,y=x=>m.t+(hi-x)/span*(H-m.t-m.b),step=(W-m.l-m.r)/n,bw=step*.56;
+ let s=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>`;
+ labs.forEach((lab,i)=>{const x=m.l+step*i+(step-bw)/2,val=v[i];const l=`${lab||""}${isE[i]?"E":"A"}`;
+  if(val==null){s+=`<text x="${x+bw/2}" y="${H-5}" text-anchor="middle">${l}</text><text x="${x+bw/2}" y="${y(0)-4}" text-anchor="middle">–</text>`;return}
+  const top=Math.min(y(val),y(0)),h=Math.max(1,Math.abs(y(val)-y(0)));
+  s+=`<rect class="${val<0?"neg":isE[i]?"e":"a"}" x="${x}" y="${top}" width="${bw}" height="${h}" rx="2"/><text x="${x+bw/2}" y="${val>=0?top-4:top+h+11}" text-anchor="middle">${fmt(val)}</text><text x="${x+bw/2}" y="${H-5}" text-anchor="middle">${l}</text>`;
+  if(i>0&&g&&g[i-1]!=null)s+=`<text x="${x+bw/2}" y="12" text-anchor="middle" fill="${g[i-1]>=0?"var(--up)":"var(--down)"}">${g[i-1]>0?"+":""}${g[i-1].toFixed(0)}%</text>`;else if(i>0&&fl&&fl[i-1])s+=`<text x="${x+bw/2}" y="12" text-anchor="middle" fill="var(--warn)">${fl[i-1]}</text>`});
+ return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${s}</svg>`;
+}
+function finTable(r){
+ if(!r.fin)return '<div class="f">決算短信 데이터 없음</div>';
+ const isE=[0,0,0,1],hdr=r.labs.map((l,i)=>`<th>${l||"–"}${isE[i]?"E":"A"}</th>`).join("");
+ const line=(l,arr,u)=>`<tr><th class="n">${l}</th>${arr.map(v=>`<td>${v==null?"–":u(v)}</td>`).join("")}</tr>`;
+ const mn=v=>`<span class="${v<0?"dn":""}">${fmt(v)}</span>`,yen=v=>fmt(v)+"엔",p=v=>f1(v)+"%";
+ const bps=[...(r.bps_fy||[null,null,null]),null],roe=[...(r.roe_fy||[null,null,null]),null];
+ return `<table><thead><tr><th class="n"></th>${hdr}</tr></thead><tbody>${line("매출액",r.sales,mn)}${line(PKL[r.pk],r.op,mn)}${r.pk!=="NP"?line("순이익",r.np,mn):""}${line("EPS",r.eps,yen)}${line("BPS",bps,yen)}${line("ROE",roe,p)}${line("DPS",r.div,yen)}</tbody></table>`;
+}
+function guideBox(r){
+ if(!r.fin||!r.guide)return "";
+ const c=r.cum;
+ return `<table style="margin-top:8px"><tbody>
+ <tr><th class="n">진행 FY (${r.labs[3]}) ${PKL[r.pk]} 가이던스</th><td>초기 ${r.op_init!=null?fmt(r.op_init):"–"}억 <span class="f">(${fdi(r.g_date0)||"–"})</span> → 현재 <b>${fmt(r.op[3])}억</b> <span class="f">(${fdi(r.g_date)||"–"})</span> ${r.rev!=null?pct(r.rev):r.rev_f?pct(null,r.rev_f):'<span class="f">유지</span>'}${r.n_rev?` <span class="f">· 수정 ${r.n_rev}회</span>`:""}</td></tr>
+ ${c?`<tr><th class="n">누적 실적 ${c.per} <span class="f">(${fdi(c.date)})</span></th><td>${PKL[r.pk]} ${fmt(c.op)}억${c.prog!=null?` · 진척률 <b>${f1(c.prog)}%</b>`:""} · 매출 ${fmt(c.sales)}억 · 순이익 ${fmt(c.np)}억</td></tr>`:""}
+ <tr><th class="n">매출 / 순이익 가이던스</th><td>${fmt(r.sales[3])}억 ${pct(r.g_sales,r.f_sales)} · ${fmt(r.np[3])}억 ${pct(r.g_np,r.f_np)}</td></tr>
+ <tr><th class="n">배당 예상</th><td>${r.div&&r.div[3]!=null?fmt(r.div[3])+"엔":"–"}${r.dy!=null?` · 수익률 ${f2(r.dy)}%`:""}</td></tr>
+ </tbody></table>`;
+}
+function rankChart(r){
+ const h=T().hist,ds=h.dates||[];if(ds.length<2)return "";
+ const pts=ds.map((d,i)=>[i,h.rank[d][r.code]]).filter(p=>p[1]!=null);if(pts.length<2)return "";
+ const W=520,H=100,m={l:28,r:10,t:12,b:16},vals=pts.map(p=>p[1]),lo=Math.max(1,Math.min(...vals)-2),hi=Math.max(...vals)+2;
+ const x=i=>m.l+i/(ds.length-1)*(W-m.l-m.r),y=v=>m.t+(v-lo)/(hi-lo)*(H-m.t-m.b);
+ return `<svg class="rkc" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><line x1="${m.l}" x2="${W-m.r}" y1="${y(lo)}" y2="${y(lo)}"/><line x1="${m.l}" x2="${W-m.r}" y1="${y(hi)}" y2="${y(hi)}"/><polyline points="${pts.map(p=>`${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(" ")}"/><text x="${m.l-4}" y="${y(lo)+3}" text-anchor="end">${lo}위</text><text x="${m.l-4}" y="${y(hi)+3}" text-anchor="end">${hi}위</text><text x="${m.l}" y="${H-3}">${fd(ds[0])}</text><text x="${W-m.r}" y="${H-3}" text-anchor="end">${fd(ds[ds.length-1])} · ${pts[pts.length-1][1]}위</text></svg>`;
+}
+function detail(r){
+ const ix=IDX(),M=D.mkts.find(m=>m.slug===mk);
+ return `<tr class="det"><td colspan="${COLS.length+1}"><div class="det"><div class="grid">
+ <div><h4>${r.name} <span class="f">${r.en||""}</span> · 決算短信 (억엔) · ${r.fin?PKL[r.pk]:""}${r.fin&&!r.guide?" · 진행 FY 가이던스 없음":""}</h4>
+ ${r.fin?barChart(r.labs,r.guide?r.op:r.op.slice(0,3).concat([null]),r.g_op,r.f_op,[0,0,0,1]):""}${finTable(r)}${guideBox(r)}</div>
+ <div><h4>시총 순위 추이 (${M.ko} · J-Quants 자사주 제외 시총 실측)</h4>${rankChart(r)||'<div class="f">이력 누적 중</div>'}
+ <h4 style="margin-top:8px">주가 · 밸류에이션 (종가 ${fmt(r.price)}엔 · ${r.px_dt?fd(r.px_dt):D.asof})</h4>
+ <table><thead><tr><th class="n"></th>${RET.map(([k,l])=>`<th>${l}</th>`).join("")}</tr></thead><tbody>
+ <tr><th class="n">${r.name}</th>${RET.map(([k])=>`<td>${r[k]==null?"–":`<span class="${r[k]>0?"up":r[k]<0?"dn":""}">${r[k]>0?"+":""}${r[k].toFixed(1)}%</span>`}</td>`).join("")}</tr>
+ <tr><th class="n">${M.ko} 지수</th>${RET.map(([k])=>`<td class="f">${ix[k]==null?"–":(ix[k]>0?"+":"")+ix[k].toFixed(1)+"%"}</td>`).join("")}</tr>
+ <tr><th class="n">초과수익</th>${RET.map(([k])=>{const v=r[k]!=null&&ix[k]!=null?r[k]-ix[k]:null;return `<td>${v==null?"–":pp(v)}</td>`}).join("")}</tr></tbody></table>
+ <table style="margin-top:10px"><tbody>
+ <tr><th class="n">시가총액</th><td>${oku(r.mcap)}엔 <span class="f">(${fmt(r.mcap)}억엔)</span></td><th class="n">${M.ko} 시총 순위</th><td>${r.rank}위${r.rk_d1!=null?` <span class="f">(전일 ${r.rk_d1}위)</span>`:""}</td></tr>
+ <tr><th class="n">PER TTM / Fwd</th><td>${f1(r.per)} / ${f1(r.fper)}배</td><th class="n">EPS TTM / Fwd</th><td>${fmt(r.eps_ttm)} / ${fmt(r.feps)}엔</td></tr>
+ <tr><th class="n">PBR</th><td>${f2(r.pbr)}배 <span class="f">(BPS ${fmt(r.bps)}엔)</span></td><th class="n">ROE TTM → Fwd</th><td>${f1(r.roe)}% → ${f1(r.froe)}% ${pp(r.d_roe)}</td></tr>
+ </tbody></table>${links(r)}</div></div></div></td></tr>`;
+}
+function changes(){
+ const bd=baseDate(),box=$("chg");
+ if(!bd){box.innerHTML=`<span class="k">순위 변동</span>이력 누적 중 — 첫 기록 ${D.asof}.`;return}
+ const cur=rows().filter(r=>r.rank<=topN),prev=T().hist.rank[bd],names=T().hist.names||{},byCode=Object.fromEntries(rows().map(r=>[r.code,r]));
+ const ins=cur.filter(r=>{const p=prev[r.code];return p==null||p>topN});
+ const outs=Object.entries(prev).filter(([c,p])=>p<=topN&&(!byCode[c]||byCode[c].rank>topN)).sort((a,b)=>a[1]-b[1]);
+ const mv=cur.map(r=>[r,rkDelta(r)]).filter(x=>x[1]!=null&&x[1]!==0),up=mv.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,6),dn=mv.filter(x=>x[1]<0).sort((a,b)=>a[1]-b[1]).slice(0,6);
+ const it=(r,d)=>`<span class="it"><b>${r.name}</b> <span class="${d>0?"up":"dn"}">${d>0?"▲":"▼"}${Math.abs(d)}</span> <span class="f">(${prevRank(r.code)}→${r.rank})</span></span>`;
+ box.innerHTML=`<div><span class="k">순위 변동 · 상위 ${topN} · ${RB.find(x=>x[0]===rbase)[1]} ${fd(bd)} → ${fd(D.asof.replace(/-/g,""))}</span></div>
+ <div><span class="k">진입 ${ins.length}</span>${ins.length?ins.map(r=>`<span class="it"><b>${r.name}</b> <span class="new">${prev[r.code]==null?"NEW":prev[r.code]+"→"+r.rank}</span></span>`).join(""):'<span class="f">없음</span>'}</div>
+ <div><span class="k">이탈 ${outs.length}</span>${outs.length?outs.map(([c,p])=>`<span class="it"><b>${byCode[c]?byCode[c].name:names[c]||c}</b> <span class="dn">${p}→${byCode[c]?byCode[c].rank:D.top_n+"위 밖"}</span></span>`).join(""):'<span class="f">없음</span>'}</div>
+ <div><span class="k">상승</span>${up.length?up.map(([r,d])=>it(r,d)).join(""):'<span class="f">없음</span>'}</div><div><span class="k">하락</span>${dn.length?dn.map(([r,d])=>it(r,d)).join(""):'<span class="f">없음</span>'}</div>`;
+}
+function kpis(){
+ const top=rows().filter(r=>r.rank<=topN),g=top.filter(r=>r.guide),M=D.mkts.find(m=>m.slug===mk),ix=IDX();
+ const sum=i=>g.filter(r=>r.op[2]!=null&&r.op[3]!=null).reduce((s,r)=>s+(r.op[i]||0),0),s2=sum(2),s3=sum(3);
+ const upn=g.filter(r=>r.rev>0.5).length,dnn=g.filter(r=>r.rev<-0.5).length;
+ const K=[[`${g.length} / ${top.length}`,"진행 FY 이익 가이던스 보유",`없음: ${top.filter(r=>!r.guide).slice(0,4).map(r=>r.name).join("·")}${top.filter(r=>!r.guide).length>4?" 외":""}`],
+  [oku(s3)+"엔",`합산 이익 가이던스 (${g.filter(r=>r.op[2]!=null&&r.op[3]!=null).length}종목)`,`직전 FY ${oku(s2)}엔 → ${s2>0?(s3/s2-1>0?"+":"")+((s3/s2-1)*100).toFixed(1)+"%":"–"}`],
+  [`▲${upn} · ▼${dnn}`,"가이던스 초기 대비 상향 · 하향","초기 가이던스 대비 ±0.5% 초과 변동 기준"],
+  [`${f1(med(g.map(r=>r.fper)))} / ${f2(med(top.map(r=>r.pbr)))}`,"Fwd PER / PBR 중간값",`ROE Fwd 중간 ${f1(med(top.map(r=>r.froe)))}%`],
+  [(()=>{const m=med(top.map(r=>r.ytd));return m==null?"–":(m>0?"+":"")+m.toFixed(1)+"%"})(),`YTD 수익률 중간값 (상위 ${topN})`,`${M.ko} 지수 YTD ${ix.ytd==null?"–":(ix.ytd>0?"+":"")+ix.ytd.toFixed(1)+"%"}`]];
+ $("kpis").innerHTML=K.map(([v,k,s])=>`<div class="kpi"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+function segs(){
+ const mkb=(id,items,cur,set)=>{$(id).innerHTML=items.map(([k,l])=>`<button class="${String(cur)===String(k)?"on":""}" data-k="${k}">${l}</button>`).join("");$(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{set(b.dataset.k);segs();all()})};
+ mkb("mk",D.mkts.map(m=>[m.slug,`${m.ko} <span class="f">${m.n_univ}</span>`]),mk,v=>{mk=v;sel=null});
+ mkb("tn",TOPS.map(n=>[n,`상위 ${n}`]),topN,v=>{topN=+v;if(sel&&!rows().some(r=>r.code===sel&&r.rank<=topN))sel=null});
+ mkb("rb",RB,rbase,v=>rbase=+v);
+}
+function all(){kpis();changes();render()}
+
+/* ───────── ② 저PBR × 가이던스 성장 스크리너 ───────── */
+let pbrMax=1,ssK="rk_avg",ssD=1,slim=150,ssel=null;
+const PBS=[[0.7,"≤ 0.7"],[1,"≤ 1.0"],[1.5,"≤ 1.5"],[99,"전체"]];
+const SV={pbr:["PBR",r=>r.pbr],per:["PER TTM",r=>r.per],fper:["PER Fwd",r=>r.fper],roe:["ROE TTM %",r=>r.roe],froe:["ROE Fwd %",r=>r.froe],d_roe:["ROE Δ %p",r=>r.d_roe],g_sales:["매출 성장 %",r=>r.g_sales],g1_op:["이익 성장 %",r=>r.g1_op],g_np:["순이익 성장 %",r=>r.g_np],rev:["가이던스 수정 %",r=>r.rev],dy:["배당수익률 %",r=>r.dy],mcap:["시총 억엔",r=>r.mcap],rk_avg:["종합 순위",r=>r.rk_avg]};
+function sfilt(){
+ const q=$("sq").value.trim().toLowerCase(),m=$("smk").value,cap=+$("scap").value||0,pos=$("pos").checked,upo=$("upo").checked;
+ let R=SC.rows.filter(r=>r.pbr!=null&&r.pbr<=pbrMax&&(!m||r.mkt===m)&&(r.mcap||0)>=cap&&(!pos||(r.op[2]>0&&r.op[3]>0&&r.np[2]>0&&r.np[3]>0))&&(!upo||r.rev>0.5)&&(!q||r.name.toLowerCase().includes(q)||r.code.includes(q)||(r.s33||"").includes(q)));
+ // 종합 순위 = 필터 통과 집합 안에서 4지표(매출·이익·순이익 성장률, ROE Δ) 순위 평균 — None(적자 관련)은 최하위
+ const rk=k=>{const o=R.map((r,i)=>i).sort((a,b)=>{const x=R[a][k],y=R[b][k];if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return y-x});const out=new Array(R.length);o.forEach((i,p)=>out[i]=p+1);return out};
+ const a=rk("g_sales"),b=rk("g1_op"),c=rk("g_np"),d=rk("d_roe");
+ R.forEach((r,i)=>{r.rk=[a[i],b[i],c[i],d[i]];r.rk_avg=+((a[i]+b[i]+c[i]+d[i])/4).toFixed(1)});
+ return R;
+}
+const SCOLS=[["rk_avg","종합<small>4지표 평균순위</small>",r=>`<b>${f1(r.rk_avg)}</b><br><span class="f">${r.rk.join("·")}</span>`],["name","종목",r=>nm(r),"n stk"],["mcap","시총<small>억엔</small>",r=>fmt(r.mcap)],
+ ["pbr","PBR",r=>`<b>${f2(r.pbr)}</b>`,true],["per","PER<small>TTM / Fwd</small>",r=>`${f1(r.per)} / ${f1(r.fper)}`],["froe","ROE<small>TTM → Fwd</small>",r=>`${f1(r.roe)} → ${f1(r.froe)}%<br>${pp(r.d_roe)}`],
+ ["g_sales","매출<small>직전 → 진행E</small>",r=>`${fmt(r.sales[2])} → ${fmt(r.sales[3])}<br>${pct(r.g_sales,r.f_sales)}`,true],["g1_op","이익<small>직전 → 진행E</small>",r=>`<span class="f">${PKL[r.pk]}</span> ${fmt(r.op[2])} → ${fmt(r.op[3])}<br>${pct(r.g1_op,r.f1_op)}`],["g_np","순이익<small>직전 → 진행E</small>",r=>`${fmt(r.np[2])} → ${fmt(r.np[3])}<br>${pct(r.g_np,r.f_np)}`],
+ ["rev","가이던스<small>초기 → 현재</small>",r=>r.rev!=null?pct(r.rev):r.rev_f?pct(null,r.rev_f):'<span class="f">유지</span>',true],["prog","진척률",r=>r.cum&&r.cum.prog!=null?`${f1(r.cum.prog)}% <span class="f">${r.cum.per}</span>`:"–"],["dy","배당<small>예상</small>",r=>r.dy!=null?f2(r.dy)+"%":"–"],["fy1","진행 FY",r=>`<span class="f">${r.labs[3]} · ${fdi(r.g_date)||""}</span>`]];
+const SASC=new Set(["rk_avg","pbr","per","name"]);
+const sval=(r,k)=>k==="name"?r.name:k==="prog"?(r.cum?r.cum.prog:null):k==="fy1"?r.fy1:k==="froe"?r.d_roe:r[k];
+function srender(){
+ const R=sfilt();R.sort((a,b)=>{const x=sval(a,ssK),y=sval(b,ssK);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return typeof x==="string"?x.localeCompare(y)*ssD:(x-y)*ssD});
+ $("sstats").innerHTML=`<span><b>${R.length}</b>종목 통과 <span class="f">/ 가이던스·PBR 보유 ${SC.n.toLocaleString()} / 보통주 ${SC.n_univ.toLocaleString()}</span></span><span>PBR 중간 <b>${f2(med(R.map(r=>r.pbr)))}</b> · ROE Fwd 중간 <b>${f1(med(R.map(r=>r.froe)))}%</b> · 이익 성장 중간 <b>${f1(med(R.map(r=>r.g1_op)))}%</b> · 상향 <b>${R.filter(r=>r.rev>0.5).length}</b> · 하향 <b>${R.filter(r=>r.rev<-0.5).length}</b></span>`;
+ $("stb").querySelector("thead").innerHTML="<tr>"+SCOLS.map(([k,l,,c])=>`<th class="${typeof c==="string"?c:(c?"gb":"")} ${ssK===k?"s":""}" data-k="${k}">${l}${ssK===k?(ssD>0?" ▲":" ▼"):""}</th>`).join("")+"</tr>";
+ document.querySelectorAll("#stb thead th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(ssK===k)ssD=-ssD;else{ssK=k;ssD=SASC.has(k)?1:-1}srender()});
+ $("stb").querySelector("tbody").innerHTML=R.slice(0,slim).map(r=>`<tr class="row ${ssel===r.code?"sel":""}" data-c="${r.code}">${SCOLS.map(([k,,f,c])=>`<td class="${typeof c==="string"?c:(c?"gb":"")}">${f(r)}</td>`).join("")}</tr>${ssel===r.code?sdetail(r):""}`).join("")||`<tr><td colspan="${SCOLS.length}" style="text-align:center;color:var(--faint);padding:24px">조건에 맞는 종목이 없습니다</td></tr>`;
+ $("stb").querySelectorAll("tr.row").forEach(tr=>tr.onclick=()=>{ssel=ssel===tr.dataset.c?null:tr.dataset.c;srender()});
+ $("smore").style.display=R.length>slim?"":"none";
+ scatter(R);
+}
+function sdetail(r){
+ return `<tr class="det"><td colspan="${SCOLS.length}"><div class="det"><div class="grid"><div><h4>${r.name} <span class="f">${r.code} · ${r.mkt} · ${r.s33}</span> · 決算短信 (억엔)</h4>${barChart(r.labs,r.op,r.g_op,r.f_op,[0,0,0,1])}${finTable(r)}${guideBox(r)}</div>
+ <div><h4>밸류에이션 (J-Quants, 종가 ${fmt(r.price)}엔)</h4><table><tbody><tr><th class="n">시가총액</th><td>${oku(r.mcap)}엔</td><th class="n">PBR</th><td>${f2(r.pbr)}배 <span class="f">(BPS ${fmt(r.bps)}엔)</span></td></tr>
+ <tr><th class="n">PER TTM / Fwd</th><td>${f1(r.per)} / ${f1(r.fper)}배</td><th class="n">EPS TTM / Fwd</th><td>${fmt(r.eps_ttm)} / ${fmt(r.feps)}엔</td></tr>
+ <tr><th class="n">ROE TTM → Fwd</th><td>${f1(r.roe)}% → ${f1(r.froe)}% ${pp(r.d_roe)}</td><th class="n">종합 순위</th><td>${f1(r.rk_avg)} <span class="f">(매출 ${r.rk[0]} · 이익 ${r.rk[1]} · 순이익 ${r.rk[2]} · ROE Δ ${r.rk[3]})</span></td></tr></tbody></table>${links(r)}</div></div></div></td></tr>`;
+}
+function scatter(R){
+ const xk=$("sx").value,yk=$("sy").value,lg=$("slog").checked,fx=SV[xk][1],fy=SV[yk][1];
+ let P=R.map(r=>[fx(r),fy(r),r]).filter(p=>p[0]!=null&&p[1]!=null&&(!lg||p[1]>0));
+ const svg=$("sc");if(P.length<3){svg.innerHTML=`<text x="20" y="30">점이 부족합니다</text>`;return}
+ const qs=(a,q)=>{a=[...a].sort((x,y)=>x-y);return a[Math.min(a.length-1,Math.floor(q*(a.length-1)))]};
+ const xs=P.map(p=>p[0]),ys=P.map(p=>lg?Math.log10(p[1]):p[1]);
+ const x0=qs(xs,.02),x1=qs(xs,.98),y0=qs(ys,.02),y1=qs(ys,.98);
+ const W=1100,H=340,m={l:52,r:16,t:12,b:30},cl=(v,a,b)=>Math.min(b,Math.max(a,v));
+ const X=v=>m.l+(cl(v,x0,x1)-x0)/((x1-x0)||1)*(W-m.l-m.r),Y=v=>m.t+(y1-cl(v,y0,y1))/((y1-y0)||1)*(H-m.t-m.b);
+ // OLS 추세선 (로그축이면 로그 좌표 적합)
+ const n=P.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;let sxy=0,sxx=0;P.forEach((p,i)=>{sxy+=(xs[i]-mx)*(ys[i]-my);sxx+=(xs[i]-mx)**2});const sl=sxx?sxy/sxx:0,ic=my-sl*mx;
+ const mcs=P.map(p=>p[2].mcap||1),mmax=Math.max(...mcs),rad=v=>3+Math.sqrt((v||1)/mmax)*14;
+ const tick=(a,b,k)=>{const o=[];for(let i=0;i<=4;i++)o.push(a+(b-a)*i/4);return o.map(v=>k?(lg?Math.pow(10,v):v):v)};
+ let s=`<line class="ax" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/><line class="ax" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H-m.b}"/>`;
+ tick(x0,x1).forEach(v=>s+=`<text x="${X(v)}" y="${H-m.b+14}" text-anchor="middle">${(+v).toFixed(Math.abs(x1-x0)<5?2:0)}</text>`);
+ tick(y0,y1,1).forEach(v=>{const yy=lg?Math.log10(v):v;s+=`<text x="${m.l-5}" y="${Y(yy)+3}" text-anchor="end">${(+v).toFixed(Math.abs(y1-y0)<2?2:0)}</text>`});
+ s+=`<text x="${(m.l+W-m.r)/2}" y="${H-2}" text-anchor="middle">${SV[xk][0]}</text><text transform="translate(12,${(m.t+H-m.b)/2}) rotate(-90)" text-anchor="middle">${SV[yk][0]}${lg?" (log)":""}</text>`;
+ s+=`<line class="tr" x1="${X(x0)}" y1="${Y(ic+sl*x0)}" x2="${X(x1)}" y2="${Y(ic+sl*x1)}"/>`;
+ P.forEach((p,i)=>{const below=ys[i]<ic+sl*xs[i];s+=`<circle class="${below?"lo":"hi"} ${ssel===p[2].code?"sel":""}" cx="${X(xs[i])}" cy="${Y(ys[i])}" r="${rad(p[2].mcap)}" data-i="${i}"/>`});
+ svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML=s;
+ const tip=$("tip");svg.querySelectorAll("circle").forEach(c=>{const r=P[+c.dataset.i][2];c.onmousemove=e=>{tip.style.display="block";tip.style.left=(e.clientX+12)+"px";tip.style.top=(e.clientY+12)+"px";tip.innerHTML=`<b>${r.name}</b> ${r.code}<br>${SV[xk][0]} ${f2(fx(r))} · ${SV[yk][0]} ${f2(fy(r))}<br>시총 ${fmt(r.mcap)}억엔 · 종합 ${f1(r.rk_avg)}`};c.onmouseleave=()=>tip.style.display="none";c.onclick=()=>{ssel=r.code;srender();const tr=document.querySelector(`#stb tr.row[data-c="${r.code}"]`);if(tr)tr.scrollIntoView({block:"center",behavior:"smooth"})}});
+}
+function sinit(){
+ const mkb=(id,items,cur,set)=>{$(id).innerHTML=items.map(([k,l])=>`<button class="${String(cur)===String(k)?"on":""}" data-k="${k}">${l}</button>`).join("");$(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{set(b.dataset.k);mkb(id,items,pbrMax,set);slim=150;srender()})};
+ mkb("pb",PBS,pbrMax,v=>pbrMax=+v);
+ for(const id of["sx","sy"]){$(id).innerHTML=Object.entries(SV).map(([k,[l]])=>`<option value="${k}">${l}</option>`).join("")}
+ $("sx").value="froe";$("sy").value="pbr";
+ ["smk","scap","pos","upo","sq","sx","sy","slog"].forEach(id=>$(id).oninput=()=>{slim=150;srender()});
+ $("smore").onclick=()=>{slim+=300;srender()};
+ $("noteScr").innerHTML=`<li><b>유니버스</b> 도쿄증권거래소 프라임·스탠다드·그로스 보통주 중 J-Quants 가 PBR 을 산출하고 진행 회계연도 회사 가이던스(매출·이익·순이익)가 있는 종목 ${SC.n.toLocaleString()}개(보통주 ${SC.n_univ.toLocaleString()}). 기본 필터 PBR ≤ 1 · 시총 300억엔↑ · 직전 FY·진행 FY 이익과 순이익 흑자.</li>
+ <li><b>일본은 증권사 컨센서스 대신 회사 가이던스</b>를 쓴다. 성장률 = 진행 FY 회사 예상 ÷ 직전 확정 FY − 1. 이익은 영업이익, 영업이익을 공시하지 않는 종합상사·은행·IFRS 사업이익 회사는 경상이익 → 순이익 순으로 대체(종목명 옆 태그).</li>
+ <li><b>종합 순위</b> = 필터를 통과한 집합 안에서 매출 성장·이익 성장·순이익 성장·ROE Δ(Fwd − TTM) 네 순위의 평균. 필터를 바꾸면 다시 계산된다. 적자 전환·흑자 전환 등 비율이 무의미한 경우는 최하위.</li>
+ <li><b>PBR·PER·ROE</b> 는 J-Quants 산출(PER TTM = 최근 12개월 순이익, Fwd = 진행기 회사 예상 순이익, PBR = 직전 공시 자기자본). <b>가이던스 수정</b> = 전기 결산 때 낸 초기 예상 → 현재 예상(결산 공시 안의 변경 포함, ×n = 바뀐 횟수). 상향 종목만 체크 시 +0.5% 초과.</li>
+ <li><b>산점도</b> 기본 X = ROE Fwd, Y = PBR(로그). 점선 = 최소제곱 추세선, 그 아래 파란 점 = 같은 ROE 수준 대비 PBR 이 낮은 종목. 2~98% 밖 값은 가장자리에 고정. 점 크기 = 시총.</li>
+ <li><b>갱신</b> 평일 17:15 자동(J-Quants 밸류에이션 16:30 반영 후). 決算短信 데이터는 매일 00:30 확정 CSV 를 07:30 에 동기화(결산 시즌 당일 저녁 속보는 다음날 아침 반영).</li>`;
+}
+/* ───────── 공통 ───────── */
+document.querySelectorAll("#sec button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#sec button").forEach(x=>x.classList.toggle("on",x===b));const v=b.dataset.v;$("secTop").style.display=v==="top"?"":"none";$("secScr").style.display=v==="scr"?"":"none";if(v==="scr"&&!SC)loadScr()});
+function loadScr(){$("sstats").innerHTML="스크리너 데이터 불러오는 중…";fetch("data/jpval_screen.json?v="+Math.floor(Date.now()/6e5)).then(r=>r.json()).then(j=>{SC=j;sinit();srender()}).catch(e=>{$("sstats").textContent="스크리너 데이터 로드 실패: "+e})}
+fetch("data/jpval.json?v="+Math.floor(Date.now()/6e5)).then(r=>r.json()).then(j=>{
+ D=j;
+ $("meta").innerHTML=`기준일 <b>${D.asof.slice(0,4)}-${D.asof.slice(4,6)}-${D.asof.slice(6)}</b> 종가 · 빌드 ${D.built} · 보통주 <b>${D.n_univ.toLocaleString()}</b>종목 (밸류 산출 ${D.n_val.toLocaleString()} · 決算短信 ${D.n_fin.toLocaleString()}) · 단위 억엔 · 평일 17:15 자동 갱신`;
+ segs();all();$("q").oninput=render;$("rel").onchange=render;
+ $("noteTop").innerHTML=`<li><b>유니버스</b> 프라임·스탠다드·그로스 보통주(ETF·REIT·우선출자증권 제외)를 시장별로 J-Quants 시가총액(자사주 제외 주식수 × 종가) 순으로 상위 <b>50(기본)·100·150</b>. 표시 범위 밖으로 밀린 종목을 추적하기 위해 ${D.top_n}위까지 수집.</li>
+ <li><b>순위 변동</b> 매 빌드의 시총 순위를 일별로 누적해 전일·5거래일·20거래일 전과 비교(▲ 상승 ▼ 하락 NEW = 기준일에 ${D.top_n}위 밖). 첫 가동 전 30거래일은 J-Quants 밸류에이션 API 의 날짜별 시총으로 채운 <b>실측</b>치(韓 탭의 역산 추정과 다름).</li>
+ <li><b>이익 4열</b> 決算短信 서머리의 확정 3개 회계연도(FY-2A·FY-1A·직전 FY A)와 진행 FY 의 <b>회사 가이던스(E)</b>. 일본은 증권사 컨센서스 대신 회사가 통기 예상을 내고 분기마다 수정하므로 가이던스가 컨센 역할을 한다. 영업이익이 없는 회사(은행·종합상사·IFRS 사업이익 공시사)는 경상이익 → 순이익 순으로 대체하고 종목명 옆에 기준을 표기. 가이던스를 내지 않는 회사(키엔스·HOYA·소프트뱅크G 등)는 「가이던스 없음」.</li>
+ <li><b>가이던스 수정</b> = 전기 결산 때 낸 진행 FY 초기 예상 → 현재 예상의 변화율(×n = 값이 바뀐 횟수, 결산 공시 안의 수정 포함). <b>진척률</b> = 최근 분기 누적 이익 ÷ 통기 가이던스(1Q 25%·2Q 50%·3Q 75% 가 기준선).</li>
+ <li><b>증가율</b> = 다음 연도 ÷ 전 연도 − 1. 기준연도 적자는 흑전·적전·적지·적확으로 표기. 회계연도는 종목마다 다르므로(3월·12월·2월 결산 등) 열 이름은 상대 표기, 상세에서 실제 FY 확인.</li>
+ <li><b>수익률</b> 일봉 종가(분할·병합 보정) 기준 1M·3M·6M·1Y·2Y 는 달력상 같은 날짜(휴장이면 직전 거래일) 대비, YTD 는 전년 말 대비. 굵은 글씨 = 같은 기간 시장 지수(프라임 0500·스탠다드 0501·그로스 0502)를 이김. 「지수 대비」 체크 시 초과수익(%p).</li>
+ <li><b>밸류에이션</b> J-Quants 산출 — PER TTM(최근 12개월 순이익)·PER Fwd(진행기 회사 예상 순이익)·PBR(직전 공시 자기자본)·ROE TTM/Fwd. 배당 = 진행 FY 예상 DPS ÷ 종가.</li>
+ <li><b>갱신</b> 평일 17:15(밸류에이션·일봉 16:30 반영 후). 決算短信 은 매일 00:30 확정 CSV 를 07:30 동기화 — 결산 발표 당일 저녁에는 전날 상태, 다음날 아침 반영.</li>`;
+}).catch(e=>{$("meta").textContent="데이터를 불러오지 못했습니다: "+e});
+</script></body></html>
