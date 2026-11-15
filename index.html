@@ -622,6 +622,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="semicand">반도체 편입 후보 <small>9/11</small></button>
     <button class="navitem" data-tab="align">정배열 트래커</button>
     <button class="navitem" data-tab="macd">MACD 트래커</button>
+    <button class="navitem" data-tab="mommap">모멘텀 지도</button>
     <button class="navitem" data-tab="buyback">자사주 매수 트래커</button>
     <div class="navgroup">비교 · 밸류</div>
     <button class="navitem" data-tab="caps">시총비교</button>
@@ -736,6 +737,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
           <button class="card" data-go="semicand"><h3>반도체 편입 후보 <span class="tag">KRX 반도체 9월 정기변경</span></h3><p>현행 35종 밖 소부장·기판 25종을 GICS → 중대형 TMI 규모 → 거래대금 90% 관문으로 판정, 편입 시 예상 비중·매수액</p></button>
           <button class="card" data-go="align"><h3>정배열 트래커 <span class="tag">韓 종목 · 韓 ETF · 美 ETF</span></h3><p>완전(현재가&gt;4주&gt;13주&gt;26주&gt;52주)·이평 정배열 유지일 랭킹 — 수급150 종목 / 국내 ETF 46종 / 미국 ETF 96종 3판 통합</p></button>
           <button class="card" data-go="macd"><h3>MACD 트래커 <span class="tag">韓 종목 · 12·26·9</span></h3><p>수급150 종목 일봉 MACD 국면 4분면(강세·회복·조정·약세) — 골든/데드크로스 유지일, 0선 돌파, 히스토그램 바닥 반전 선행 시그널</p></button>
+          <button class="card" data-go="mommap"><h3>모멘텀 지도 <span class="tag">韓 ETF · 美 ETF</span></h3><p>섹터·테마 ETF의 3개월×1개월 수익률 산점도 — 벤치마크(코스피·S&amp;P500) 십자선 기준 주도·개선·약화·소외 4분면</p></button>
           <button class="card" data-go="buyback"><h3>자사주 매수 트래커 <span class="tag">매 거래일 저녁 갱신</span></h3><p>전 상장사 자기주식 취득 신청·체결 일별 추적 — 내일 매수 신청 랭킹, 당일 체결률·단가·금액, 진행률·예상 종료일, 거래량 대비 매수 비중</p></button>
         </div>
       </section>
@@ -963,6 +965,9 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
 
     <section class="panel embed" id="tab-macd">
       <iframe data-src="macd.html" title="MACD 트래커"></iframe>
+    </section>
+    <section class="panel embed" id="tab-mommap">
+      <iframe data-src="mommap.html" title="모멘텀 지도"></iframe>
     </section>
 
     <section class="panel embed" id="tab-etccorp">
@@ -2585,53 +2590,105 @@ function jsRender(){
 }
 
 /* ══════════ 美 신고가 20일·60일·52주 (data/usnewhigh.json — TradingView 스캐너) ══════════ */
-let UH=null,uhSector='all',uhWin='w52',UHTXT=null;
+let UH=null,UHIDX=null,UHWRAP=null,uhSector='all',uhWin='w52',uhDate=null,uhYm=null;
+const UHDAY={};
 async function uhLoad(){
   const meta=document.getElementById('uhMeta');
   if(!UH){
     try{UH=await getJson('data/usnewhigh.json');}
     catch(e){meta.textContent='데이터가 아직 없습니다 — 매일 아침 06:40 빌드 후 이용 가능합니다.';return;}
+    try{UHIDX=await getJson('data/ushigh/index.json');}catch(e){UHIDX=null;}
+    UHDAY[UH.session.replace(/-/g,'')]=UH;
   }
   /* 美 신고가 정리·한미 교차분석 텍스트 = 美 시황 데이터(uswrap.json)의 high 필드 (세션일 매칭) */
-  if(!UHTXT){
-    try{const w=await getJson('data/uswrap.json'),sd=UH.session.replace(/-/g,'').slice(2);
-      const d=(w.days||[]).find(x=>x.high&&x.high.date===sd);UHTXT=d?d.high:{};}
-    catch(e){UHTXT={};}
-  }
+  if(UHWRAP===null){try{UHWRAP=await getJson('data/uswrap.json');}catch(e){UHWRAP=false;}}
+  await uhDay(uhDate||UH.session.replace(/-/g,''));
   uhRender();
+}
+async function uhDay(bd){
+  if(UHDAY[bd]!==undefined)return UHDAY[bd];
+  try{UHDAY[bd]=await getJson(`data/ushigh/${bd}.json`);}catch(e){UHDAY[bd]=null;}
+  return UHDAY[bd];
+}
+async function uhGo(bd){
+  const latest=UH.session.replace(/-/g,'');
+  uhDate=bd===latest?null:bd;uhYm=bd.slice(0,6);
+  await uhDay(bd);uhRender();
+  document.getElementById('tab-ushigh').scrollIntoView({block:'start',behavior:'smooth'});
+}
+function uhTxt(bd){
+  if(!UHWRAP)return {};
+  const d=(UHWRAP.days||[]).find(x=>x.high&&x.high.date===bd.slice(2));return d?d.high:{};
 }
 function uhRender(){
   const meta=document.getElementById('uhMeta'),body=document.getElementById('uhBody');
-  const has60=!!(UH.d60&&UH.d60.items),has20=!!(UH.d20&&UH.d20.items);
+  const latest=UH.session.replace(/-/g,''),bd=uhDate||latest,V=UHDAY[bd]||UH,T=uhTxt(bd);
+  const has60=!!(V.d60&&V.d60.items),has20=!!(V.d20&&V.d20.items);
   if((uhWin==='d60'&&!has60)||(uhWin==='d20'&&!has20))uhWin='w52';
-  const src=uhWin==='w52'?{items:UH.items,criteria:UH.criteria}:UH[uhWin];
+  const src=uhWin==='w52'?{items:V.items,criteria:V.criteria}:V[uhWin];
   const items=src.items||[];
   const bySec={};items.forEach(r=>{bySec[r.sector]=(bySec[r.sector]||0)+1;});
   const secs=Object.entries(bySec).sort((a,b)=>b[1]-a[1]);
   if(uhSector!=='all'&&!bySec[uhSector])uhSector='all';
   const show=uhSector==='all'?items:items.filter(r=>r.sector===uhSector);
-  meta.innerHTML=`미국 세션 <b>${UH.session}</b> · <b>${items.length}종목</b> 신고가 · ${esc(src.criteria||'')} · ${UH.updated} 갱신`;
+  const dates=UHIDX?UHIDX.days.map(x=>x.d).sort():[bd];
+  if(!dates.includes(latest)){dates.push(latest);dates.sort();}
+  const di=dates.indexOf(bd);
+  const nW=k=>k==='w52'?(V.items||[]).length:(V[k]&&V[k].items?V[k].items.length:null);
+  meta.innerHTML=`미국 세션 <b>${khFmtD(bd)}(${khWd(bd)})</b>${uhDate?' <span style="color:var(--accent);font-weight:700">· 지난 신고가</span>':''} · <b>${items.length}종목</b> 신고가 · ${esc(src.criteria||'')} · ${esc(V.updated||'')} 갱신`;
   body.innerHTML=`
+  ${dates.length>1?`<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+    <button class="calnav" id="uhPrev"${di<=0?' disabled':''} title="이전 세션">‹</button>
+    <b style="font-size:13.5px">${khFmtD(bd)} (${khWd(bd)})</b>
+    <button class="calnav" id="uhNext"${di<0||di>=dates.length-1?' disabled':''} title="다음 세션">›</button>
+    ${uhDate?'<button class="rng" id="uhLatest" style="margin-left:4px">최신으로</button>':''}</div>`:''}
   <div class="rngwrap" style="margin-bottom:12px" id="uhWinBar">
-    <button class="rng${uhWin==='d20'?' on':''}" data-w="d20"${has20?'':' disabled title="다음 빌드부터 제공"'}>20일 신고가</button>
-    <button class="rng${uhWin==='d60'?' on':''}" data-w="d60"${has60?'':' disabled title="다음 빌드부터 제공"'}>60일 신고가</button>
-    <button class="rng${uhWin==='w52'?' on':''}" data-w="w52">52주 신고가</button></div>
+    <button class="rng${uhWin==='d20'?' on':''}" data-w="d20"${has20?'':' disabled title="이 날은 20일 명단이 없습니다"'}>20일 신고가${has20?' '+nW('d20'):''}</button>
+    <button class="rng${uhWin==='d60'?' on':''}" data-w="d60"${has60?'':' disabled title="이 날은 60일 명단이 없습니다"'}>60일 신고가${has60?' '+nW('d60'):''}</button>
+    <button class="rng${uhWin==='w52'?' on':''}" data-w="w52">52주 신고가 ${nW('w52')}</button></div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="uhSecBar">
     <button class="rng${uhSector==='all'?' on':''}" data-sec="all" style="font-size:11.5px;padding:5px 11px">전체 ${items.length}</button>
     ${secs.map(([s,n])=>`<button class="rng${uhSector===s?' on':''}" data-sec="${esc(s)}" style="font-size:11.5px;padding:5px 11px">${esc(s)} ${n}</button>`).join('')}</div>
   <div class="rcard"><div style="overflow-x:auto"><table class="ddt"><thead><tr>
     <th>#</th><th style="text-align:left">티커</th><th style="text-align:left">기업명</th><th style="text-align:left">섹터</th><th style="text-align:left">업종</th><th>시총($B)</th><th>등락률</th></tr></thead><tbody>
-    ${show.map((r,i)=>`<tr><td style="color:var(--dim2)">${i+1}</td>
+    ${show.length?show.map((r,i)=>`<tr><td style="color:var(--dim2)">${i+1}</td>
       <td style="text-align:left;font-weight:800">${esc(r.ticker)}</td>
       <td style="text-align:left">${esc(r.nm)}</td>
       <td style="text-align:left;color:var(--dim)">${esc(r.sector)}</td>
       <td style="text-align:left;color:var(--dim2);font-size:11.5px">${esc(r.industry)}</td>
       <td>${r.capB.toLocaleString('en-US')}</td>
-      <td class="${r.chg>=0?'up':'down'}">${r.chg>=0?'+':''}${r.chg.toFixed(1)}%</td></tr>`).join('')}</tbody></table></div></div>
-  ${UHTXT&&UHTXT.text?`<div class="wrapdiv">신고가 정리 — 52주 신고가 (매일 아침 美 신고가 봇 작성본)</div><div class="wrapsec mwhigh" style="margin-top:8px"><div class="mwtxt">${mwFmt(UHTXT.text)}</div></div>`:''}
-  ${UHTXT&&UHTXT.cross?`<details class="khb" style="margin-top:10px"><summary>한·미 60일·20일 신고가 교차분석 펼치기</summary><div class="wrapsec" style="margin-top:8px;border-left:3px solid var(--faint)"><div class="mwtxt">${mwFmt(UHTXT.cross)}</div></div></details>`:''}`;
+      <td class="${r.chg>=0?'up':'down'}">${r.chg>=0?'+':''}${r.chg.toFixed(1)}%</td></tr>`).join(''):'<tr><td colspan="7" style="color:var(--dim2);padding:18px">해당 조건의 신고가 종목이 없습니다</td></tr>'}</tbody></table></div></div>
+  ${T.text?`<div class="wrapdiv">신고가 정리 — 52주 신고가 (매일 아침 美 신고가 봇 작성본)</div><div class="wrapsec mwhigh" style="margin-top:8px"><div class="mwtxt">${mwFmt(T.text)}</div></div>`:(uhDate?'<div class="rcard" style="margin-top:12px;font-size:12.5px;color:var(--dim2)">이 날은 52주 신고가 정리 코멘트가 없습니다.</div>':'')}
+  ${T.cross?`<details class="khb" style="margin-top:10px"><summary>한·미 60일·20일 신고가 교차분석 펼치기</summary><div class="wrapsec" style="margin-top:8px;border-left:3px solid var(--faint)"><div class="mwtxt">${mwFmt(T.cross)}</div></div></details>`:''}
+  ${dates.length>1?'<div class="wrapdiv">지난 신고가 — 달력의 날짜(미국 세션일)를 누르면 해당 세션 명단으로 바뀝니다</div><div class="mwcal" id="uhCal" style="margin-top:8px"></div>':''}`;
   document.getElementById('uhWinBar').onclick=e=>{const b=e.target.closest('[data-w]');if(b&&!b.disabled){uhWin=b.dataset.w;uhRender();}};
   document.getElementById('uhSecBar').onclick=e=>{const b=e.target.closest('[data-sec]');if(b){uhSector=b.dataset.sec;uhRender();}};
+  const pv=document.getElementById('uhPrev'),nx=document.getElementById('uhNext'),lt=document.getElementById('uhLatest');
+  if(pv)pv.onclick=()=>{if(di>0)uhGo(dates[di-1]);};
+  if(nx)nx.onclick=()=>{if(di>=0&&di<dates.length-1)uhGo(dates[di+1]);};
+  if(lt)lt.onclick=()=>uhGo(latest);
+  if(!uhYm||uhYm.length!==6)uhYm=bd.slice(0,6);
+  uhCal(dates,bd);
+}
+function uhCal(dates,sel){
+  const el=document.getElementById('uhCal');if(!el)return;
+  const set=new Set(dates),y=+uhYm.slice(0,4),m=+uhYm.slice(4,6);
+  const minYm=dates[0].slice(0,6),maxYm=dates[dates.length-1].slice(0,6);
+  const start=new Date(y,m-1,1).getDay(),nd=new Date(y,m,0).getDate();
+  let h=`<div class="calhead"><button class="calnav" data-cn="-1" ${uhYm<=minYm?'disabled':''}>‹</button><b>${y}년 ${m}월</b><button class="calnav" data-cn="1" ${uhYm>=maxYm?'disabled':''}>›</button></div><div class="calgrid">`;
+  ['일','월','화','수','목','금','토'].forEach((w,i)=>h+=`<div class="calwd${i===0?' sun':''}">${w}</div>`);
+  for(let i=0;i<start;i++)h+='<div class="calcell"></div>';
+  for(let d=1;d<=nd;d++){
+    const ds=uhYm+String(d).padStart(2,'0'),has=set.has(ds);
+    h+=`<div class="calcell${has?' has':''}${ds===sel?' sel':''}"${has?` data-d="${ds}"`:''}>${d}</div>`;
+  }
+  el.innerHTML=h+'</div>';
+  el.querySelectorAll('.calnav').forEach(b=>b.addEventListener('click',()=>{
+    let yy=y,mm=m+ +b.dataset.cn;
+    if(mm===0){yy--;mm=12}else if(mm===13){yy++;mm=1}
+    uhYm=`${yy}${String(mm).padStart(2,'0')}`;uhCal(dates,sel);
+  }));
+  el.querySelectorAll('.calcell.has').forEach(b=>b.addEventListener('click',()=>{uhYm=b.dataset.d.slice(0,6);uhGo(b.dataset.d);}));
 }
 
 /* ══════════ RS 분석 (섹터·테마 ETF 상대강도 — 태린이아빠 방식) ══════════ */
@@ -3633,7 +3690,7 @@ function openTab(tab){
   panel.classList.add('on');
   const f=panel.querySelector('iframe[data-src]');
   // 자주 갱신되는 대시보드는 10분 단위 캐시버스터를 붙여 낡은 페이지가 남지 않게 한다
-  const FRESH={binjip:1,creditdd:1,invflow:1,oprevision:1,backlog:1,basket7:1,supply:1,flowosc:1,util:1,screening:1,cost:1,vs:1,macd:1,buyback:1,pbrgrowth:1,kospitop:1,kosdaqtop:1,etccorp:1,
+  const FRESH={binjip:1,creditdd:1,invflow:1,oprevision:1,backlog:1,basket7:1,supply:1,flowosc:1,util:1,screening:1,cost:1,vs:1,macd:1,mommap:1,buyback:1,pbrgrowth:1,kospitop:1,kosdaqtop:1,etccorp:1,
                rrgsec:1,rrgstk:1,leaders:1,meridian:1,brregime:1,mktsize:1,ircal:1,krcapmap:1,uscapmap:1,jpearn:1,jpval:1,pcbmap:1,ytnotes:1};
   if(f&&!f.src){f.src=f.dataset.src+(FRESH[tab]?(f.dataset.src.includes('?')?'&':'?')+'v='+Math.floor(Date.now()/6e5):'');}
   if(tab==='telegram')loadTG(false);
@@ -3913,7 +3970,7 @@ const RR_TABS={
   ircal:{m:'x',note:'30분마다 자동 동기화됩니다 — 탭 안의 ↻ 버튼으로 최신 파일을 다시 읽습니다'},
   krwrap:{m:'a',eta:'~2분'}, uswrap:{m:'a',eta:'~2분'}, sector:{m:'a',eta:'~3분'}, disparity:{m:'a',eta:'~2분'},
   supply:{m:'a',eta:'~7분'}, invflow:{m:'x',note:'장중 5분마다 잠정치, 장 마감 후 KRX 확정치로 자동 교체됩니다'}, streak:{m:'a',eta:'~3분'}, flowosc:{m:'a',eta:'~3분'}, binjip:{m:'x',note:'평일 21:25 확정치로 자동 갱신됩니다'}, creditdd:{m:'x',note:'금투협 공시(1~2영업일 지연)를 평일 아침·저녁 자동 반영합니다'}, krhigh:{m:'a',eta:'~10분'}, ushigh:{m:'a',eta:'~5분'}, jphigh:{m:'a',eta:'~1분'}, jpflow:{m:'a',eta:'~2분'}, jpsector:{m:'a',eta:'~1분'},
-  rs:{m:'a',eta:'~5분'}, semietf:{m:'a',eta:'~2분'}, semirebal:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, semicand:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, align:{m:'a',eta:'~15분'}, macd:{m:'a',eta:'~2분'}, buyback:{m:'a',eta:'~4분'}, pbrgrowth:{m:'a',eta:'~3분'}, kospitop:{m:'a',eta:'~1분'}, kosdaqtop:{m:'a',eta:'~1분'}, brregime:{m:'a',eta:'~3분'}, etccorp:{m:'a',eta:'~1분'},
+  rs:{m:'a',eta:'~5분'}, semietf:{m:'a',eta:'~2분'}, semirebal:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, semicand:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, align:{m:'a',eta:'~15분'}, macd:{m:'a',eta:'~2분'}, mommap:{m:'x',note:'매 거래일 16:55 자동 갱신 탭입니다'}, buyback:{m:'a',eta:'~4분'}, pbrgrowth:{m:'a',eta:'~3분'}, kospitop:{m:'a',eta:'~1분'}, kosdaqtop:{m:'a',eta:'~1분'}, brregime:{m:'a',eta:'~3분'}, etccorp:{m:'a',eta:'~1분'},
   caps:{m:'a',eta:'~2분'}, gap:{m:'a',eta:'~2분'}, dd:{m:'a',eta:'~2분'}, ram:{m:'a',eta:'~2분'},
   etfgap:{m:'l'}, basket7:{m:'a',eta:'~5분'}, semiexport:{m:'a',eta:'~2분'},
   export:{m:'a',eta:'~1분'}, corpexport:{m:'a',eta:'~3분'},
