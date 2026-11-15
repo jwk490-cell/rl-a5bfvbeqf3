@@ -155,6 +155,41 @@ td.dot .sp{vertical-align:middle}
 .leg3 li{display:grid;grid-template-columns:16px 1fr;gap:9px;align-items:start}
 .leg3 i{width:14px;height:14px;border-radius:4px;margin-top:3px;border:1px solid var(--line)}
 .leg3 b{font-size:13.5px;display:block}.leg3 span{font-size:12.5px;color:var(--sub);line-height:1.5}
+.rp{display:inline-block;padding:3px 9px;border-radius:999px;background:var(--hc);color:#fff;font-size:12px;font-weight:800;white-space:nowrap}
+.rp.none{background:var(--surface2);color:var(--faint);font-weight:600}
+.chip.cu{--c:var(--sub);font-weight:600}
+.chip.cu.on{background:var(--text);border-color:var(--text);color:var(--surface)}
+.bll{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.blr{display:grid;grid-template-columns:auto minmax(0,1fr) 66px;grid-template-areas:"c v s" "c q y";gap:2px 10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:10px}
+.blr .chip{grid-area:c;align-self:center;font-size:12.5px;padding:5px 9px}
+.blr .bv{grid-area:v;font-size:15px;font-weight:800}
+.blr .bv small{font-size:11.5px;font-weight:500;color:var(--faint);margin-left:6px}
+.blr .spk{grid-area:s;width:66px;height:24px;grid-row:1 / span 2;align-self:center}
+.spk rect{fill:var(--line)}.spk rect.l{fill:var(--accent)}
+.blr .bp{font-size:12.5px;display:inline-flex;gap:5px;align-items:baseline}
+.blr .bp small{color:var(--faint);font-size:11.5px}.blr .bp b{font-size:13.5px}
+.blr .bp:nth-of-type(2){grid-area:q}
+.blr .bp:nth-of-type(3){grid-area:q;justify-self:end}
+.blr .mut{grid-column:2 / -1}
+.bll.wide{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.ldl,.cul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.lw{font-size:12.5px;color:var(--sub);font-weight:600}
+.ln{display:flex;flex-wrap:wrap;gap:4px 9px;align-items:baseline;margin-top:1px}
+.ln b{font-size:16px}.ln span{font-size:12.5px;color:var(--faint)}.ln i{font-style:normal;font-size:12px;font-weight:700}
+.cub{all:unset;cursor:pointer;font-size:13.5px;font-weight:700;color:var(--text);border-bottom:1px dashed var(--faint);margin-right:8px}
+.cub:hover{color:var(--accent);border-color:var(--accent)}
+.sd{display:inline-block;font-style:normal;font-size:11.5px;font-weight:700;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);background:color-mix(in srgb,var(--c) 12%,transparent);border-radius:6px;padding:1px 6px;margin-right:4px}
+.sd.none{--c:var(--faint);font-weight:500}
+.cn{font-size:12.5px;line-height:1.55;color:var(--sub);margin-top:3px}
+#panel .ns{font-size:11.5px;color:var(--faint);margin-top:3px;line-height:1.5}
+#cm{min-width:820px}
+#cm th.pc{text-align:center;cursor:pointer;white-space:normal;line-height:1.35;font-size:11.5px;min-width:78px}
+#cm th.pc:hover{color:var(--text)}
+#cm tr[data-cu]{cursor:pointer}
+#cm tr[data-cu]:hover td.cat,#cm tr.sel td.cat{color:var(--accent)}
+#cm .buy{color:var(--faint);font-size:13px}
+#cm td.dot i{margin:0 1px}
+.tblc .cap{font-size:12px;color:var(--faint);margin:10px 0 0;line-height:1.55}
 @media (max-width:1060px){.grid{grid-template-columns:minmax(0,1fr)}#panel{position:static;max-height:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
@@ -170,14 +205,15 @@ td.dot .sp{vertical-align:middle}
 <div id="v-map">
 <div class="tools">
   <div class="cos" id="cos"><span class="lbl">회사로 보기</span></div>
-  <div class="seg" id="modes" hidden><button data-m="none">구조만</button><button data-m="demand">수요 강도</button><button data-m="bottleneck">병목 강도</button><button data-m="importance">중요도</button></div>
+  <div class="seg" id="modes" hidden></div>
 </div>
+<div class="cos" id="cus" style="margin:0 0 12px"></div>
 
 <div class="grid">
 <div class="figs">
 <div class="card fig">
 <h2>기판이 놓이는 자리 <span>AI·네트워크 서버 한 대와 스마트폰을 위에서 본 모습 (단순화)</span></h2>
-<div id="legend" hidden>동그라미 숫자 = 점수 <span><i style="background:var(--h1)"></i>1 약함</span><span><i style="background:var(--h2)"></i>2</span><span><i style="background:var(--h3)"></i>3 보통</span><span><i style="background:var(--h4)"></i>4</span><span><i style="background:var(--h5)"></i>5 강함</span></div>
+<div id="legend" hidden></div>
 <svg id="map" viewBox="0 0 1000 680" role="img" aria-label="기판 지도">
 <defs>
   <linearGradient id="lid" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dde2e8"/><stop offset="1" stop-color="#99a2ad"/></linearGradient>
@@ -343,8 +379,19 @@ td.dot .sp{vertical-align:middle}
 <aside class="card" id="panel" aria-live="polite"></aside>
 </div>
 
+<div class="card tblc" id="blc" hidden>
+  <h2>회사별 수주잔고 <span>분기말 잔고와 전분기(QoQ)·전년 동기(YoY) 대비 증감 · 막대 = 최근 분기 추이</span></h2>
+  <ul class="bll wide" id="bl4"></ul>
+</div>
+
+<div class="card tblc" id="cmc" hidden>
+  <h2>고객사 × 제품 <span>누가 어떤 기판을 사 가고, 누가 공급하나 · 줄을 누르면 지도에 표시</span></h2>
+  <table id="cm"></table>
+  <p class="cap">색 점 = 실명으로 확인된 공급사(<b style="color:var(--c-simm)">심텍</b> · <b style="color:var(--c-dd)">대덕전자</b> · <b style="color:var(--c-tlb)">티엘비</b> · <b style="color:var(--c-kc)">코리아써키트</b>) · ○ = 구매는 확인됐으나 4사 중 공급사 미확인 · 빈칸 = 확인된 것 없음</p>
+</div>
+
 <div class="card tblc">
-  <h2>분류 한눈에 <span>열 제목(수요·병목·중요도)을 누르면 지도에 점수가 표시됩니다</span></h2>
+  <h2>분류 한눈에 <span>열 제목(수주잔고·리드타임)을 누르면 지도에 표시됩니다</span></h2>
   <table id="tbl"></table>
 </div>
 <div class="card tblc" id="feedc" hidden>
@@ -369,7 +416,7 @@ td.dot .sp{vertical-align:middle}
 </div>
 </div>
 
-<p class="foot">업황 점수(1 약함 ~ 5 강함)는 공개된 기사·공시를 바탕으로 한 판단이며 점검일 기준입니다 · 관련 회사는 직접 정리한 분류 기준이며 각 사의 전체 제품군을 모두 담은 것은 아닙니다 · 그림은 이해를 돕기 위해 단순화했고 실제 크기·배치와 다릅니다 · 종목 추천이 아닙니다.</p>
+<p class="foot">수주잔고는 DART 정기보고서 수주상황 표의 회사 전체 값입니다(제품별 구분 없음 — 분류별 숫자는 관련 회사의 증감 범위) · 리드타임·고객사는 기사·공시·리포트 보도로 확인된 것만 적었습니다 · 관련 회사는 직접 정리한 분류 기준이며 각 사의 전체 제품군을 모두 담은 것은 아닙니다 · 그림은 이해를 돕기 위해 단순화했고 실제 크기·배치와 다릅니다 · 종목 추천이 아닙니다.</p>
 </div>
 
 <script>
@@ -440,24 +487,51 @@ const IT={
 };
 const ORDER=['module1','socamm','mempkg','fccsp','fcbga','mlb','hdi'], COS=['simm','dd','tlb','kc'];
 const NUM='①②③④⑤⑥⑦';
-const MET=[['demand','수요 강도'],['bottleneck','병목 강도'],['importance','중요도']];
-const HEAT=['var(--h0)','var(--h1)','var(--h2)','var(--h3)','var(--h4)','var(--h5)'];
-const BADGE={module1:[[470,542],[830,542]],socamm:[[548,96]],mempkg:[[325,598]],fccsp:[[590,558]],fcbga:[[230,88]],mlb:[[640,42]],hdi:[[938,62]]};
+const MODES=[['none','구조만'],['yoy','수주잔고 YoY'],['qoq','수주잔고 QoQ'],['lead','리드타임']];
+const BADGE={module1:[[485,542,'e'],[845,542,'e']],socamm:[[563,96,'e']],mempkg:[[112,663,'m']],fccsp:[[672,663,'m']],fcbga:[[150,88,'m']],mlb:[[655,42,'e']],hdi:[[830,60,'m']]};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const panel=$('#panel'); let sel={t:null,id:null}, U=null, mode='none', feedF='all';
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const chip=(k,on)=>`<button class="chip ${k}${on?' on':''}" data-co="${k}">${CO[k].n}</button>`;
 const dl=p=>'<dl>'+p.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join('')+'</dl>';
 const ui=id=>U&&U.items&&U.items[id];
-const sc=(id,m)=>{const u=ui(id);return u&&u[m]?+u[m].score||0:0;};
-function delta(id,m){ // 직전 점검 대비 점수 변화
-  if(!U||!U.hist||U.hist.length<2)return '';
-  const i=MET.findIndex(x=>x[0]===m),a=U.hist[U.hist.length-1].s[id],b=U.hist[U.hist.length-2].s[id];
-  if(!a||!b||a[i]===b[i])return '';
-  return `<span class="dlt ${a[i]>b[i]?'up':'dn'}">${a[i]>b[i]?'▲':'▼'}${Math.abs(a[i]-b[i])}</span>`;
+const bl=k=>U&&U.companies&&U.companies[k]&&U.companies[k].backlog;
+const cust=()=>U&&U.custmap||[];
+const pct=v=>v==null?'–':(v>0?'+':'')+(Math.abs(v)>=100?Math.round(v):Math.round(v*10)/10)+'%';
+const hc=v=>v==null?'var(--h1)':v<0?'var(--h2)':v<20?'var(--h1)':v<50?'var(--h3)':v<100?'var(--h4)':'var(--h5)';
+const num=v=>v==null?'–':v>=1000?Math.round(v).toLocaleString('ko-KR'):(Math.round(v*10)/10).toLocaleString('ko-KR');
+function rng(id,key){ // 관련 회사 수주잔고 증감 범위(회사 전체 기준)
+  const a=IT[id].co.map(k=>bl(k)&&bl(k)[key]).filter(v=>v!=null).sort((x,y)=>x-y);
+  if(!a.length)return null;
+  const n=a.length,med=(a[Math.floor((n-1)/2)]+a[Math.ceil((n-1)/2)])/2;
+  return {txt:n===1?pct(a[0]):pct(a[0])+' ~ '+pct(a[n-1]),med,n};
 }
-const pill=(id,m)=>{const s=sc(id,m);return s?`<span class="sp" style="--hc:${HEAT[s]}" title="${s}/5">${s}</span>`:'<span class="sp none">–</span>';};
-const kid=id=>`<button class="kid" data-it="${id}"><span class="kn">${NUM[IT[id].no-1]} ${esc(IT[id].n)}<small>${esc(IT[id].use)}</small></span>${ui(id)?`<span class="ks">${MET.map(([m])=>pill(id,m)).join('')}</span>`:''}</button>`;
+const TREND={up:['▲ 늘어남','var(--h5)'],down:['▼ 줄어듦','var(--h2)'],flat:['─ 변화 없음','var(--h1)']};
+function leadTop(id){const L=ui(id)&&ui(id).lead||[];return L[0]||null;}
+function metric(id){ // 지도·표에 찍을 값 {txt,color}
+  if(mode==='yoy'||mode==='qoq'){const r=rng(id,mode);return r?{txt:r.txt,c:hc(r.med)}:{txt:'확인 없음',c:'var(--h0)'};}
+  if(mode==='lead'){const l=leadTop(id);return l?{txt:(l.kind==='기판'?'':'소재 ')+l.now,c:(TREND[l.trend]||TREND.flat)[1]}:{txt:'숫자 없음',c:'var(--h0)'};}
+  return null;
+}
+const rpill=(id,key)=>{const r=rng(id,key);return r?`<span class="rp" style="--hc:${hc(r.med)}">${r.txt}</span>`:'<span class="rp none">–</span>';};
+const lpill=id=>{const l=leadTop(id);return l?`<span class="rp" style="--hc:${(TREND[l.trend]||TREND.flat)[1]}">${l.kind==='기판'?'':'소재 '}${esc(l.now)}</span>`:'<span class="rp none">숫자 없음</span>';};
+const kid=id=>`<button class="kid" data-it="${id}"><span class="kn">${NUM[IT[id].no-1]} ${esc(IT[id].n)}<small>${esc(IT[id].use)}</small></span>${U?`<span class="ks">${rpill(id,'yoy')}</span>`:''}</button>`;
+function spark(b){const v=b.v,mx=Math.max.apply(null,v.filter(x=>x!=null));
+  return `<svg class="spk" viewBox="0 0 ${v.length*9-3} 24" aria-hidden="true">`+v.map((x,i)=>{if(x==null)return '';const h=Math.max(2,x/mx*22);return `<rect x="${i*9}" y="${24-h}" width="6" height="${h}" rx="1.5" class="${i===v.length-1?'l':''}"><title>${b.q[i]} ${num(x)}${b.unit}</title></rect>`;}).join('')+'</svg>';}
+function blRow(k){const b=bl(k);
+  if(!b)return `<li class="blr">${chip(k)}<span class="mut">수주잔고 확인 없음</span></li>`;
+  return `<li class="blr">${chip(k)}<span class="bv">${num(b.v[b.v.length-1])}<small>${esc(b.unit)} · ${esc(b.q[b.q.length-1])}말</small></span>${spark(b)}
+    <span class="bp"><small>QoQ</small><b style="color:${hc(b.qoq)}">${pct(b.qoq)}</b></span><span class="bp"><small>YoY</small><b style="color:${hc(b.yoy)}">${pct(b.yoy)}</b></span></li>`;}
+function leadHtml(id){const L=ui(id)&&ui(id).lead||[];
+  if(!L.length)return '<p class="mut">숫자로 확인된 리드타임 없음</p>';
+  return '<ul class="ldl">'+L.map(l=>{const t=TREND[l.trend]||TREND.flat;
+    return `<li><div class="lw">${esc(l.what)}</div><div class="ln"><b>${esc(l.now)}</b>${l.base?`<span>← ${esc(l.base)}</span>`:''}<i style="color:${t[1]}">${t[0]}</i></div>
+    <div class="ns">${esc(l.asof||'')}${l.src?' · '+(l.url?`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.src)} ↗</a>`:esc(l.src)):''}</div></li>`;}).join('')+'</ul>';}
+function custFor(id){return cust().map((c,i)=>({c,i,x:c.items&&c.items[id]})).filter(o=>o.x);}
+function custHtml(id){const a=custFor(id);
+  if(!a.length)return '<p class="mut">실명으로 확인된 고객사 없음</p>';
+  return '<ul class="cul">'+a.map(o=>`<li><button class="cub" data-cu="${o.i}">${esc(o.c.name)}</button>${(o.x.sup||[]).map(k=>`<i class="sd" style="--c:var(--c-${k})" title="${CO[k].n}">${CO[k].n}</i>`).join('')}
+    ${o.x.note?`<div class="cn">${esc(o.x.note)}</div>`:''}${o.x.basis?`<div class="ns">${esc(o.x.basis)}</div>`:''}</li>`).join('')+'</ul>';}
 const DIR={up:['▲','up'],down:['▼','dn'],flat:['─','fl']};
 function newsHtml(arr,tagged){
   if(!arr||!arr.length)return '<p class="mut">확인된 소식 없음</p>';
@@ -465,10 +539,6 @@ function newsHtml(arr,tagged){
     return `<li><span class="nd ${d[1]}">${d[0]}</span><div><div class="nh"><b>${esc((n.date||'').slice(2).replace(/-/g,'.'))}</b>${tagged&&n.tag?`<span class="ntag">${esc(n.tag)}</span>`:''}</div>
     <div class="nt">${esc(n.title)}</div>${n.body?`<div class="nb">${esc(n.body)}</div>`:''}
     ${n.src?`<div class="ns">${n.url?`<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.src)} ↗</a>`:esc(n.src)}</div>`:''}</div></li>`;}).join('')+'</ol>';
-}
-function gauges(id){
-  return '<div class="gs">'+MET.map(([m,l])=>{const u=ui(id)[m]||{},s=+u.score||0;
-    return `<div class="g"><div class="gl">${l}${delta(id,m)}</div><div class="gb" style="--hc:${HEAT[s]}">${[1,2,3,4,5].map(i=>`<i class="${i<=s?'f':''}"></i>`).join('')}<b>${s||'–'}</b></div><div class="gw">${esc(u.why||'')}</div></div>`;}).join('')+'</div>';
 }
 
 function render(){
@@ -478,11 +548,12 @@ function render(){
        <h3><span class="no">${d.no}</span>${esc(d.n)}</h3><div class="use">${esc(d.use)}</div>
        <div class="ld">${esc(d.lead)}</div>`;
     if(u){
-      h+=`<div class="sec">업황 <span>${esc(U.asof||'')} 점검</span></div>${u.status?`<p class="st">${esc(u.status)}</p>`:''}${gauges(sel.id)}
-          ${u.price?`<p class="pr"><b>판가·가동률</b> ${esc(u.price)}</p>`:''}
-          <div class="sec">전방사 <span>이 기판을 사 가는 곳</span></div>
-          <ul class="cu">${(u.customers||[]).map(x=>`<li><b>${esc(x.name)}</b>${x.role?` — ${esc(x.role)}`:''}</li>`).join('')}</ul>
+      h+=`${u.status?`<p class="st">${esc(u.status)}</p>`:''}
+          <div class="sec">수주잔고 <span>관련 회사 전체 기준 · ${esc(U.asof||'')} 점검</span></div><ul class="bll">${d.co.map(blRow).join('')}</ul>
+          <div class="sec">리드타임 <span>주문 후 납품까지</span></div>${leadHtml(sel.id)}
+          <div class="sec">고객사 <span>이 기판을 사 가는 곳 · 색 칩 = 확인된 공급사</span></div>${custHtml(sel.id)}
           ${u.end_demand?`<p class="pr"><b>최종 수요</b> ${esc(u.end_demand)}</p>`:''}
+          ${u.price?`<p class="pr"><b>판가·가동률</b> ${esc(u.price)}</p>`:''}
           <div class="sec">최신 소식</div>${newsHtml(u.news)}
           ${u.watch&&u.watch.length?`<div class="sec">체크포인트</div><ul class="cu">${u.watch.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}`;
     }
@@ -492,33 +563,48 @@ function render(){
   }else if(sel.t==='cat'){const c=CAT[sel.id];
     h=`<div class="crumb">기판</div><h3>${c.n}</h3><div class="use">${c.tag}</div>
        <div class="ld">${esc(c.lead)}</div>${dl(c.pts)}
-       <div class="sec">세부 분류${U?' <span>수요 · 병목 · 중요도</span>':''}</div><div class="kids">${c.kids.map(kid).join('')}</div>`;
-  }else if(sel.t==='co'){const c=CO[sel.id],its=ORDER.filter(i=>IT[i].co.includes(sel.id)),u=U&&U.companies&&U.companies[sel.id];
+       <div class="sec">세부 분류${U?' <span>오른쪽 = 관련 회사 수주잔고 YoY 범위</span>':''}</div><div class="kids">${c.kids.map(kid).join('')}</div>`;
+  }else if(sel.t==='co'){const c=CO[sel.id],its=ORDER.filter(i=>IT[i].co.includes(sel.id)),u=U&&U.companies&&U.companies[sel.id],b=bl(sel.id);
+    const cu=cust().map((x,i)=>({x,i,its:ORDER.filter(id=>x.items&&x.items[id]&&(x.items[id].sup||[]).includes(sel.id))})).filter(o=>o.its.length);
     h=`<div class="crumb">회사로 보기</div><h3>${c.n}<span class="code">${c.code}</span></h3>
        ${u&&u.biz?`<div class="ld">${esc(u.biz)}</div>`:`<div class="ld">그림에서 밝게 남은 부분이 ${c.n}와(과) 연결된 기판.</div>`}
+       ${b?`<div class="sec">수주잔고 <span>${esc(b.q[0])}~${esc(b.q[b.q.length-1])} 분기말</span></div><ul class="bll">${blRow(sel.id)}</ul>
+            <p class="ns">${esc(b.basis||'')}${b.parts?' · '+esc(b.parts):''}${b.note?' · '+esc(b.note):''}</p>`:''}
        ${u&&u.latest?`<p class="pr"><b>최근 실적·증설</b> ${esc(u.latest)}</p>`:''}
-       <div class="sec">관련 기판 ${its.length}개${U?' <span>수요 · 병목 · 중요도</span>':''}</div><div class="kids">${its.map(kid).join('')}</div>
+       ${cu.length?`<div class="sec">고객사 <span>실명으로 확인된 공급 관계</span></div><ul class="cul">${cu.map(o=>`<li><button class="cub" data-cu="${o.i}">${esc(o.x.name)}</button><span class="cn">${o.its.map(id=>NUM[IT[id].no-1]+' '+esc(IT[id].n)).join(' · ')}</span></li>`).join('')}</ul>`:''}
+       <div class="sec">관련 기판 ${its.length}개</div><div class="kids">${its.map(kid).join('')}</div>
        ${u?`<div class="sec">최신 소식</div>${newsHtml(u.news)}`:''}`;
+  }else if(sel.t==='cu'){const c=cust()[sel.id],its=ORDER.filter(id=>c.items&&c.items[id]);
+    h=`<div class="crumb">고객사로 보기</div><h3>${esc(c.name)}</h3><div class="use">${esc([c.kind,c.role].filter(Boolean).join(' · '))}</div>
+       <div class="ld">그림에서 밝게 남은 부분이 ${esc(c.name)}이(가) 사 가는 기판. 색 칩은 실명으로 확인된 공급사.</div>
+       <div class="sec">사 가는 기판 ${its.length}개</div>
+       <ul class="cul">${its.map(id=>{const x=c.items[id];return `<li><button class="cub" data-it="${id}">${NUM[IT[id].no-1]} ${esc(IT[id].n)}</button>${(x.sup||[]).map(k=>`<i class="sd" style="--c:var(--c-${k})">${CO[k].n}</i>`).join('')||'<i class="sd none">공급사 미확인</i>'}
+         ${x.note?`<div class="cn">${esc(x.note)}</div>`:''}${x.basis?`<div class="ns">${esc(x.basis)}</div>`:''}</li>`;}).join('')}</ul>`;
   }else{
     h=`<h3>기판, 세 가지로 나누면</h3><div class="use">그림의 부품이나 아래 항목을 눌러 보세요</div>
        <div class="ld">칩은 혼자서는 보드에 붙지 못합니다. 칩을 감싸는 판, 그 칩들을 모아 꽂는 판, 전부를 얹는 판 — 이 세 층을 거쳐 기기가 됩니다.</div>
        <div class="kids">${['pkg','mod','main'].map(k=>`<button class="kid" data-cat="${k}"><span class="kn">${CAT[k].n}<small>${CAT[k].tag} · ${CAT[k].kids.map(i=>IT[i].n).join(', ')}</small></span></button>`).join('')}</div>
-       ${U&&U.summary?`<div class="sec">업황 요약 <span>${esc(U.asof||'')} 점검</span></div><ul class="cu">${U.summary.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}`;
+       ${U?`<div class="sec">회사별 수주잔고 <span>${esc(U.asof||'')} 점검</span></div><ul class="bll">${COS.map(blRow).join('')}</ul>`:''}
+       ${U&&U.summary?`<div class="sec">업황 요약</div><ul class="cu">${U.summary.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}`;
   }
   panel.innerHTML=h; panel.scrollTop=0;
+  const cuIt=sel.t==='cu'?cust()[sel.id].items||{}:null;
+  const lit=id=>sel.t==='co'?IT[id].co.includes(sel.id):sel.t==='cu'?!!cuIt[id]:false;
   $$('.part').forEach(p=>{
     const id=p.dataset.id,cat=p.dataset.cat;
     p.classList.toggle('sel',(sel.t==='it'&&id===sel.id)||(sel.t==='cat'&&(cat===sel.id||(id&&IT[id].cat===sel.id))));
-    p.classList.toggle('lit',sel.t==='co'&&(id?IT[id].co.includes(sel.id):CAT[cat].kids.some(i=>IT[i].co.includes(sel.id))));
+    p.classList.toggle('lit',id?lit(id):CAT[cat].kids.some(lit));
   });
-  $$('#map,#stack').forEach(s=>s.classList.toggle('filter',sel.t==='co'));
+  const filt=sel.t==='co'||sel.t==='cu';
+  $$('#map,#stack').forEach(s=>s.classList.toggle('filter',filt));
   $$('#cos .chip[data-co]').forEach(b=>b.classList.toggle('on',sel.t==='co'&&b.dataset.co===sel.id));
-  $('#cos .clear').hidden=sel.t!=='co';
+  $$('#cus .chip[data-cu]').forEach(b=>b.classList.toggle('on',sel.t==='cu'&&+b.dataset.cu===sel.id));
+  $('#cos .clear').hidden=!filt;
   $$('#tbl tr.it').forEach(r=>r.classList.toggle('sel',sel.t==='it'&&r.dataset.it===sel.id));
-  dimB();
+  $$('#cm tr[data-cu]').forEach(r=>r.classList.toggle('sel',sel.t==='cu'&&+r.dataset.cu===sel.id));
+  $$('#badges .bdg').forEach(b=>{b.style.opacity=(filt&&!lit(b.dataset.it))?.18:1;});
 }
-function dimB(){$$('#badges .bdg').forEach(b=>{b.style.opacity=(sel.t==='co'&&!IT[b.dataset.it].co.includes(sel.id))?.18:1;});}
-function pick(t,id){sel=(sel.t===t&&sel.id===id&&t==='co')?{t:null,id:null}:{t,id};render();}
+function pick(t,id){sel=(sel.t===t&&sel.id===id&&(t==='co'||t==='cu'))?{t:null,id:null}:{t,id};render();}
 
 function heat(){
   const on=mode!=='none'&&U, map=$('#map');
@@ -526,19 +612,31 @@ function heat(){
   $('#badges').innerHTML='';
   $$('#map .part[data-id]').forEach(p=>p.style.removeProperty('--hc'));
   $$('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
-  $('#legend').hidden=!on;
+  const lg=$('#legend');lg.hidden=!on;
   if(!on)return;
+  lg.innerHTML=mode==='lead'
+    ?'숫자 = 확인된 리드타임 <span><i style="background:var(--h5)"></i>늘어남</span><span><i style="background:var(--h1)"></i>변화 없음</span><span><i style="background:var(--h2)"></i>줄어듦</span><span><i style="background:var(--h0)"></i>숫자 없음</span> · "소재"는 기판이 아니라 소재·장비 납기'
+    :`숫자 = 관련 회사 수주잔고 ${mode==='yoy'?'전년 동기':'전분기'} 대비 증감 범위 (회사 전체 기준, 제품별 구분 없음) <span><i style="background:var(--h2)"></i>감소</span><span><i style="background:var(--h1)"></i>+20% 미만</span><span><i style="background:var(--h3)"></i>+20~50%</span><span><i style="background:var(--h4)"></i>+50~100%</span><span><i style="background:var(--h5)"></i>+100% 이상</span>`;
   let g='';
-  ORDER.forEach(id=>{const s=sc(id,mode);if(!s)return;
-    $$(`#map .part[data-id="${id}"]`).forEach(p=>p.style.setProperty('--hc',HEAT[s]));
-    BADGE[id].forEach(([x,y])=>{g+=`<g class="bdg" data-it="${id}"><circle cx="${x}" cy="${y}" r="15" style="fill:${HEAT[s]}" stroke="#fff" stroke-width="2"/><text x="${x}" y="${y+5.5}" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">${s}</text></g>`;});
+  ORDER.forEach(id=>{const m=metric(id);if(!m)return;
+    $$(`#map .part[data-id="${id}"]`).forEach(p=>p.style.setProperty('--hc',m.c));
+    BADGE[id].forEach(([x,y,al])=>{const w=Math.max(44,m.txt.length*8.6+18),x0=al==='e'?x-w:x-w/2;
+      g+=`<g class="bdg" data-it="${id}"><rect x="${x0}" y="${y-13}" width="${w}" height="26" rx="13" style="fill:${m.c}" stroke="#fff" stroke-width="2"/><text x="${x0+w/2}" y="${y+5}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">${esc(m.txt)}</text></g>`;});
   });
-  $('#badges').innerHTML=g;dimB();
+  $('#badges').innerHTML=g;render();
 }
 
 function table(){
-  $('#tbl').innerHTML='<thead><tr><th>대분류</th><th>세부 분류</th><th>쓰이는 곳</th>'+(U?MET.map(([m,l])=>`<th class="mc" data-m="${m}">${l.replace(' 강도','')}</th>`).join(''):'')+COS.map(k=>`<th class="co" data-co="${k}" style="color:var(--c-${k})">${CO[k].n}</th>`).join('')+'</tr></thead><tbody>'+
-  ['mod','pkg','main'].map(c=>CAT[c].kids.map((i,n)=>`<tr class="it" data-it="${i}">${n===0?`<td class="cat" data-cat="${c}" rowspan="${CAT[c].kids.length}">${CAT[c].n}<small>${CAT[c].tag}</small></td>`:''}<td class="nm"><span class="no">${NUM[IT[i].no-1]}</span>${esc(IT[i].n)}${ui(i)&&ui(i).status?`<small>${esc(ui(i).status)}</small>`:''}</td><td class="us">${esc(IT[i].use)}</td>${U?MET.map(([m])=>`<td class="dot">${pill(i,m)}${delta(i,m)}</td>`).join(''):''}${COS.map(k=>`<td class="dot">${IT[i].co.includes(k)?`<i style="--c:var(--c-${k})" title="${CO[k].n}"></i>`:''}</td>`).join('')}</tr>`).join('')).join('')+'</tbody>';
+  $('#tbl').innerHTML='<thead><tr><th>대분류</th><th>세부 분류</th><th>쓰이는 곳</th>'+(U?'<th class="mc" data-m="yoy">수주잔고 YoY</th><th class="mc" data-m="qoq">수주잔고 QoQ</th><th class="mc" data-m="lead">리드타임</th>':'')+COS.map(k=>`<th class="co" data-co="${k}" style="color:var(--c-${k})">${CO[k].n}</th>`).join('')+'</tr></thead><tbody>'+
+  ['mod','pkg','main'].map(c=>CAT[c].kids.map((i,n)=>`<tr class="it" data-it="${i}">${n===0?`<td class="cat" data-cat="${c}" rowspan="${CAT[c].kids.length}">${CAT[c].n}<small>${CAT[c].tag}</small></td>`:''}<td class="nm"><span class="no">${NUM[IT[i].no-1]}</span>${esc(IT[i].n)}${ui(i)&&ui(i).status?`<small>${esc(ui(i).status)}</small>`:''}</td><td class="us">${esc(IT[i].use)}</td>${U?`<td class="dot">${rpill(i,'yoy')}</td><td class="dot">${rpill(i,'qoq')}</td><td class="dot">${lpill(i)}</td>`:''}${COS.map(k=>`<td class="dot">${IT[i].co.includes(k)?`<i style="--c:var(--c-${k})" title="${CO[k].n}"></i>`:''}</td>`).join('')}</tr>`).join('')).join('')+'</tbody>';
+}
+function matrix(){
+  $('#blc').hidden=!U;if(U)$('#bl4').innerHTML=COS.map(blRow).join('');
+  const a=cust();$('#cmc').hidden=!a.length;if(!a.length)return;
+  $('#cus').innerHTML='<span class="lbl">고객사로 보기</span>'+a.map((c,i)=>`<button class="chip cu" data-cu="${i}">${esc(c.name)}</button>`).join('');
+  $('#cm').innerHTML='<thead><tr><th>고객사</th>'+ORDER.map(i=>`<th class="pc" data-it="${i}">${NUM[IT[i].no-1]} ${esc(IT[i].n)}</th>`).join('')+'</tr></thead><tbody>'+
+    a.map((c,i)=>`<tr data-cu="${i}"><td class="cat">${esc(c.name)}<small>${esc(c.kind||'')}</small></td>${ORDER.map(id=>{const x=c.items&&c.items[id];
+      return `<td class="dot">${!x?'':(x.sup&&x.sup.length?x.sup.map(k=>`<i style="--c:var(--c-${k})" title="${CO[k].n}"></i>`).join(' '):'<span class="buy" title="구매는 확인, 공급사 미확인">○</span>')}</td>`;}).join('')}</tr>`).join('')+'</tbody>';
 }
 function feed(){
   if(!U){$('#feedc').hidden=true;return;}
@@ -551,22 +649,24 @@ function feed(){
   $('#feed').innerHTML=newsHtml(all.filter(n=>feedF==='all'||n.keys.includes(feedF)).slice(0,40),true);
 }
 
+$('#modes').innerHTML=MODES.map(([m,l])=>`<button data-m="${m}">${l}</button>`).join('');
 $('#cos').insertAdjacentHTML('beforeend',COS.map(k=>chip(k)).join('')+'<button class="chip clear" hidden>전체 보기</button>');
 document.addEventListener('click',e=>{
   const md=e.target.closest('#modes [data-m], th.mc'); if(md){mode=(md.tagName==='TH'&&mode===md.dataset.m)?'none':md.dataset.m;heat();if(md.tagName==='TH')$('#map').scrollIntoView({behavior:'smooth',block:'center'});return;}
   const ff=e.target.closest('#feedf [data-f]'); if(ff){feedF=ff.dataset.f;feed();return;}
   const co=e.target.closest('[data-co]'); if(co){pick('co',co.dataset.co);return;}
+  const cu=e.target.closest('[data-cu]'); if(cu){pick('cu',+cu.dataset.cu);if(cu.closest('#cm'))window.scrollTo({top:0,behavior:'smooth'});return;}
   if(e.target.closest('.clear')){sel={t:null,id:null};render();return;}
   const cat=e.target.closest('[data-cat]'); if(cat){pick('cat',cat.dataset.cat);return;}
-  const it=e.target.closest('[data-it]'); if(it){pick('it',it.dataset.it);return;}
+  const it=e.target.closest('[data-it]'); if(it){pick('it',it.dataset.it);if(it.closest('#cm'))window.scrollTo({top:0,behavior:'smooth'});return;}
   const p=e.target.closest('.part[data-id]'); if(p){pick('it',p.dataset.id);}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('part')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));}});
-table();render();heat();feed();
+table();render();heat();feed();matrix();
 fetch('data/pcbmap.json?v='+Math.floor(Date.now()/6e5)).then(r=>r.ok?r.json():null).then(j=>{
-  if(!j||!j.items)return;U=j;mode='demand';
+  if(!j||!j.items)return;U=j;mode='yoy';
   $('#asof').textContent=(j.asof||'')+' 점검';
-  $('#modes').hidden=false;table();render();heat();feed();$('#feedc').hidden=false;
+  $('#modes').hidden=false;table();matrix();heat();feed();$('#feedc').hidden=false;
 }).catch(()=>{});
 
 let v3=null;
