@@ -69,17 +69,17 @@ nav .sbrand span{font-size:12px;color:var(--faint)}
 .navitem.on{font-weight:600;color:var(--accent);background:var(--accent-soft)}
 .navitem small{font-size:11px;color:var(--faint);font-weight:400}
 .navitem .ico{display:none}
-.navitem.jpsub{display:none!important}   /* 日 시장 하위 탭 — 사이드바엔 '日 시장' 하나만 */
-.jpbar{display:none;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 28px;border-bottom:1px solid var(--line);
+.navitem.subtab{display:none!important}   /* 묶음 탭(日 시장·韓 수급)의 하위 탭 — 사이드바엔 묶음 하나만 */
+.subbar{display:none;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 28px;border-bottom:1px solid var(--line);
   background:var(--bg);position:sticky;top:0;z-index:5}
-body.jpon .jpbar{display:flex}
-.jpbar b{font-size:14px;font-weight:800;margin-right:8px}
-.jpbar button{border:1px solid var(--line);background:var(--surface);color:var(--sub);font-family:inherit;font-size:13px;
+body.subon .subbar{display:flex}
+.subbar b{font-size:14px;font-weight:800;margin-right:8px}
+.subbar button{border:1px solid var(--line);background:var(--surface);color:var(--sub);font-family:inherit;font-size:13px;
   font-weight:500;padding:6px 12px;border-radius:999px;cursor:pointer}
-.jpbar button:hover{color:var(--text);border-color:var(--accent-line)}
-.jpbar button.on{color:var(--accent);background:var(--accent-soft);border-color:var(--accent-line);font-weight:600}
-body.jpon .panel.embed iframe{height:calc(100vh - 99px - 51px)}
-@media(max-width:860px){.jpbar{padding:10px 20px}}
+.subbar button:hover{color:var(--text);border-color:var(--accent-line)}
+.subbar button.on{color:var(--accent);background:var(--accent-soft);border-color:var(--accent-line);font-weight:600}
+body.subon .panel.embed iframe{height:calc(100vh - 99px - 51px)}
+@media(max-width:860px){.subbar{padding:10px 20px}}
 
 /* ── 탭 보관 (사이드바 맨 아래 토글 그룹) ── */
 .navitem small{margin-left:auto}   /* 별 추가 후에도 small 배지가 오른쪽에 붙도록 */
@@ -616,21 +616,22 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="sector">산업별 등락</button>
     <button class="navitem" data-tab="disparity">50일 이격도</button>
     <div class="navgroup">수급 · 모멘텀</div>
-    <button class="navitem" data-tab="supply">투자자별 수급/거래량 증감</button>
-    <button class="navitem" data-tab="invflow">투자자별 일일 수급 <small>장중</small></button>
-    <button class="navitem" data-tab="streak">수급 연속 <small>새벽</small></button>
+    <button class="navitem" data-tab="krflow">韓 수급 <small>6개</small></button>
+    <button class="navitem subtab" data-tab="supply">투자자별 수급/거래량 증감</button>
+    <button class="navitem subtab" data-tab="invflow">투자자별 일일 수급 <small>장중</small></button>
+    <button class="navitem subtab" data-tab="streak">수급 연속 <small>새벽</small></button>
     <button class="navitem" data-tab="flowosc">수급 오실레이터 <small>MACD</small></button>
-    <button class="navitem" data-tab="binjip">업종 내 수급 빈집찾기 <small>NEW</small></button>
+    <button class="navitem subtab" data-tab="binjip">업종 내 수급 빈집찾기 <small>NEW</small></button>
     <button class="navitem" data-tab="creditdd">신용잔고 MDD <small>NEW</small></button>
-    <button class="navitem" data-tab="etccorp">기타법인 수급 <small>매일</small></button>
+    <button class="navitem subtab" data-tab="etccorp">기타법인 수급 <small>매일</small></button>
     <button class="navitem" data-tab="krhigh">韓 신고가 (20·60일·52주)</button>
     <button class="navitem" data-tab="ushigh">美 신고가 (20·60일·52주)</button>
     <button class="navitem" data-tab="jpmarket">日 시장 <small>5개</small></button>
-    <button class="navitem jpsub" data-tab="jphigh">日 신고가 (20·60일·52주) <small>NEW</small></button>
-    <button class="navitem jpsub" data-tab="jpflow">日 수급 (신용·공매도·주체) <small>NEW</small></button>
-    <button class="navitem jpsub" data-tab="jpsector">日 주도 섹터 (33업종) <small>NEW</small></button>
-    <button class="navitem jpsub" data-tab="jpearn">日 결산 스크리닝 <small>NEW</small></button>
-    <button class="navitem jpsub" data-tab="jpval">日 밸류에이션 · 가이던스 <small>NEW</small></button>
+    <button class="navitem subtab" data-tab="jphigh">日 신고가 (20·60일·52주) <small>NEW</small></button>
+    <button class="navitem subtab" data-tab="jpflow">日 수급 (신용·공매도·주체) <small>NEW</small></button>
+    <button class="navitem subtab" data-tab="jpsector">日 주도 섹터 (33업종) <small>NEW</small></button>
+    <button class="navitem subtab" data-tab="jpearn">日 결산 스크리닝 <small>NEW</small></button>
+    <button class="navitem subtab" data-tab="jpval">日 밸류에이션 · 가이던스 <small>NEW</small></button>
     <button class="navitem" data-tab="rs">RS 분석</button>
     <button class="navitem" data-tab="semietf">반도체 ETF 수혜</button>
     <button class="navitem" data-tab="semirebal">반도체 ETF 리밸런싱 <small>9/10</small></button>
@@ -638,7 +639,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="align">정배열 트래커</button>
     <button class="navitem" data-tab="macd">MACD 트래커</button>
     <button class="navitem" data-tab="mommap">모멘텀 지도</button>
-    <button class="navitem" data-tab="buyback">자사주 매수 트래커</button>
+    <button class="navitem subtab" data-tab="buyback">자사주 매수 트래커</button>
     <div class="navgroup">비교 · 밸류</div>
     <button class="navitem" data-tab="caps">시총비교</button>
     <button class="navitem" data-tab="basket7">업종 시총비중</button>
@@ -669,7 +670,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="reportscreen">리포트 스크리닝 <small>장중</small></button>
     <button class="navitem" data-tab="deepresearch">심층 리서치</button>
     <button class="navitem" data-tab="mktsize">시장 규모 브리핑 <small>NEW</small></button>
-    <button class="navitem" data-tab="leadflow">변동성 로테이션</button>
+    <button class="navitem" data-tab="leadflow">국면 분석 <small>주간</small></button>
     <button class="navitem" data-tab="rstime">RS 타임머신</button>
     <button class="navitem" data-tab="backlog">수주잔고 <small>DART</small></button>
     <button class="navitem" data-tab="util">가동률 트래커 <small>DART</small></button>
@@ -891,11 +892,6 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
       <div id="khBody"></div>
     </section>
 
-    <div class="jpbar" id="jpBar"><b>日 시장</b>
-      <button data-jp="jphigh">신고가</button><button data-jp="jpflow">수급</button><button data-jp="jpsector">주도 섹터</button>
-      <button data-jp="jpearn">결산 스크리닝</button><button data-jp="jpval">밸류에이션 · 가이던스</button>
-    </div>
-
     <section class="panel" id="tab-jphigh">
       <div class="ptitle">日 신고가 <span style="font-size:12px;font-weight:600;color:var(--dim2)">20일·60일(장중 고가)·52주(종가) · 거래대금 3억엔↑ · 도쿄증권거래소 전 종목 판정</span></div>
       <div class="pdesc" id="jhMeta">불러오는 중…</div>
@@ -1085,7 +1081,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     </section>
 
     <section class="panel embed" id="tab-leadflow">
-      <iframe data-src="leadflow.html" title="변동성 로테이션"></iframe>
+      <iframe data-src="leadflow.html" title="국면 분석"></iframe>
     </section>
 
     <section class="panel embed" id="tab-rstime">
@@ -3817,23 +3813,31 @@ document.querySelectorAll('.navitem[data-tab],.card[data-go]').forEach(el=>{
 });
 
 /* ── 탭 전환 (iframe은 첫 진입 시에만 로드) ── */
-const JP_SUBS=['jphigh','jpflow','jpsector','jpearn','jpval'];
-document.querySelectorAll('#jpBar button').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.jp)));
+/* ── 묶음 탭: 사이드바 한 칸 + 패널 위 하위 탭 바 (261116) ── */
+const TAB_GROUPS={
+  jpmarket:{label:'日 시장',subs:[['jphigh','신고가'],['jpflow','수급'],['jpsector','주도 섹터'],['jpearn','결산 스크리닝'],['jpval','밸류에이션 · 가이던스']]},
+  krflow:{label:'韓 수급',subs:[['invflow','일일 수급'],['supply','수급/거래량 증감'],['streak','수급 연속'],['binjip','빈집찾기'],['etccorp','기타법인'],['buyback','자사주 매수']]}};
+const SUB2GRP={};for(const g in TAB_GROUPS)for(const [t] of TAB_GROUPS[g].subs)SUB2GRP[t]=g;
+const subBar=document.createElement('div');subBar.className='subbar';subBar.id='subBar';
 const items=document.querySelectorAll('.navitem'),panels=document.querySelectorAll('.panel');
 function openTab(tab){
   if(MERGED_TABS[tab])tab=MERGED_TABS[tab];
   if(HIDDEN_TABS.has(tab)){history.replaceState(null,'','#home');return;}
-  if(tab==='jpmarket'){let j=null;try{j=localStorage.getItem('rl-jp-sub')}catch(_){}tab=JP_SUBS.includes(j)?j:'jphigh';}  // 홈은 기본 표시 — openTab('home')은 로드 시점에 homeTimer TDZ 오류
+  // ↑ 홈은 기본 표시 — openTab('home')은 로드 시점에 homeTimer TDZ 오류라 부르지 않는다
+  if(TAB_GROUPS[tab]){let j=null;try{j=localStorage.getItem('rl-sub-'+tab)}catch(_){}
+    tab=SUB2GRP[j]===tab?j:TAB_GROUPS[tab].subs[0][0];}   // 묶음 클릭 = 마지막에 본 하위 탭
   const btn=document.querySelector(`.navitem[data-tab="${tab}"]`);if(!btn)return;
   items.forEach(b=>b.classList.remove('on'));
   panels.forEach(p=>p.classList.remove('on'));
   btn.classList.add('on');
-  const isJp=JP_SUBS.includes(tab);                       // 日 시장: 하위 탭 바 + 사이드바 '日 시장' 강조
-  document.body.classList.toggle('jpon',isJp);
-  if(isJp){document.querySelector('.navitem[data-tab="jpmarket"]').classList.add('on');
-    document.querySelectorAll('#jpBar button').forEach(b=>b.classList.toggle('on',b.dataset.jp===tab));
-    try{localStorage.setItem('rl-jp-sub',tab)}catch(_){}}
-  const panel=document.getElementById('tab-'+tab);
+  const grp=SUB2GRP[tab], panel=document.getElementById('tab-'+tab);
+  document.body.classList.toggle('subon',!!grp);
+  if(grp){document.querySelector(`.navitem[data-tab="${grp}"]`).classList.add('on');
+    subBar.innerHTML=`<b>${TAB_GROUPS[grp].label}</b>`+TAB_GROUPS[grp].subs.map(([t,l])=>`<button data-sub="${t}" class="${t===tab?'on':''}">${l}</button>`).join('');
+    subBar.querySelectorAll('button').forEach(b=>b.onclick=()=>openTab(b.dataset.sub));
+    panel.before(subBar);
+    try{localStorage.setItem('rl-sub-'+grp,tab)}catch(_){}}
+  else subBar.remove();
   panel.classList.add('on');
   const f=panel.querySelector('iframe[data-src]');
   // 자주 갱신되는 대시보드는 10분 단위 캐시버스터를 붙여 낡은 페이지가 남지 않게 한다
@@ -3883,7 +3887,7 @@ function archApply(){
   archOrder.forEach(el=>archNav.appendChild(el));       // 전부 원위치 후 보관분만 아래로
   const archived=[];
   archNav.querySelectorAll('.navitem[data-tab]').forEach(b=>{
-    if(b.dataset.tab!=='home'&&!b.classList.contains('jpsub')&&archSet.has(b.dataset.tab))archived.push(b);
+    if(b.dataset.tab!=='home'&&!b.classList.contains('subtab')&&archSet.has(b.dataset.tab))archived.push(b);
   });
   archived.forEach(b=>archList.appendChild(b));
   archNav.querySelectorAll('.navgroup').forEach(g=>{    // 전부 보관돼 비어버린 그룹 라벨 숨김
@@ -3934,7 +3938,7 @@ function favApply(){
   const favs=[];
   archNav.querySelectorAll('.navitem[data-tab]').forEach(b=>{
     const t=b.dataset.tab;
-    if(t!=='home'&&!b.classList.contains('jpsub')&&favSet.has(t)&&!archSet.has(t))favs.push(b);  // 보관된 탭은 보관 그룹 우선
+    if(t!=='home'&&!b.classList.contains('subtab')&&favSet.has(t)&&!archSet.has(t))favs.push(b);  // 보관된 탭은 보관 그룹 우선
   });
   favs.forEach(b=>favList.appendChild(b));
   favGroup.style.display=favs.length?'':'none';
