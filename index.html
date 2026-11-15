@@ -198,6 +198,9 @@ button.card:hover{box-shadow:var(--shadow-hover);transform:none}
 .qch .meta{font-size:11px;color:var(--faint);font-weight:500;letter-spacing:.01em}
 .qch .rt{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .qfoot{font-size:11px;color:var(--faint);margin-top:11px;line-height:1.65}
+.qemb{padding:16px 10px 6px;overflow:hidden}
+.qemb .qch{margin:0 10px 8px}
+.qemb iframe{display:block;width:100%;height:520px;border:0;border-radius:12px;background:transparent}
 .scrollx{overflow-x:auto;margin:0 -20px;padding:0 20px}
 .scrollx::-webkit-scrollbar{height:7px}
 .scrollx::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
@@ -850,6 +853,18 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
         <div id="qtDrop" style="position:absolute;top:100%;left:0;right:0;z-index:40;display:none;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-top:5px;box-shadow:var(--shadow);max-height:350px;overflow-y:auto"></div>
       </div>
       <div id="qtBody"><div class="empty"><b>종목을 검색해 선택하세요</b>코스피·코스닥 전 종목의 차트와 밸류에이션·컨센서스·수급을 볼 수 있습니다.</div></div>
+      <!-- 통합 섹션(261116): 수급 오실레이터·수주잔고·가동률·비용구조 — iframe은 종목을 바꿔도 재사용(해시만 교체) -->
+      <div class="qwrap" id="qtEmbWrap" style="margin-top:14px;display:none">
+        <div class="qcard qemb" data-emb="flowosc" data-src="flowosc/index.html" style="display:none"><div class="qch"><h3>수급 오실레이터</h3><span class="meta">(기관계+외국인총합) 5일누적 순매수 ÷ 시가총액 · MACD(12,26,9) 히스토그램 · 기간 선택·드래그 확대</span></div><iframe title="수급 오실레이터" loading="lazy" scrolling="no"></iframe></div>
+        <div class="qcard qemb" data-emb="backlog" data-src="backlog.html" style="display:none"><div class="qch"><h3>수주잔고</h3><span class="meta">분기별 수주잔고 · QoQ·YoY·연속증가·매출 커버리지 · 부문별 내역</span></div><iframe title="수주잔고" loading="lazy" scrolling="no"></iframe></div>
+        <div class="qcard qemb" data-emb="util" data-src="util/index.html" style="display:none"><div class="qch"><h3>가동률</h3><span class="meta">정기보고서 공시 가동률 · 부문(공장)별 추이</span></div><iframe title="가동률" loading="lazy" scrolling="no"></iframe></div>
+        <div class="qcard qemb" data-emb="cost" data-src="cost/index.html" style="display:none"><div class="qch"><h3>비용구조</h3><span class="meta">분기 손익 · 성격별 비용 · 판관비 · 부문 매출</span></div><iframe title="비용구조" loading="lazy" scrolling="no"></iframe></div>
+      </div>
+      <div class="qwrap" id="qtTail" style="margin-top:14px">
+        <div id="qtPeer"></div>
+        <div id="qtLinks"></div>
+        <div class="qcard qnote" id="qtNote"></div>
+      </div>
     </section>
 
     <section class="panel" id="tab-streak">
@@ -2992,15 +3007,13 @@ function qtRender(){
       <div class="qfoot">차트 Lightweight Charts™ by TradingView · 시세 네이버증권 · 주/월봉은 일봉 합산, 5년은 월별 종가</div>
     </div>
 
+    <div id="qtDDSec"></div>
     <div id="qtPerf"></div>
     <div id="qtProfit"></div>
     <div id="qtVal"></div>
     <div id="qtBandWrap"></div>
     <div id="qtFlowSec"></div>
     <div id="qtOscSec"></div>
-    <div id="qtPeer"></div>
-    <div id="qtLinks"></div>
-    <div class="qcard qnote" id="qtNote"></div>
   </div>`;
 
   /* 차트 바 바인딩 */
@@ -3015,6 +3028,102 @@ function qtRender(){
   qtPeerRender(s);
   needExt().then(()=>{if(qtSel===s.c)qtExtFill(s);});
   qtPackFill(s);
+  qtDDRender(s);
+  qtEmbSync(s);
+}
+
+/* ── 전고대비 (전 종목 · data/dd 샤드) ── */
+const QT_DD={};
+async function qtDDRender(s){
+  const el=document.getElementById('qtDDSec');if(!el)return;
+  const sh=parseInt(s.c,10)%40;if(isNaN(sh)||!/^\d+$/.test(s.c)){el.innerHTML='';return;}
+  const key=String(sh).padStart(2,'0');
+  if(!QT_DD[key])QT_DD[key]=getJson('data/dd/d'+key+'.json').catch(()=>({}));
+  const d=(await QT_DD[key])[s.c];
+  if(qtSel!==s.c||!document.getElementById('qtDDSec'))return;
+  const box=document.getElementById('qtDDSec');
+  if(!d||!d.d||d.d.length<4){box.innerHTML='';return;}
+  const f6=x=>{x=String(x).padStart(6,'0');return x.slice(0,2)+'.'+x.slice(2,4)+'.'+x.slice(4);};
+  const won=v=>'₩'+Math.round(v).toLocaleString('ko-KR');
+  const open=d.e.length&&!d.e[0][4];
+  const st=(k,v)=>`<div><div style="font-size:11px;color:var(--faint);margin-bottom:4px">${k}</div><div style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">${v}</div></div>`;
+  box.innerHTML=`
+  <div class="qcard">
+    <div class="qch"><h3>전고대비</h3>
+      <span class="meta">전고점(장중 최고가) 대비 낙폭 · 20${f6(d.st)} ~ · 수정주가</span>
+      <div class="rt"><span style="font-size:11.5px;font-weight:700;color:${d.cd<0?'var(--down)':'var(--up)'};background:var(--hover);border-radius:99px;padding:3px 11px">${d.cd<0?'전고대비 '+d.cd+'%':'전고점 부근'}${d.cd<=-20?' · 조정':''}</span></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 20px;margin-bottom:14px">
+      ${st('현재가 (종가)',won(d.p))}
+      ${st('전고점 (장중 최고)',won(d.a)+` <span style="color:var(--faint);font-weight:500;font-size:11px">${f6(d.ad)}</span>`)}
+      ${st('현재 낙폭 (종가)',`<span style="color:${d.cd<0?'var(--down)':'inherit'}">${d.cd}%</span>`)}
+      ${st('-15% 진입 횟수',d.n+'회'+(open?' <span style="color:var(--gold-hi,#e0a030);font-size:11px">진행중</span>':''))}
+    </div>
+    <canvas id="qtDDCv" style="width:100%"></canvas>
+    <div class="qfoot" style="margin-top:4px">전고점(=0%) 대비 종가 낙폭 추이(주간 최저) · 점선 = -15%</div>
+    ${d.e.length?`<div class="hgroup" style="margin-top:16px">전고대비 -15% 이상 하락 구간 · 최신순 ${d.n>d.e.length?d.e.length+'건 (전체 '+d.n+'건)':d.n+'건'}</div>
+    <div style="overflow:auto;max-height:292px"><table class="ddt"><thead><tr><th>-15% 진입일</th><th>최저점 (날짜·장중저가)</th><th>최대 낙폭</th><th>회복일</th><th>지속(거래일)</th></tr></thead><tbody>
+    ${d.e.map(e=>`<tr><td>${f6(e[0])}</td><td><b>${f6(e[1])}</b> (${won(e[2])})</td>
+      <td style="color:var(--down);font-weight:700">${e[3]}%</td>
+      <td>${e[4]?`<span style="color:var(--up)">${f6(e[4])}</span>`:'<span style="color:var(--gold-hi,#e0a030);font-weight:700">진행중</span>'}</td>
+      <td>${e[5]}일</td></tr>`).join('')}</tbody></table></div>`:
+    '<div class="qfoot">이 기간에 종가 기준 -15% 이상 하락한 구간이 없습니다.</div>'}
+  </div>`;
+  lineChart(document.getElementById('qtDDCv'),{labels:d.d.map(x=>String(x).padStart(6,'0')),h:210,series:[
+    {data:d.v,color:'#f04452',fill:'rgba(240,68,82,.14)',w:1}],fillBase:0,
+    hlines:[{y:-15,color:'#f04452',dash:[4,4],label:'-15%'}],
+    yfmt:v=>v.toFixed(0)+'%',xfmt:x=>'20'+x.slice(0,2)});
+}
+
+/* ── 통합 임베드 (수급 오실레이터·수주잔고·가동률·비용구조) ──
+   각 페이지의 ?emb=1#종목코드 상세 모드를 그대로 쓴다. 커버리지 목록으로 해당 종목에 데이터가 있는 섹션만 보인다. */
+let QT_EMB=null,QT_EMB_OK={};
+const QT_EMB_V=Math.floor(Date.now()/6e5);
+function qtEmbIdx(){
+  if(QT_EMB)return QT_EMB;
+  const g=(u,fn)=>getJson(u).then(fn).catch(()=>null);     // null = 목록 실패 → 섹션 숨김
+  QT_EMB=Promise.all([
+    g('flowosc/data/index.json',d=>new Set(d.stocks.map(x=>x[0]))),
+    g('data/backlog.json',d=>new Set(d.rows.filter(r=>(r.v||[]).some(v=>v!=null)).map(r=>r.c))),
+    g('util/codes.json',d=>new Set(d)),
+    g('cost/data/index.json',d=>new Set(d.stocks.map(x=>x[0])))
+  ]).then(([flowosc,backlog,util,cost])=>(QT_EMB_OK={flowosc,backlog,util,cost}));
+  return QT_EMB;
+}
+function qtEmbFit(f){
+  try{const b=f.contentDocument&&f.contentDocument.body;if(!b)return;
+    const h=Math.ceil(b.getBoundingClientRect().height)+
+      (parseFloat(getComputedStyle(b).marginTop)||0)+(parseFloat(getComputedStyle(b).marginBottom)||0);
+    if(h>40)f.style.height=h+'px';}catch(_){}
+}
+async function qtEmbSync(s){
+  const wrap=document.getElementById('qtEmbWrap');if(!wrap)return;
+  const idx=await qtEmbIdx();
+  if(qtSel!==s.c)return;
+  let any=false;
+  wrap.querySelectorAll('.qemb').forEach(card=>{
+    const k=card.dataset.emb,f=card.querySelector('iframe'),ok=!!(idx[k]&&idx[k].has(s.c));
+    card.style.display=ok?'':'none';
+    if(!ok)return;
+    any=true;
+    const url=card.dataset.src+'?emb=1&v='+QT_EMB_V+'#'+s.c;
+    if(!f.dataset.init){
+      f.dataset.init='1';
+      f.addEventListener('load',()=>{
+        f.dataset.ready='1';
+        try{const b=f.contentDocument.body;
+          new f.contentWindow.ResizeObserver(()=>qtEmbFit(f)).observe(b);
+          new ResizeObserver(()=>qtEmbFit(f)).observe(f);}catch(_){}
+        qtEmbFit(f);
+      });
+      f.src=url;
+    }else if(f.dataset.ready){
+      try{f.contentWindow.location.replace(url);}catch(_){f.src=url;}   // 해시만 바뀜 → 재로딩 없이 종목 전환
+    }else f.src=url;
+  });
+  wrap.style.display=any?'':'none';
+  /* 장기 오실레이터(임베드)가 있으면 100일 요약 카드는 접는다 */
+  const o=document.getElementById('qtOscSec');
+  if(o&&idx.flowosc&&idx.flowosc.has(s.c))o.innerHTML='';
 }
 
 /* quotes_ext 의존 — 상대수익률·평균거래대금·밴드 */
@@ -3050,7 +3159,7 @@ async function qtPackFill(s){
   qtProfitRender(s,W);
   qtValRender(s,W);
   qtFlowRender(s,pack);
-  qtOscRender(s,pack);
+  if(!(QT_EMB_OK.flowosc&&QT_EMB_OK.flowosc.has(s.c)))qtOscRender(s,pack);
   const nY=(W.y||[]).length,nQ=(W.q||[]).length;
   document.getElementById('qtNote').innerHTML=
     `<div class="qch"><h3>참고</h3></div>
@@ -3681,13 +3790,18 @@ function qtPeerRender(s){
 
 /* ── 일시 숨김 탭 (261116 1NE 지시) — 되살리려면 목록에서 빼면 된다 ── */
 const HIDDEN_TABS=new Set(['meridian','leaders','rrgsec','rstime','telegram']);
+/* ── 종목 분석으로 통합된 탭 (261116 1NE 지시) — 탭만 내리고 페이지·데이터·패널은 그대로 보존.
+      옛 주소(#dd·#backlog·#util·#cost)는 종목 분석으로 보낸다. 되살리려면 목록에서 빼면 된다 ── */
+const MERGED_TABS={dd:'quote',backlog:'quote',util:'quote',cost:'quote'};
 document.querySelectorAll('.navitem[data-tab],.card[data-go]').forEach(el=>{
-  if(HIDDEN_TABS.has(el.dataset.tab||el.dataset.go))el.remove();
+  const t=el.dataset.tab||el.dataset.go;
+  if(HIDDEN_TABS.has(t)||MERGED_TABS[t])el.remove();
 });
 
 /* ── 탭 전환 (iframe은 첫 진입 시에만 로드) ── */
 const items=document.querySelectorAll('.navitem'),panels=document.querySelectorAll('.panel');
 function openTab(tab){
+  if(MERGED_TABS[tab])tab=MERGED_TABS[tab];
   if(HIDDEN_TABS.has(tab)){history.replaceState(null,'','#home');return;}  // 홈은 기본 표시 — openTab('home')은 로드 시점에 homeTimer TDZ 오류
   const btn=document.querySelector(`.navitem[data-tab="${tab}"]`);if(!btn)return;
   items.forEach(b=>b.classList.remove('on'));
