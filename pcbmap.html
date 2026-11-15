@@ -268,7 +268,7 @@ td.dot .sp{vertical-align:middle}
     <rect x="272.6" y="560" width="30" height="46" rx="2"/><rect x="310.2" y="560" width="30" height="46" rx="2"/><rect x="347.8" y="560" width="30" height="46" rx="2"/><rect x="385.4" y="560" width="30" height="46" rx="2"/><rect x="423" y="560" width="30" height="46" rx="2"/>
   </g>
   <text x="62" y="587" class="tc" font-size="10">D램</text>
-  <path d="M325 600 V650" stroke="var(--faint)" stroke-width="1.5" fill="none"/><circle cx="325" cy="598" r="3.5" fill="var(--glow)"/>
+  <path d="M325 600 V650" stroke="var(--faint)" stroke-width="1.5" fill="none"/><circle cx="325" cy="610" r="3.5" fill="var(--glow)"/>
   <text x="325" y="668" text-anchor="middle" class="t">③ 메모리 패키지기판 <tspan class="ts" font-weight="500">검은 칩 아래 숨은 판</tspan></text>
 </g>
 
@@ -442,7 +442,7 @@ const ORDER=['module1','socamm','mempkg','fccsp','fcbga','mlb','hdi'], COS=['sim
 const NUM='①②③④⑤⑥⑦';
 const MET=[['demand','수요 강도'],['bottleneck','병목 강도'],['importance','중요도']];
 const HEAT=['var(--h0)','var(--h1)','var(--h2)','var(--h3)','var(--h4)','var(--h5)'];
-const BADGE={module1:[[470,542],[830,542]],socamm:[[548,96]],mempkg:[[453,560]],fccsp:[[590,558]],fcbga:[[230,88]],mlb:[[640,42]],hdi:[[938,62]]};
+const BADGE={module1:[[470,542],[830,542]],socamm:[[548,96]],mempkg:[[325,598]],fccsp:[[590,558]],fcbga:[[230,88]],mlb:[[640,42]],hdi:[[938,62]]};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const panel=$('#panel'); let sel={t:null,id:null}, U=null, mode='none', feedF='all';
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -515,7 +515,9 @@ function render(){
   $$('#cos .chip[data-co]').forEach(b=>b.classList.toggle('on',sel.t==='co'&&b.dataset.co===sel.id));
   $('#cos .clear').hidden=sel.t!=='co';
   $$('#tbl tr.it').forEach(r=>r.classList.toggle('sel',sel.t==='it'&&r.dataset.it===sel.id));
+  dimB();
 }
+function dimB(){$$('#badges .bdg').forEach(b=>{b.style.opacity=(sel.t==='co'&&!IT[b.dataset.it].co.includes(sel.id))?.18:1;});}
 function pick(t,id){sel=(sel.t===t&&sel.id===id&&t==='co')?{t:null,id:null}:{t,id};render();}
 
 function heat(){
@@ -531,7 +533,7 @@ function heat(){
     $$(`#map .part[data-id="${id}"]`).forEach(p=>p.style.setProperty('--hc',HEAT[s]));
     BADGE[id].forEach(([x,y])=>{g+=`<g class="bdg" data-it="${id}"><circle cx="${x}" cy="${y}" r="15" style="fill:${HEAT[s]}" stroke="#fff" stroke-width="2"/><text x="${x}" y="${y+5.5}" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">${s}</text></g>`;});
   });
-  $('#badges').innerHTML=g;
+  $('#badges').innerHTML=g;dimB();
 }
 
 function table(){
