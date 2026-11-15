@@ -103,9 +103,9 @@ svg text{fill:var(--faint);font-size:10px}
   </div>
 
   <div class="card">
-    <h2>업종별 순매수 <small id="secSub"></small></h2>
-    <div class="hint">행을 누르면 아래에 업종 안 종목별 빈집 분석이 열립니다. 열 제목을 누르면 정렬됩니다.</div>
-    <div class="tw"><table id="secTbl"></table></div>
+    <h2>빈집 후보 <small id="allSub"></small></h2>
+    <div class="hint">업종에는 돈이 들어왔는데, 시총 크기만큼 못 받은 종목입니다. <b>미달 bp</b>가 클수록 더 비어 있고, <b>60일 빈집도</b>가 음수면 오래 비어 있던 집. 행을 누르면 바로 아래에 그 업종 상세가 열립니다.</div>
+    <div class="tw"><table id="allTbl"></table></div>
   </div>
 
   <div class="card" id="detail">
@@ -120,9 +120,9 @@ svg text{fill:var(--faint);font-size:10px}
   </div>
 
   <div class="card">
-    <h2>전 업종 빈집 후보 <small id="allSub"></small></h2>
-    <div class="hint">순매수가 들어온 업종만 대상으로, 업종 안에서 시총 비중보다 덜 받은 종목을 미달 bp 순으로 모았습니다. 규모 지수(대형·중형·소형)는 중복이라 제외합니다.</div>
-    <div class="tw"><table id="allTbl"></table></div>
+    <h2>업종별 순매수 (전체) <small id="secSub"></small></h2>
+    <div class="hint">어느 업종에 돈이 들어왔는지 전체 표. 행을 누르면 위 상세가 그 업종으로 바뀝니다. 열 제목을 누르면 정렬됩니다.</div>
+    <div class="tw"><table id="secTbl"></table></div>
   </div>
 
   <div class="card note">
@@ -174,7 +174,7 @@ function seg(id,items,cur,on){
   $(id).onclick=e=>{const b=e.target.closest('button');if(!b)return;on(b.dataset.v);};
 }
 function drawCtrl(){
-  seg('segMk',[['KOSPI','코스피'],['KOSDAQ','코스닥']],ST.mk,v=>{ST.mk=v;ST.sec=null;save();render();});
+  seg('segMk',[['KOSPI','코스피'],['KOSDAQ','코스닥']],ST.mk,v=>{ST.mk=v;ST.sec=null;ST.picked=false;save();render();});
   seg('segAct',D.actors.map(a=>[a[0],a[1]]),ST.act,v=>{ST.act=v;save();render();});
   seg('segWin',WLAB.map((l,i)=>[i,l]),ST.win,v=>{ST.win=+v;save();render();});
 }
@@ -205,8 +205,8 @@ function drawSecTbl(){
   h+=`<tr class="grp"><td colspan="12">업종별</td></tr>`+ind.map(tr).join('');
   $('secTbl').innerHTML=h+'</tbody>';
   $('secTbl').querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{if(th.dataset.k==='name')return;ST.secSort=th.dataset.k;drawSecTbl();});
-  $('secTbl').querySelectorAll('tr.sec').forEach(tr=>tr.onclick=()=>{ST.sec=tr.dataset.key;drawSecTbl();drawDetail();
-    if(window.innerWidth<820)$('detail').scrollIntoView({behavior:'smooth'});});
+  $('secTbl').querySelectorAll('tr.sec').forEach(tr=>tr.onclick=()=>{ST.sec=tr.dataset.key;ST.picked=true;drawSecTbl();drawDetail();
+    $('detail').scrollIntoView({behavior:'smooth'});});
   $('secSub').textContent=`${WLAB[wi]} 누적 · 억원 · ${actLab(a)} 기준 정렬`;
 }
 
@@ -327,6 +327,7 @@ function drawAll(){
     stockRows(sec).forEach(r=>{if(r.cand)all.push(Object.assign(r,{secBp:ss.bp}));});
   });
   all.sort((x,y)=>y.gap-x.gap);all=all.slice(0,40);
+  ST.topSec=all.length?all[0].sec.key:null;   // 상세 기본값 = 1위 후보의 업종
   $('allSub').textContent=`${actLab(a)} ${WLAB[wi]} · ★후보 ${all.length}종목 (상위 40)`;
   if(!all.length){$('allTbl').innerHTML='<tr><td class="l z">조건을 만족하는 후보가 없습니다 — 주체·기간·필터를 바꿔 보세요.</td></tr>';return;}
   let h=`<thead><tr><th class="l">종목</th><th class="l">업종</th><th>업종 bp</th><th>시총</th><th>시총비중</th><th>순매수<small>억</small></th><th>미달액<small>억</small></th><th>미달 bp</th><th>60일 빈집도</th><th>20일<small>%</small></th><th>거래대금<small>억</small></th></tr></thead><tbody>`;
@@ -334,10 +335,10 @@ function drawAll(){
     <td class="l">${r.sec.name}</td><td>${sgn(r.secBp,1)}</td><td>${capTxt(r.s.cap)}</td><td>${pct(r.w)}</td><td>${sgn(r.act)}</td><td>${sgn(r.short)}</td>
     <td><b>${sgn(r.gap,1)}</b></td><td>${sgn(r.long,1)}</td><td>${sgn(r.s.r20,1)}</td><td>${fmt(r.s.v20)}</td></tr>`).join('');
   $('allTbl').innerHTML=h+'</tbody>';
-  $('allTbl').querySelectorAll('tr.sec').forEach(tr=>tr.onclick=()=>{ST.sec=tr.dataset.key;drawSecTbl();drawDetail();$('detail').scrollIntoView({behavior:'smooth'});});
+  $('allTbl').querySelectorAll('tr.sec').forEach(tr=>tr.onclick=()=>{ST.sec=tr.dataset.key;ST.picked=true;drawSecTbl();drawDetail();$('detail').scrollIntoView({behavior:'smooth'});});
 }
 
-function render(){drawCtrl();drawSecTbl();drawDetail();drawAll();}
+function render(){drawCtrl();drawAll();if(!ST.picked&&ST.topSec)ST.sec=ST.topSec;drawSecTbl();drawDetail();}
 ['fCap','fVal','fKnife','fCand'].forEach(id=>$(id).onchange=()=>{drawDetail();drawAll();});
 
 fetch('data/binjip.json?v='+Math.floor(Date.now()/6e5)).then(r=>r.json()).then(d=>{
