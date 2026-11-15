@@ -29,7 +29,7 @@ header p{margin:6px 0 0;font-size:13.5px;color:var(--sub);line-height:1.55}
 :root[data-theme="dark"] .chip.on{color:#111}
 .chip.simm{--c:var(--c-simm)}.chip.dd{--c:var(--c-dd)}.chip.tlb{--c:var(--c-tlb)}.chip.kc{--c:var(--c-kc)}
 .chip.clear{--c:var(--faint);font-weight:600}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:14px;align-items:start}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:14px;align-items:start}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
 .figs{min-width:0;display:grid;gap:14px}
 .fig{padding:12px 12px 8px;overflow-x:auto}
@@ -68,7 +68,7 @@ dd{margin:0;font-size:13.5px;line-height:1.6;color:var(--text)}
 .code{font-size:12.5px;color:var(--faint);font-weight:500;margin-left:6px}
 .tblc{padding:12px 14px 14px;margin-top:14px;overflow-x:auto}
 .tblc h2{font-size:13.5px;margin:2px 0 10px;color:var(--sub)}
-table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:13px}
 th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
 thead th{font-size:12px;color:var(--faint);font-weight:700;white-space:nowrap}
 thead th.co{text-align:center;cursor:pointer}
@@ -84,22 +84,100 @@ td.dot{text-align:center}
 td.dot i{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c)}
 tbody tr:last-child td{border-bottom:0}
 .foot{font-size:11.5px;color:var(--faint);margin:12px 4px 4px;line-height:1.6}
+:root{--h0:#7a828e;--h1:#7a828e;--h2:#4f86c6;--h3:#c99a2e;--h4:#ef8a3a;--h5:#e5484d}
+.seg{display:inline-flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:3px}
+.seg button{border:0;background:none;color:var(--sub);font-size:13px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--accent-soft);color:var(--accent)}
+.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+#asof{font-size:12px;color:var(--faint)}
+.tools{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:12px 0}
+.tools .cos{margin:0}
+#legend{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:12px;color:var(--sub);margin:0 4px 8px}
+#legend[hidden]{display:none}
+#legend i{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:4px}
+svg.heat .part[data-id]{filter:drop-shadow(0 0 2px var(--hc)) drop-shadow(0 0 8px var(--hc))}
+svg.heat .part.sel{filter:drop-shadow(0 0 2px var(--glow)) drop-shadow(0 0 10px var(--glow))}
+.bdg{cursor:pointer}
+.sp{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--hc);color:#fff;font-size:12.5px;font-weight:800}
+.sp.none{background:var(--surface2);color:var(--faint)}
+.dlt{font-size:11px;font-weight:800;margin-left:3px}.dlt.up{color:var(--h5)}.dlt.dn{color:var(--h2)}
+.sec span{font-weight:500;margin-left:6px}
+.st{font-size:14px;font-weight:700;line-height:1.5;margin:0 0 12px}
+.gs{display:grid;gap:11px}
+.g{display:grid;grid-template-columns:74px 1fr;gap:3px 10px;align-items:center}
+.gl{font-size:12.5px;font-weight:700;color:var(--sub)}
+.gb{display:flex;gap:3px;align-items:center}
+.gb i{flex:1;height:9px;border-radius:3px;background:var(--line)}
+.gb i.f{background:var(--hc)}
+.gb b{font-size:14px;width:18px;text-align:right;color:var(--hc)}
+.gw{grid-column:1/-1;font-size:12.5px;line-height:1.55;color:var(--sub)}
+.pr{font-size:13px;line-height:1.6;margin:11px 0 0}
+.pr b{color:var(--accent);font-size:12px;margin-right:6px}
+.cu{margin:0;padding-left:18px;display:grid;gap:5px;font-size:13.5px;line-height:1.55}
+.cu.con{margin-top:11px}
+.mut{font-size:13px;color:var(--faint);margin:0}
+.news{list-style:none;margin:0;padding:0;display:grid;gap:13px}
+.news li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:8px}
+.nd{font-size:11px;font-weight:800;line-height:1.7}.nd.up{color:var(--h5)}.nd.dn{color:var(--h2)}.nd.fl{color:var(--faint)}
+.nh{font-size:12px;color:var(--faint)}
+.ntag{margin-left:7px;font-size:11.5px;background:var(--surface2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--sub)}
+.nt{font-size:13.5px;font-weight:700;line-height:1.5;margin-top:1px}
+.nb{font-size:12.5px;line-height:1.55;color:var(--sub);margin-top:2px}
+.ns{font-size:11.5px;color:var(--faint);margin-top:3px}.ns a{color:var(--accent);text-decoration:none}
+.more{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.more summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--sub);margin-bottom:10px}
+.kid{display:flex;align-items:center;gap:8px}.kn{flex:1;min-width:0}.ks{display:flex;gap:4px;flex:0 0 auto}
+.kid.go{margin-top:16px;color:var(--accent)}
+td.nm small{display:block;font-weight:500;color:var(--sub);font-size:12px;margin-top:2px;line-height:1.45}
+th.mc{text-align:center;cursor:pointer}th.mc:hover{color:var(--text)}
+td.dot .sp{vertical-align:middle}
+.tblc h2 span{font-weight:500;color:var(--faint);margin-left:6px}
+#feedf{margin-bottom:14px}#feedf button{font-size:12px;padding:5px 10px}
+#feed .news{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px 22px}
+.fig3{padding:10px}
+#stage{position:relative;width:100%;height:420px;border-radius:10px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,var(--surface2),var(--surface) 75%);touch-action:none}
+#stage canvas{display:block}
+.l3wrap{position:absolute!important;inset:0;cursor:grab}
+.l3{font-size:11.5px;font-weight:700;color:var(--text);background:color-mix(in srgb,var(--surface) 82%,transparent);border:1px solid var(--line);border-radius:6px;padding:2px 7px;white-space:nowrap;pointer-events:none}
+#stage.nolab .l3,#stage.closed .l3.in{display:none}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:10px 6px 4px;font-size:13px;color:var(--sub)}
+.ctl label{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.ctl input[type=range]{width:180px;accent-color:var(--accent)}
+.ctl input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+.ctl .hint{color:var(--faint);font-size:12px;margin-left:auto}
+#p3{padding:16px 18px}
+#p3 h3{font-size:19px;margin:0;line-height:1.3}
+#p3 h3 .no{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--glow);color:#1a1a1a;font-size:13px;margin-right:8px;vertical-align:2px}
+.m3{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.m3 button{all:unset;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--sub);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+.m3 button.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.leg3{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.leg3 li{display:grid;grid-template-columns:16px 1fr;gap:9px;align-items:start}
+.leg3 i{width:14px;height:14px;border-radius:4px;margin-top:3px;border:1px solid var(--line)}
+.leg3 b{font-size:13.5px;display:block}.leg3 span{font-size:12.5px;color:var(--sub);line-height:1.5}
 @media (max-width:1060px){.grid{grid-template-columns:minmax(0,1fr)}#panel{position:static;max-height:none}}
 </style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
 <body>
 <div class="wrap">
 <header>
   <h1>기판 지도</h1>
-  <p>반도체 기판은 크게 세 가지 — 칩을 감싸는 <b>패키지기판</b>, 그 칩들을 꽂는 <b>모듈 PCB</b>, 전부를 얹는 <b>메인보드</b>. 그림에서 부품을 누르면 역할과 관련 회사가 나옵니다.</p>
+  <p>반도체 기판은 크게 세 가지 — 칩을 감싸는 <b>패키지기판</b>, 그 칩들을 꽂는 <b>모듈 PCB</b>, 전부를 얹는 <b>메인보드</b>. 그림에서 부품을 누르면 역할, 전방사, 업황, 관련 회사가 나옵니다.</p>
 </header>
 
-<div class="cos" id="cos"><span class="lbl">회사로 보기</span></div>
+<div class="top"><div class="seg" id="views"><button data-v="map" class="on">지도 · 업황</button><button data-v="3d">360° 입체</button></div><span id="asof"></span></div>
+<div id="v-map">
+<div class="tools">
+  <div class="cos" id="cos"><span class="lbl">회사로 보기</span></div>
+  <div class="seg" id="modes" hidden><button data-m="none">구조만</button><button data-m="demand">수요 강도</button><button data-m="bottleneck">병목 강도</button><button data-m="importance">중요도</button></div>
+</div>
 
 <div class="grid">
 <div class="figs">
 <div class="card fig">
 <h2>기판이 놓이는 자리 <span>AI·네트워크 서버 한 대와 스마트폰을 위에서 본 모습 (단순화)</span></h2>
+<div id="legend" hidden>동그라미 숫자 = 점수 <span><i style="background:var(--h1)"></i>1 약함</span><span><i style="background:var(--h2)"></i>2</span><span><i style="background:var(--h3)"></i>3 보통</span><span><i style="background:var(--h4)"></i>4</span><span><i style="background:var(--h5)"></i>5 강함</span></div>
 <svg id="map" viewBox="0 0 1000 680" role="img" aria-label="기판 지도">
 <defs>
   <linearGradient id="lid" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dde2e8"/><stop offset="1" stop-color="#99a2ad"/></linearGradient>
@@ -232,6 +310,7 @@ tbody tr:last-child td{border-bottom:0}
   <text x="830" y="500" text-anchor="middle" class="t">⑦ 스마트폰 HDI · FPCB</text>
   <text x="830" y="518" text-anchor="middle" class="ts">파란 판 = HDI 주기판 · 주황 띠 = FPCB</text>
 </g>
+<g id="badges"></g>
 </svg>
 </div>
 
@@ -265,10 +344,32 @@ tbody tr:last-child td{border-bottom:0}
 </div>
 
 <div class="card tblc">
-  <h2>분류 한눈에</h2>
+  <h2>분류 한눈에 <span>열 제목(수요·병목·중요도)을 누르면 지도에 점수가 표시됩니다</span></h2>
   <table id="tbl"></table>
 </div>
-<p class="foot">관련 회사는 직접 정리한 분류 기준이며 각 사의 전체 제품군을 모두 담은 것은 아닙니다 · 그림은 이해를 돕기 위해 단순화했고 실제 크기·배치와 다릅니다 · 종목 추천이 아닙니다.</p>
+<div class="card tblc" id="feedc" hidden>
+  <h2>최근 소식 <span>전 분류·회사 모음, 최신순 · ▲ 업황에 긍정 ▼ 부정</span></h2>
+  <div class="seg" id="feedf"></div>
+  <div id="feed"></div>
+</div>
+</div><!-- /v-map -->
+
+<div id="v-3d" hidden>
+<div class="grid" style="margin-top:12px">
+  <div class="card fig3">
+    <div id="stage"></div>
+    <div class="ctl">
+      <label>분해 <input type="range" id="ex" min="0" max="100" value="0" aria-label="분해 정도"></label>
+      <label><input type="checkbox" id="spin" checked> 자동 회전</label>
+      <label><input type="checkbox" id="names" checked> 이름표</label>
+      <span class="hint">끌어서 돌리기 · 휠(두 손가락)로 확대</span>
+    </div>
+  </div>
+  <aside class="card" id="p3"></aside>
+</div>
+</div>
+
+<p class="foot">업황 점수(1 약함 ~ 5 강함)는 공개된 기사·공시를 바탕으로 한 판단이며 점검일 기준입니다 · 관련 회사는 직접 정리한 분류 기준이며 각 사의 전체 제품군을 모두 담은 것은 아닙니다 · 그림은 이해를 돕기 위해 단순화했고 실제 크기·배치와 다릅니다 · 종목 추천이 아닙니다.</p>
 </div>
 
 <script>
@@ -338,32 +439,71 @@ const IT={
          ['기술 포인트','얇고 작게 만드는 경쟁. 스마트폰 출하량과 모델별 채택에 연동.']]}
 };
 const ORDER=['module1','socamm','mempkg','fccsp','fcbga','mlb','hdi'], COS=['simm','dd','tlb','kc'];
+const NUM='①②③④⑤⑥⑦';
+const MET=[['demand','수요 강도'],['bottleneck','병목 강도'],['importance','중요도']];
+const HEAT=['var(--h0)','var(--h1)','var(--h2)','var(--h3)','var(--h4)','var(--h5)'];
+const BADGE={module1:[[470,542],[830,542]],socamm:[[548,96]],mempkg:[[453,560]],fccsp:[[590,558]],fcbga:[[230,88]],mlb:[[640,42]],hdi:[[938,62]]};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const panel=$('#panel'); let sel={t:null,id:null};
-const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const panel=$('#panel'); let sel={t:null,id:null}, U=null, mode='none', feedF='all';
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const chip=(k,on)=>`<button class="chip ${k}${on?' on':''}" data-co="${k}">${CO[k].n}</button>`;
 const dl=p=>'<dl>'+p.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join('')+'</dl>';
-const kid=id=>`<button class="kid" data-it="${id}">${'①②③④⑤⑥⑦'[IT[id].no-1]} ${esc(IT[id].n)}<small>${esc(IT[id].use)}</small></button>`;
+const ui=id=>U&&U.items&&U.items[id];
+const sc=(id,m)=>{const u=ui(id);return u&&u[m]?+u[m].score||0:0;};
+function delta(id,m){ // 직전 점검 대비 점수 변화
+  if(!U||!U.hist||U.hist.length<2)return '';
+  const i=MET.findIndex(x=>x[0]===m),a=U.hist[U.hist.length-1].s[id],b=U.hist[U.hist.length-2].s[id];
+  if(!a||!b||a[i]===b[i])return '';
+  return `<span class="dlt ${a[i]>b[i]?'up':'dn'}">${a[i]>b[i]?'▲':'▼'}${Math.abs(a[i]-b[i])}</span>`;
+}
+const pill=(id,m)=>{const s=sc(id,m);return s?`<span class="sp" style="--hc:${HEAT[s]}" title="${s}/5">${s}</span>`:'<span class="sp none">–</span>';};
+const kid=id=>`<button class="kid" data-it="${id}"><span class="kn">${NUM[IT[id].no-1]} ${esc(IT[id].n)}<small>${esc(IT[id].use)}</small></span>${ui(id)?`<span class="ks">${MET.map(([m])=>pill(id,m)).join('')}</span>`:''}</button>`;
+const DIR={up:['▲','up'],down:['▼','dn'],flat:['─','fl']};
+function newsHtml(arr,tagged){
+  if(!arr||!arr.length)return '<p class="mut">확인된 소식 없음</p>';
+  return '<ol class="news">'+arr.map(n=>{const d=DIR[n.dir]||DIR.flat;
+    return `<li><span class="nd ${d[1]}">${d[0]}</span><div><div class="nh"><b>${esc((n.date||'').slice(2).replace(/-/g,'.'))}</b>${tagged&&n.tag?`<span class="ntag">${esc(n.tag)}</span>`:''}</div>
+    <div class="nt">${esc(n.title)}</div>${n.body?`<div class="nb">${esc(n.body)}</div>`:''}
+    ${n.src?`<div class="ns">${n.url?`<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.src)} ↗</a>`:esc(n.src)}</div>`:''}</div></li>`;}).join('')+'</ol>';
+}
+function gauges(id){
+  return '<div class="gs">'+MET.map(([m,l])=>{const u=ui(id)[m]||{},s=+u.score||0;
+    return `<div class="g"><div class="gl">${l}${delta(id,m)}</div><div class="gb" style="--hc:${HEAT[s]}">${[1,2,3,4,5].map(i=>`<i class="${i<=s?'f':''}"></i>`).join('')}<b>${s||'–'}</b></div><div class="gw">${esc(u.why||'')}</div></div>`;}).join('')+'</div>';
+}
 
 function render(){
   let h='';
-  if(sel.t==='it'){const d=IT[sel.id],c=CAT[d.cat];
+  if(sel.t==='it'){const d=IT[sel.id],c=CAT[d.cat],u=ui(sel.id);
     h=`<div class="crumb">기판 › <button data-cat="${d.cat}">${c.n}</button></div>
        <h3><span class="no">${d.no}</span>${esc(d.n)}</h3><div class="use">${esc(d.use)}</div>
-       <div class="ld">${esc(d.lead)}</div>${dl(d.pts)}
-       <div class="sec">관련 회사</div><div class="row">${d.co.map(k=>chip(k)).join('')}</div>`;
+       <div class="ld">${esc(d.lead)}</div>`;
+    if(u){
+      h+=`<div class="sec">업황 <span>${esc(U.asof||'')} 점검</span></div>${u.status?`<p class="st">${esc(u.status)}</p>`:''}${gauges(sel.id)}
+          ${u.price?`<p class="pr"><b>판가·가동률</b> ${esc(u.price)}</p>`:''}
+          <div class="sec">전방사 <span>이 기판을 사 가는 곳</span></div>
+          <ul class="cu">${(u.customers||[]).map(x=>`<li><b>${esc(x.name)}</b>${x.role?` — ${esc(x.role)}`:''}</li>`).join('')}</ul>
+          ${u.end_demand?`<p class="pr"><b>최종 수요</b> ${esc(u.end_demand)}</p>`:''}
+          <div class="sec">최신 소식</div>${newsHtml(u.news)}
+          ${u.watch&&u.watch.length?`<div class="sec">체크포인트</div><ul class="cu">${u.watch.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}`;
+    }
+    h+=`<div class="sec">관련 회사</div><div class="row">${d.co.map(k=>chip(k)).join('')}</div>
+        ${u&&u.co?`<ul class="cu con">${d.co.filter(k=>u.co[k]).map(k=>`<li><b style="color:var(--c-${k})">${CO[k].n}</b> — ${esc(u.co[k])}</li>`).join('')}</ul>`:''}
+        <details class="more"${u?'':' open'}><summary>구조·기술 설명</summary>${dl(d.pts)}</details>`;
   }else if(sel.t==='cat'){const c=CAT[sel.id];
     h=`<div class="crumb">기판</div><h3>${c.n}</h3><div class="use">${c.tag}</div>
        <div class="ld">${esc(c.lead)}</div>${dl(c.pts)}
-       <div class="sec">세부 분류</div><div class="kids">${c.kids.map(kid).join('')}</div>`;
-  }else if(sel.t==='co'){const c=CO[sel.id],its=ORDER.filter(i=>IT[i].co.includes(sel.id));
+       <div class="sec">세부 분류${U?' <span>수요 · 병목 · 중요도</span>':''}</div><div class="kids">${c.kids.map(kid).join('')}</div>`;
+  }else if(sel.t==='co'){const c=CO[sel.id],its=ORDER.filter(i=>IT[i].co.includes(sel.id)),u=U&&U.companies&&U.companies[sel.id];
     h=`<div class="crumb">회사로 보기</div><h3>${c.n}<span class="code">${c.code}</span></h3>
-       <div class="ld">그림에서 밝게 남은 부분이 ${c.n}와(과) 연결된 기판 — ${its.length}개 분류.</div>
-       <div class="sec">관련 기판</div><div class="kids">${its.map(kid).join('')}</div>`;
+       ${u&&u.biz?`<div class="ld">${esc(u.biz)}</div>`:`<div class="ld">그림에서 밝게 남은 부분이 ${c.n}와(과) 연결된 기판.</div>`}
+       ${u&&u.latest?`<p class="pr"><b>최근 실적·증설</b> ${esc(u.latest)}</p>`:''}
+       <div class="sec">관련 기판 ${its.length}개${U?' <span>수요 · 병목 · 중요도</span>':''}</div><div class="kids">${its.map(kid).join('')}</div>
+       ${u?`<div class="sec">최신 소식</div>${newsHtml(u.news)}`:''}`;
   }else{
     h=`<h3>기판, 세 가지로 나누면</h3><div class="use">그림의 부품이나 아래 항목을 눌러 보세요</div>
        <div class="ld">칩은 혼자서는 보드에 붙지 못합니다. 칩을 감싸는 판, 그 칩들을 모아 꽂는 판, 전부를 얹는 판 — 이 세 층을 거쳐 기기가 됩니다.</div>
-       <div class="kids">${['pkg','mod','main'].map(k=>`<button class="kid" data-cat="${k}">${CAT[k].n}<small>${CAT[k].tag} · ${CAT[k].kids.map(i=>IT[i].n).join(', ')}</small></button>`).join('')}</div>`;
+       <div class="kids">${['pkg','mod','main'].map(k=>`<button class="kid" data-cat="${k}"><span class="kn">${CAT[k].n}<small>${CAT[k].tag} · ${CAT[k].kids.map(i=>IT[i].n).join(', ')}</small></span></button>`).join('')}</div>
+       ${U&&U.summary?`<div class="sec">업황 요약 <span>${esc(U.asof||'')} 점검</span></div><ul class="cu">${U.summary.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}`;
   }
   panel.innerHTML=h; panel.scrollTop=0;
   $$('.part').forEach(p=>{
@@ -378,11 +518,41 @@ function render(){
 }
 function pick(t,id){sel=(sel.t===t&&sel.id===id&&t==='co')?{t:null,id:null}:{t,id};render();}
 
-$('#cos').insertAdjacentHTML('beforeend',COS.map(k=>chip(k)).join('')+'<button class="chip clear" hidden>전체 보기</button>');
-$('#tbl').innerHTML='<thead><tr><th>대분류</th><th>세부 분류</th><th>쓰이는 곳</th>'+COS.map(k=>`<th class="co" data-co="${k}" style="color:var(--c-${k})">${CO[k].n}</th>`).join('')+'</tr></thead><tbody>'+
-  ['mod','pkg','main'].map(c=>CAT[c].kids.map((i,n)=>`<tr class="it" data-it="${i}">${n===0?`<td class="cat" data-cat="${c}" rowspan="${CAT[c].kids.length}">${CAT[c].n}<small>${CAT[c].tag}</small></td>`:''}<td class="nm"><span class="no">${'①②③④⑤⑥⑦'[IT[i].no-1]}</span>${esc(IT[i].n)}</td><td class="us">${esc(IT[i].use)}</td>${COS.map(k=>`<td class="dot">${IT[i].co.includes(k)?`<i style="--c:var(--c-${k})" title="${CO[k].n}"></i>`:''}</td>`).join('')}</tr>`).join('')).join('')+'</tbody>';
+function heat(){
+  const on=mode!=='none'&&U, map=$('#map');
+  map.classList.toggle('heat',!!on);
+  $('#badges').innerHTML='';
+  $$('#map .part[data-id]').forEach(p=>p.style.removeProperty('--hc'));
+  $$('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
+  $('#legend').hidden=!on;
+  if(!on)return;
+  let g='';
+  ORDER.forEach(id=>{const s=sc(id,mode);if(!s)return;
+    $$(`#map .part[data-id="${id}"]`).forEach(p=>p.style.setProperty('--hc',HEAT[s]));
+    BADGE[id].forEach(([x,y])=>{g+=`<g class="bdg" data-it="${id}"><circle cx="${x}" cy="${y}" r="15" style="fill:${HEAT[s]}" stroke="#fff" stroke-width="2"/><text x="${x}" y="${y+5.5}" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">${s}</text></g>`;});
+  });
+  $('#badges').innerHTML=g;
+}
 
+function table(){
+  $('#tbl').innerHTML='<thead><tr><th>대분류</th><th>세부 분류</th><th>쓰이는 곳</th>'+(U?MET.map(([m,l])=>`<th class="mc" data-m="${m}">${l.replace(' 강도','')}</th>`).join(''):'')+COS.map(k=>`<th class="co" data-co="${k}" style="color:var(--c-${k})">${CO[k].n}</th>`).join('')+'</tr></thead><tbody>'+
+  ['mod','pkg','main'].map(c=>CAT[c].kids.map((i,n)=>`<tr class="it" data-it="${i}">${n===0?`<td class="cat" data-cat="${c}" rowspan="${CAT[c].kids.length}">${CAT[c].n}<small>${CAT[c].tag}</small></td>`:''}<td class="nm"><span class="no">${NUM[IT[i].no-1]}</span>${esc(IT[i].n)}${ui(i)&&ui(i).status?`<small>${esc(ui(i).status)}</small>`:''}</td><td class="us">${esc(IT[i].use)}</td>${U?MET.map(([m])=>`<td class="dot">${pill(i,m)}${delta(i,m)}</td>`).join(''):''}${COS.map(k=>`<td class="dot">${IT[i].co.includes(k)?`<i style="--c:var(--c-${k})" title="${CO[k].n}"></i>`:''}</td>`).join('')}</tr>`).join('')).join('')+'</tbody>';
+}
+function feed(){
+  if(!U){$('#feedc').hidden=true;return;}
+  let all=[];
+  ORDER.forEach(id=>(ui(id)&&ui(id).news||[]).forEach(n=>all.push(Object.assign({tag:IT[id].n,key:id},n))));
+  COS.forEach(k=>((U.companies&&U.companies[k]||{}).news||[]).forEach(n=>all.push(Object.assign({tag:CO[k].n,key:k},n))));
+  const seen={};all=all.filter(n=>{const k=(n.date||'')+'|'+n.title;if(seen[k]){if(!seen[k].tag.includes(n.tag))seen[k].tag+=' · '+n.tag;seen[k].keys.push(n.key);return false;}n.keys=[n.key];seen[k]=n;return true;});
+  all.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  $('#feedf').innerHTML=[['all','전체']].concat(ORDER.map(i=>[i,IT[i].n]),COS.map(k=>[k,CO[k].n])).map(([k,l])=>`<button data-f="${k}" class="${k===feedF?'on':''}">${esc(l)}</button>`).join('');
+  $('#feed').innerHTML=newsHtml(all.filter(n=>feedF==='all'||n.keys.includes(feedF)).slice(0,40),true);
+}
+
+$('#cos').insertAdjacentHTML('beforeend',COS.map(k=>chip(k)).join('')+'<button class="chip clear" hidden>전체 보기</button>');
 document.addEventListener('click',e=>{
+  const md=e.target.closest('#modes [data-m], th.mc'); if(md){mode=(md.tagName==='TH'&&mode===md.dataset.m)?'none':md.dataset.m;heat();if(md.tagName==='TH')$('#map').scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const ff=e.target.closest('#feedf [data-f]'); if(ff){feedF=ff.dataset.f;feed();return;}
   const co=e.target.closest('[data-co]'); if(co){pick('co',co.dataset.co);return;}
   if(e.target.closest('.clear')){sel={t:null,id:null};render();return;}
   const cat=e.target.closest('[data-cat]'); if(cat){pick('cat',cat.dataset.cat);return;}
@@ -390,7 +560,25 @@ document.addEventListener('click',e=>{
   const p=e.target.closest('.part[data-id]'); if(p){pick('it',p.dataset.id);}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('part')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));}});
-render();
+table();render();heat();feed();
+fetch('data/pcbmap.json?v='+Math.floor(Date.now()/6e5)).then(r=>r.ok?r.json():null).then(j=>{
+  if(!j||!j.items)return;U=j;mode='demand';
+  $('#asof').textContent=(j.asof||'')+' 점검';
+  $('#modes').hidden=false;table();render();heat();feed();$('#feedc').hidden=false;
+}).catch(()=>{});
+
+let v3=null;
+function setView(v){
+  $$('#views button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
+  $('#v-map').hidden=v!=='map';$('#v-3d').hidden=v!=='3d';
+  try{localStorage.setItem('rl-pcb-view',v);}catch(e){}
+  if(v!=='3d')return;
+  if(!v3){v3=import('./pcbmap3d.js').then(m=>m.init({IT,ORDER,NUM,stage:$('#stage'),panel:$('#p3'),ex:$('#ex'),spin:$('#spin'),names:$('#names'),
+      start:sel.t==='it'?sel.id:'fcbga',onInfo:id=>{setView('map');pick('it',id);window.scrollTo({top:0});}}))
+    .catch(()=>{$('#stage').innerHTML='<p class="mut" style="padding:24px">입체뷰를 불러오지 못했습니다 (WebGL 또는 네트워크 확인)</p>';});}
+  else v3.then(a=>{if(a){a.resize();if(sel.t==='it')a.show(sel.id);}});
+}
+$('#views').onclick=e=>{const b=e.target.closest('button');if(b)setView(b.dataset.v);};
 </script>
 </body>
 </html>
