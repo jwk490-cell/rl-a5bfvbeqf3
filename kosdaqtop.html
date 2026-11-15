@@ -136,11 +136,11 @@ function filtered(){
 // 열 정의: [키, 라벨, 값함수, 그룹시작?]
 const COLS=[
   ['rkd','순위 Δ<small id="rbl"></small>',r=>rkDelta(r)],['mcap','시총',r=>r.mcap],['price','현재가',r=>r.price],
-  ...RET.map(([k,l],i)=>[k,l,r=>rv(r,k),i===0]),
   ['op1','2025A',r=>r.op[1],true],['op2','2026E',r=>r.op[2]],['op3','2027E',r=>r.op[3]],['op4','2028E',r=>r.op[4]],
   ['g1','25→26E',r=>r.g_op[1],true],['g2','26E→27E',r=>r.g_op[2]],['g3','27E→28E',r=>r.g_op[3]],['cagr','CAGR<small>25→28E</small>',r=>r.cagr],
   ['per26','PER<small>26E</small>',r=>r.per['26'],true],['per27','PER<small>27E</small>',r=>r.per['27']],['per28','PER<small>28E</small>',r=>r.per['28']],
   ['pbr_t','PBR<small>직전결산</small>',r=>r.pbr_t],['pbr26','PBR<small>26E</small>',r=>r.pbr26],
+  ...RET.map(([k,l],i)=>[k,l,r=>rv(r,k),i===0]),
 ];
 const CM=Object.fromEntries(COLS.map(c=>[c[0],c]));
 const val=(r,k)=>k==='name'?r.name:k==='rank'?r.rank:CM[k][2](r);
@@ -155,8 +155,8 @@ function render(){
   const thead=$('tb').querySelector('thead');
   const bd=baseDate();
   thead.innerHTML=`<tr><th class="grp stk l" rowspan="2" data-k="name">종목 <small>시총 순위 · 클릭 정렬</small></th><th class="grp" colspan="3"></th>
-    <th class="grp gb" colspan="6">주가 수익률${rel?` · ${MK.ix} 대비 초과`:''}</th><th class="grp gb" colspan="4">영업이익 (억원)</th>
-    <th class="grp gb" colspan="4">영업이익 증가율</th><th class="grp gb" colspan="5">밸류에이션 (현재가 기준)</th></tr>
+    <th class="grp gb" colspan="4">영업이익 (억원)</th>
+    <th class="grp gb" colspan="4">영업이익 증가율</th><th class="grp gb" colspan="5">밸류에이션 (현재가 기준)</th><th class="grp gb" colspan="6">주가 수익률${rel?` · ${MK.ix} 대비 초과`:''}</th></tr>
     <tr>${COLS.map(([k,l,_,gb])=>`<th class="${gb?'gb':''} ${sortK===k?'s':''}" data-k="${k}">${l}${sortK===k?(sortD>0?' ▲':' ▼'):''}</th>`).join('')}</tr>`;
   const rbl=document.getElementById('rbl'); if(rbl)rbl.textContent=bd?`${RB.find(x=>x[0]===rbase)[1].split(' ')[0]} ${fd(bd)} 대비${D.hist.est[bd]?' (추정)':baseFill()&&topN>baseFill()?` (${baseFill()+1}위~ 추정)`:''}`:'이력 없음';
   thead.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;
@@ -164,16 +164,16 @@ function render(){
   const tb=$('tb').querySelector('tbody');
   const idx=D.index||{};
   const idxRow=`<tr class="idx"><td class="stk l"><span class="rk">–</span><span class="nm">${MK.ix}</span><span class="cd">${idx.px!=null?idx.px.toFixed(2):''}</span></td><td></td><td></td><td></td>
-    ${RET.map(([k],i)=>`<td class="${i===0?'gb':''}">${rel?'0.0%':idx[k]==null?'–':`<span class="${idx[k]>0?'g':idx[k]<0?'r':''}">${idx[k]>0?'+':''}${idx[k].toFixed(1)}%</span>`}</td>`).join('')}
-    <td class="gb" colspan="4" style="text-align:left;color:var(--faint)">기준일 ${D.asof} · 지수는 비교용</td><td class="gb" colspan="4"></td><td class="gb" colspan="5"></td></tr>`;
+    <td class="gb" colspan="4" style="text-align:left;color:var(--faint)">기준일 ${D.asof} · 지수는 비교용</td><td class="gb" colspan="4"></td><td class="gb" colspan="5"></td>
+    ${RET.map(([k],i)=>`<td class="${i===0?'gb':''}">${rel?'0.0%':idx[k]==null?'–':`<span class="${idx[k]>0?'g':idx[k]<0?'r':''}">${idx[k]>0?'+':''}${idx[k].toFixed(1)}%</span>`}</td>`).join('')}</tr>`;
   if(!rows.length){tb.innerHTML=idxRow+`<tr><td colspan="${COLS.length+1}" class="empty">조건에 맞는 종목이 없습니다</td></tr>`;return;}
   tb.innerHTML=idxRow+rows.map(r=>`<tr class="row ${sel===r.code?'sel':''} ${r.cons?'':'nc'}" data-c="${r.code}">
     <td class="stk l"><span class="rk">${r.rank}</span><span class="nm">${r.name}</span><span class="cd">${r.code}</span>${r.fy&&r.fy!==12?`<span class="tag F">${r.fy}월 결산</span>`:''}${r.cons?'':`<span class="tag N">${r.np&&r.np[2]!=null?'OP 컨센 없음':'컨센 없음'}</span>`}${r.cons&&!r.full?'<span class="tag N">28E 없음</span>':''}</td>
     <td>${rkCell(r)}</td><td>${uk(r.mcap)}</td><td>${fmt(r.price)}</td>
-    ${RET.map(([k],i)=>`<td class="${i===0?'gb':''}">${retCell(r,k)}</td>`).join('')}
     <td class="gb">${money(r.op[1])}</td><td>${money(r.op[2])}</td><td>${money(r.op[3])}</td><td>${money(r.op[4])}</td>
     <td class="gb">${pct(r.g_op[1],r.f_op[1])}</td><td>${pct(r.g_op[2],r.f_op[2])}</td><td>${pct(r.g_op[3],r.f_op[3])}</td><td>${pct(r.cagr,r.cons&&r.cagr==null&&r.op[1]!=null&&r.op[1]<=0?'기준 적자':'')}</td>
     <td class="gb">${f1(r.per['26'])}</td><td>${f1(r.per['27'])}</td><td>${f1(r.per['28'])}</td><td>${f2(r.pbr_t)}</td><td>${f2(r.pbr26)}</td>
+    ${RET.map(([k],i)=>`<td class="${i===0?'gb':''}">${retCell(r,k)}</td>`).join('')}
   </tr>${sel===r.code?detail(r):''}`).join('');
   tb.querySelectorAll('tr.row').forEach(tr=>tr.onclick=()=>{sel=sel===tr.dataset.c?null:tr.dataset.c;render();});
 }
