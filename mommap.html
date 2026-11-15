@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="ko" class="ht-mommap"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>모멘텀 지도</title>
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--ink:#e9ecf1;--sub:#a4adbd;--line:#2a2f3a;
+--lead:#f0608f;--impr:#2dd4bf;--weak:#a98fd6;--lag:#5a9bd8;--gold:#e6b93f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font-family:'Pretendard','Malgun Gothic',-apple-system,sans-serif;letter-spacing:-.01em}
+.wrap{max-width:1180px;margin:0 auto;padding:24px}
+h1{font-size:25px;font-weight:800;margin:0 0 4px}
+.sub{color:var(--sub);font-size:14px;margin-bottom:6px}
+.meta{color:var(--sub);font-size:12.5px}.meta b{color:var(--ink)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0 12px}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{appearance:none;background:none;border:0;color:var(--sub);font:inherit;font-size:13px;font-weight:700;
+padding:6px 14px;border-radius:7px;cursor:pointer}
+.seg button.on{background:var(--panel2);color:var(--ink)}
+.chk{font-size:12.5px;color:var(--sub);display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+.brief{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--impr);
+border-radius:10px;padding:13px 17px;margin:0 0 14px;font-size:13px;color:var(--sub);line-height:1.75}
+.brief b{color:var(--ink)}
+.mcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+.mhead{padding:13px 18px;border-bottom:1px solid var(--line);font-size:14px;font-weight:800}
+.mhead small{font-size:11.5px;color:var(--sub);font-weight:600;margin-left:8px}
+svg{display:block;width:100%;height:auto;touch-action:manipulation}
+svg text{font-family:inherit}
+.pt{cursor:pointer}.pt circle{transition:r .12s}
+.dimmed .pt:not(.hl){opacity:.18}
+.tip{position:absolute;pointer-events:none;background:#0b0d11;border:1px solid var(--line);border-radius:9px;
+padding:8px 11px;font-size:12px;line-height:1.6;white-space:nowrap;display:none;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.tip b{font-size:12.5px}.tip .s{color:var(--sub)}
+.quads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
+.q h3{margin:0;padding:11px 15px;font-size:13.5px;font-weight:800;border-bottom:1px solid var(--line)}
+.q h3 small{color:var(--sub);font-weight:600;font-size:11.5px;margin-left:6px}
+.q table{width:100%;border-collapse:collapse}
+.q th{font-size:11px;color:var(--sub);text-align:right;padding:7px 12px;font-weight:700;border-bottom:1px solid var(--line)}
+.q td{font-size:12.5px;text-align:right;padding:6px 12px;border-bottom:1px solid #20242e;font-variant-numeric:tabular-nums;white-space:nowrap}
+.q th:first-child,.q td:first-child{text-align:left;white-space:normal}
+.q tr:last-child td{border-bottom:0}.q tbody tr:hover td{background:rgba(255,255,255,.03)}
+.q .nm{color:var(--sub);font-size:11.5px;margin-left:6px}
+.q .none{padding:16px;text-align:center;color:var(--sub);font-size:12.5px}
+.up{color:#e0606a}.dn{color:#5a9bd8}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+border-radius:10px;padding:13px 16px;font-size:13px;color:var(--sub);margin:22px 0 0;line-height:1.7}
+.formula b{color:var(--ink)}
+.foot{color:var(--sub);font-size:11.5px;margin-top:22px;border-top:1px solid var(--line);padding-top:14px;line-height:1.7}
+@media(max-width:720px){.wrap{padding:16px}.quads{grid-template-columns:minmax(0,1fr)}.q .nm{display:none}}
+</style><link rel="stylesheet" href="hub-theme.css"></head><body><div class="wrap">
+<h1>모멘텀 지도</h1>
+<div class="sub">섹터·테마 ETF의 3개월 × 1개월 수익률 — 시장(십자선) 대비 어디가 이끌고, 어디가 돌아서는가</div>
+<div class="meta" id="meta"></div>
+<div class="bar">
+  <div class="seg" id="mk"><button data-v="kr">韓 ETF</button><button data-v="us">美 ETF</button></div>
+  <label class="chk"><input type="checkbox" id="allLb"> 라벨 전부 표시</label>
+</div>
+<div class="brief" id="brief"></div>
+<div class="mcard"><div class="mhead">모멘텀 지도<small id="axnote"></small></div>
+<div id="chart"></div><div class="tip" id="tip"></div></div>
+<div class="quads" id="quads"></div>
+<div class="formula">📐 <b>가로 = 3개월 수익률 · 세로 = 1개월 수익률</b> (단순 주가 변동률, 달력 90일·30일 전 종가 대비).
+십자선은 벤치마크의 같은 기간 수익률 — 절대 수익률이 아니라 <b>시장 대비 상대 위치</b>로 4분면을 나눈다.<br>
+<b style="color:var(--lead)">주도</b> 3개월·1개월 모두 시장 상회 · <b style="color:var(--impr)">개선</b> 3개월은 뒤졌지만 최근 1개월 시장 상회(돌아서는 곳) ·
+<b style="color:var(--weak)">약화</b> 3개월은 앞섰지만 최근 1개월 시장 하회(식는 곳) · <b style="color:var(--lag)">소외</b> 둘 다 시장 하회.</div>
+<div class="foot" id="foot"></div>
+</div>
+<script>
+const D={"fetched_at":"2026-11-16 07:24","kr":{"bm":"코스피","b1":-11.95,"b3":-24.18,"asof":"2026-11-13","d1":"2026-10-14","d3":"2026-08-14","rows":[{"tk":"091160","nm":"KODEX 반도체","r1":-22.74,"r3":-21.96,"lb":"반도체"},{"tk":"396500","nm":"TIGER 반도체TOP10","r1":-15.81,"r3":-24.63,"lb":"반도체TOP10"},{"tk":"305720","nm":"KODEX 2차전지산업","r1":-19.22,"r3":-13.94,"lb":"2차전지산업"},{"tk":"364980","nm":"TIGER 2차전지TOP10","r1":-19.27,"r3":-13.38,"lb":"2차전지TOP10"},{"tk":"091180","nm":"KODEX 자동차","r1":-8.7,"r3":-29.84,"lb":"자동차"},{"tk":"466930","nm":"SOL 자동차TOP3플러스","r1":-13.71,"r3":-36.48,"lb":"자동차TOP3플러스"},{"tk":"091170","nm":"KODEX 은행","r1":0.54,"r3":-8.16,"lb":"은행"},{"tk":"466940","nm":"TIGER 은행고배당플러스TOP10","r1":-2.14,"r3":-9.86,"lb":"은행고배당플러스TOP10"},{"tk":"102970","nm":"KODEX 증권","r1":-12.47,"r3":-30.65,"lb":"증권"},{"tk":"140700","nm":"KODEX 보험","r1":-9.47,"r3":-15.66,"lb":"보험"},{"tk":"117680","nm":"KODEX 철강","r1":-13.91,"r3":-19.41,"lb":"철강"},{"tk":"117460","nm":"KODEX 에너지화학","r1":-22.54,"r3":-23.43,"lb":"에너지화학"},{"tk":"117700","nm":"KODEX 건설","r1":-1.89,"r3":-12.81,"lb":"건설"},{"tk":"102960","nm":"KODEX 기계장비","r1":-21.89,"r3":-34.65,"lb":"기계장비"},{"tk":"466920","nm":"SOL 조선TOP3플러스","r1":-20.65,"r3":-39.0,"lb":"조선TOP3플러스"},{"tk":"494670","nm":"TIGER 조선TOP10","r1":-20.8,"r3":-38.98,"lb":"조선TOP10"},{"tk":"449450","nm":"PLUS K방산","r1":-25.82,"r3":-45.0,"lb":"K방산"},{"tk":"463250","nm":"TIGER K방산&우주","r1":-24.88,"r3":-43.1,"lb":"K방산&우주"},{"tk":"434730","nm":"HANARO 원자력iSelect","r1":-23.91,"r3":-37.44,"lb":"원자력iSelect"},{"tk":"433500","nm":"ACE 원자력TOP10","r1":-25.06,"r3":-34.7,"lb":"원자력TOP10"},{"tk":"445290","nm":"KODEX 로봇액티브","r1":-8.72,"r3":-26.79,"lb":"로봇액티브"},{"tk":"469070","nm":"RISE AI&로봇","r1":-8.79,"r3":-29.57,"lb":"AI&로봇"},{"tk":"139260","nm":"TIGER 200 IT","r1":-18.37,"r3":-29.76,"lb":"200 IT"},{"tk":"266370","nm":"KODEX IT","r1":-20.55,"r3":-24.97,"lb":"IT"},{"tk":"157490","nm":"TIGER 소프트웨어","r1":0.47,"r3":-17.19,"lb":"소프트웨어"},{"tk":"365000","nm":"TIGER 인터넷TOP10","r1":-8.71,"r3":-18.81,"lb":"인터넷TOP10"},{"tk":"300950","nm":"KODEX 게임산업","r1":-5.76,"r3":-15.85,"lb":"게임산업"},{"tk":"364990","nm":"TIGER 게임TOP10","r1":-3.82,"r3":-18.39,"lb":"게임TOP10"},{"tk":"228810","nm":"TIGER 미디어컨텐츠","r1":-1.45,"r3":-4.96,"lb":"미디어컨텐츠"},{"tk":"395290","nm":"HANARO Fn K-POP&미디어","r1":1.85,"r3":-1.98,"lb":"Fn K-POP&미디어"},{"tk":"228800","nm":"TIGER 여행레저","r1":-0.78,"r3":-2.12,"lb":"여행레저"},{"tk":"388280","nm":"RISE K엔터&여행레저","r1":-1.48,"r3":-7.95,"lb":"K엔터&여행레저"},{"tk":"228790","nm":"TIGER 화장품","r1":-13.41,"r3":-24.86,"lb":"화장품"},{"tk":"0008T0","nm":"SOL 화장품TOP3플러스","r1":-14.4,"r3":-26.78,"lb":"화장품TOP3플러스"},{"tk":"244580","nm":"KODEX 바이오","r1":-2.7,"r3":-20.19,"lb":"바이오"},{"tk":"364970","nm":"TIGER 바이오TOP10","r1":4.55,"r3":-16.94,"lb":"바이오TOP10"},{"tk":"261070","nm":"TIGER 코스닥150바이오테크","r1":-14.12,"r3":-35.88,"lb":"코스닥150바이오테크"},{"tk":"143860","nm":"TIGER 헬스케어","r1":2.07,"r3":-18.35,"lb":"헬스케어"},{"tk":"266420","nm":"KODEX 헬스케어","r1":1.56,"r3":-18.36,"lb":"헬스케어"},{"tk":"266410","nm":"KODEX 필수소비재","r1":-6.47,"r3":-14.87,"lb":"필수소비재"},{"tk":"140710","nm":"KODEX 운송","r1":-3.2,"r3":2.78,"lb":"운송"},{"tk":"329200","nm":"TIGER 리츠부동산인프라","r1":-7.98,"r3":-10.76,"lb":"리츠부동산인프라"},{"tk":"385510","nm":"KODEX 신재생에너지액티브","r1":-20.38,"r3":-20.89,"lb":"신재생에너지액티브"},{"tk":"367770","nm":"RISE 수소경제테마","r1":-19.22,"r3":-35.83,"lb":"수소경제테마"},{"tk":"457990","nm":"PLUS 태양광&ESS","r1":-24.68,"r3":-27.5,"lb":"태양광&ESS"},{"tk":"381560","nm":"HANARO Fn전기&수소차","r1":-19.31,"r3":-27.09,"lb":"Fn전기&수소차"}]},"us":{"bm":"S&P500 (SPY)","b1":-1.98,"b3":-2.83,"asof":"2026-11-13","d1":"2026-10-14","d3":"2026-08-14","rows":[{"tk":"SOXX","nm":"Semiconductors","r1":-13.77,"r3":-18.63,"lb":"SOXX"},{"tk":"SMH","nm":"Semiconductors (VanEck)","r1":-13.81,"r3":-17.19,"lb":"SMH"},{"tk":"PSI","nm":"Semiconductors - Dynamic","r1":-15.16,"r3":-25.36,"lb":"PSI"},{"tk":"XSD","nm":"Semiconductors - Equal Weight","r1":-8.56,"r3":-18.91,"lb":"XSD"},{"tk":"QTEC","nm":"Tech - NASDAQ Equal Weight","r1":-10.11,"r3":-14.02,"lb":"QTEC"},{"tk":"XLK","nm":"Technology","r1":-10.58,"r3":-10.38,"lb":"XLK"},{"tk":"VGT","nm":"Technology (Vanguard)","r1":-9.5,"r3":-9.29,"lb":"VGT"},{"tk":"IGV","nm":"Software","r1":-6.0,"r3":-2.78,"lb":"IGV"},{"tk":"SKYY","nm":"Cloud Computing","r1":-7.02,"r3":-7.76,"lb":"SKYY"},{"tk":"WCLD","nm":"Cloud (WisdomTree)","r1":-1.27,"r3":1.91,"lb":"WCLD"},{"tk":"CIBR","nm":"Cybersecurity","r1":-8.39,"r3":-4.58,"lb":"CIBR"},{"tk":"HACK","nm":"Cybersecurity (ETFMG)","r1":-5.35,"r3":-2.0,"lb":"HACK"},{"tk":"FDN","nm":"Internet","r1":-7.43,"r3":-7.55,"lb":"FDN"},{"tk":"XLC","nm":"Communication Services","r1":-1.92,"r3":-3.77,"lb":"XLC"},{"tk":"SOCL","nm":"Social Media","r1":-6.97,"r3":-12.81,"lb":"SOCL"},{"tk":"ESPO","nm":"Video Games & Esports","r1":5.38,"r3":4.65,"lb":"ESPO"},{"tk":"GAMR","nm":"Gaming","r1":-1.18,"r3":-0.22,"lb":"GAMR"},{"tk":"BOTZ","nm":"Robotics & AI","r1":-8.44,"r3":-17.25,"lb":"BOTZ"},{"tk":"ROBO","nm":"Robotics & Automation","r1":-7.54,"r3":-14.99,"lb":"ROBO"},{"tk":"ARKQ","nm":"Autonomous Tech","r1":-6.85,"r3":-17.25,"lb":"ARKQ"},{"tk":"ARKK","nm":"ARK Innovation","r1":-11.23,"r3":-7.53,"lb":"ARKK"},{"tk":"ARKW","nm":"ARK Next Internet","r1":-10.72,"r3":-6.43,"lb":"ARKW"},{"tk":"DRIV","nm":"Autonomous & EV","r1":-8.79,"r3":-21.19,"lb":"DRIV"},{"tk":"KARS","nm":"Electric Vehicles","r1":-6.85,"r3":-19.81,"lb":"KARS"},{"tk":"CARZ","nm":"Global Auto","r1":-9.72,"r3":-15.41,"lb":"CARZ"},{"tk":"LIT","nm":"Lithium & Battery","r1":-11.48,"r3":-21.89,"lb":"LIT"},{"tk":"REMX","nm":"Rare Earth & Strategic Metals","r1":-10.33,"r3":-36.32,"lb":"REMX"},{"tk":"XLV","nm":"Health Care","r1":8.56,"r3":12.83,"lb":"XLV"},{"tk":"XBI","nm":"Biotech Equal Weight","r1":2.58,"r3":-4.36,"lb":"XBI"},{"tk":"IBB","nm":"Biotechnology","r1":4.55,"r3":7.18,"lb":"IBB"},{"tk":"ARKG","nm":"Genomics","r1":-10.52,"r3":-0.58,"lb":"ARKG"},{"tk":"PJP","nm":"Pharma Dynamic","r1":6.19,"r3":4.53,"lb":"PJP"},{"tk":"IHE","nm":"Pharmaceuticals","r1":11.6,"r3":8.15,"lb":"IHE"},{"tk":"IHF","nm":"Health Care Providers","r1":3.49,"r3":5.7,"lb":"IHF"},{"tk":"XHS","nm":"Health Care Services","r1":5.22,"r3":7.38,"lb":"XHS"},{"tk":"XHE","nm":"Health Care Equipment","r1":6.57,"r3":-0.41,"lb":"XHE"},{"tk":"XLF","nm":"Financials","r1":7.63,"r3":0.89,"lb":"XLF"},{"tk":"KBE","nm":"Banks","r1":6.32,"r3":-7.28,"lb":"KBE"},{"tk":"KRE","nm":"Regional Banks","r1":6.13,"r3":-6.66,"lb":"KRE"},{"tk":"IAI","nm":"Broker-Dealers & Exchanges","r1":4.73,"r3":-4.23,"lb":"IAI"},{"tk":"KIE","nm":"Insurance","r1":7.8,"r3":2.19,"lb":"KIE"},{"tk":"IXG","nm":"Global Financials","r1":4.94,"r3":-1.15,"lb":"IXG"},{"tk":"FINX","nm":"FinTech","r1":-0.04,"r3":-9.98,"lb":"FINX"},{"tk":"IPAY","nm":"Payments","r1":4.71,"r3":-3.33,"lb":"IPAY"},{"tk":"XLI","nm":"Industrials","r1":1.04,"r3":-9.51,"lb":"XLI"},{"tk":"AIRR","nm":"American Industrial Renaissance","r1":-2.47,"r3":-22.19,"lb":"AIRR"},{"tk":"PAVE","nm":"US Infrastructure","r1":0.59,"r3":-9.32,"lb":"PAVE"},{"tk":"ITA","nm":"Aerospace & Defense","r1":5.04,"r3":-15.28,"lb":"ITA"},{"tk":"PPA","nm":"Defense & Aerospace","r1":3.58,"r3":-14.25,"lb":"PPA"},{"tk":"XAR","nm":"Aerospace & Defense Equal Weight","r1":4.69,"r3":-22.26,"lb":"XAR"},{"tk":"ARKX","nm":"Space Exploration","r1":-4.28,"r3":-16.18,"lb":"ARKX"},{"tk":"UFO","nm":"Space (Procure)","r1":2.42,"r3":-16.07,"lb":"UFO"},{"tk":"JETS","nm":"Airlines","r1":11.61,"r3":-8.62,"lb":"JETS"},{"tk":"IYT","nm":"Transportation","r1":5.27,"r3":-4.27,"lb":"IYT"},{"tk":"XTN","nm":"Transportation Equal Weight","r1":4.99,"r3":-8.12,"lb":"XTN"},{"tk":"XLE","nm":"Energy","r1":-3.95,"r3":4.93,"lb":"XLE"},{"tk":"XOP","nm":"Oil & Gas E&P","r1":-6.59,"r3":2.39,"lb":"XOP"},{"tk":"OIH","nm":"Oil Services","r1":-1.78,"r3":-10.87,"lb":"OIH"},{"tk":"EMLP","nm":"North American Energy Infra","r1":3.46,"r3":-0.74,"lb":"EMLP"},{"tk":"TAN","nm":"Solar","r1":-2.32,"r3":-19.86,"lb":"TAN"},{"tk":"ICLN","nm":"Clean Energy","r1":-4.99,"r3":-13.18,"lb":"ICLN"},{"tk":"QCLN","nm":"Clean Energy NASDAQ","r1":-2.56,"r3":-18.06,"lb":"QCLN"},{"tk":"FAN","nm":"Wind Energy","r1":3.39,"r3":-7.32,"lb":"FAN"},{"tk":"URA","nm":"Uranium","r1":-10.41,"r3":-29.13,"lb":"URA"},{"tk":"URNM","nm":"Uranium Miners","r1":-6.58,"r3":-27.36,"lb":"URNM"},{"tk":"NLR","nm":"Nuclear Energy","r1":-6.49,"r3":-25.16,"lb":"NLR"},{"tk":"GRID","nm":"Smart Grid Infra","r1":-8.13,"r3":-14.68,"lb":"GRID"},{"tk":"XLB","nm":"Materials","r1":5.15,"r3":-0.59,"lb":"XLB"},{"tk":"XME","nm":"Metals & Mining","r1":-6.13,"r3":-19.98,"lb":"XME"},{"tk":"PICK","nm":"Global Metal & Mining","r1":-7.83,"r3":-13.12,"lb":"PICK"},{"tk":"SLX","nm":"Steel","r1":-5.06,"r3":-9.89,"lb":"SLX"},{"tk":"COPX","nm":"Copper Miners","r1":-14.34,"r3":-19.22,"lb":"COPX"},{"tk":"GDX","nm":"Gold Miners","r1":-2.11,"r3":-9.26,"lb":"GDX"},{"tk":"GDXJ","nm":"Junior Gold Miners","r1":-5.47,"r3":-16.15,"lb":"GDXJ"},{"tk":"SIL","nm":"Silver Miners","r1":-7.26,"r3":-17.63,"lb":"SIL"},{"tk":"XLY","nm":"Consumer Discretionary","r1":7.61,"r3":1.51,"lb":"XLY"},{"tk":"XRT","nm":"Retail","r1":7.5,"r3":2.36,"lb":"XRT"},{"tk":"ITB","nm":"Home Construction","r1":12.74,"r3":-4.83,"lb":"ITB"},{"tk":"XHB","nm":"Homebuilders","r1":9.94,"r3":-6.37,"lb":"XHB"},{"tk":"PKB","nm":"Building & Construction","r1":-0.84,"r3":-17.63,"lb":"PKB"},{"tk":"XLP","nm":"Consumer Staples","r1":7.31,"r3":7.27,"lb":"XLP"},{"tk":"PBJ","nm":"Food & Beverage","r1":2.31,"r3":0.33,"lb":"PBJ"},{"tk":"ECON","nm":"Emerging Markets Consumer","r1":-4.74,"r3":-8.33,"lb":"ECON"},{"tk":"XLU","nm":"Utilities","r1":5.56,"r3":-0.61,"lb":"XLU"},{"tk":"XLRE","nm":"Real Estate","r1":6.94,"r3":-1.99,"lb":"XLRE"},{"tk":"TDIV","nm":"Tech Dividend","r1":0.39,"r3":-3.67,"lb":"TDIV"},{"tk":"MOO","nm":"Agribusiness","r1":1.72,"r3":2.73,"lb":"MOO"},{"tk":"PHO","nm":"Water Resources","r1":10.7,"r3":6.42,"lb":"PHO"},{"tk":"WOOD","nm":"Timber & Forestry","r1":-1.01,"r3":-9.0,"lb":"WOOD"},{"tk":"BETZ","nm":"Sports Betting & iGaming","r1":0.74,"r3":-16.35,"lb":"BETZ"},{"tk":"SEA","nm":"Shipping & Cargo","r1":-4.59,"r3":7.74,"lb":"SEA"},{"tk":"PEJ","nm":"Leisure & Entertainment","r1":5.81,"r3":-2.48,"lb":"PEJ"},{"tk":"AMLP","nm":"MLP Energy Infrastructure","r1":-3.21,"r3":-7.75,"lb":"AMLP"},{"tk":"ENFR","nm":"Energy Infrastructure","r1":-0.84,"r3":-4.6,"lb":"ENFR"},{"tk":"MLPX","nm":"MLP & Energy Infra","r1":-0.3,"r3":-4.18,"lb":"MLPX"},{"tk":"IYZ","nm":"Telecom","r1":-3.8,"r3":-10.98,"lb":"IYZ"},{"tk":"IWM","nm":"Russell 2000","r1":2.27,"r3":-9.03,"lb":"IWM"},{"tk":"MAGS","nm":"Magnificent 7","r1":-5.78,"r3":0.59,"lb":"MAGS"},{"tk":"SHLD","nm":"Defense Tech","r1":0.2,"r3":-15.55,"lb":"SHLD"},{"tk":"PPH","nm":"Pharma (VanEck)","r1":9.38,"r3":10.64,"lb":"PPH"},{"tk":"BUG","nm":"Cybersecurity (Global X)","r1":-3.72,"r3":4.04,"lb":"BUG"},{"tk":"IDNA","nm":"Genomics & Immunology","r1":-2.86,"r3":13.82,"lb":"IDNA"},{"tk":"DRAM","nm":"Memory","r1":-15.44,"r3":-26.03,"lb":"DRAM"}]}};
+const QC={lead:'#f0608f',impr:'#2dd4bf',weak:'#a98fd6',lag:'#5a9bd8'};
+const QN={lead:'주도',impr:'개선',weak:'약화',lag:'소외'};
+const QD={lead:'3개월 ↑ · 1개월 ↑',impr:'3개월 ↓ · 1개월 ↑',weak:'3개월 ↑ · 1개월 ↓',lag:'3개월 ↓ · 1개월 ↓'};
+const fmtD=s=>s.replace(/-/g,'.');
+const pct=(v,d=1)=>(v>0?'+':'')+v.toFixed(d)+'%';
+const cls=v=>v>0?'up':v<0?'dn':'';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let mkt='kr',allLb=false;
+try{const s=localStorage.getItem('mommap-mkt');if(s&&D[s])mkt=s;allLb=localStorage.getItem('mommap-lb')==='1'}catch(e){}
+function quad(r,M){const a=r.r3>=M.b3,b=r.r1>=M.b1;return a&&b?'lead':!a&&b?'impr':a&&!b?'weak':'lag'}
+function ticks(lo,hi,n){const raw=(hi-lo)/n,p=Math.pow(10,Math.floor(Math.log10(raw)));
+  const st=[1,2,5,10].map(k=>k*p).find(s=>s>=raw)||10*p;const out=[];
+  for(let v=Math.ceil(lo/st)*st;v<=hi+1e-9;v+=st)out.push(Math.round(v*100)/100);return out}
+function render(){
+  const M=D[mkt],rows=M.rows.map(r=>({...r,q:quad(r,M)}));
+  document.querySelectorAll('#mk button').forEach(b=>b.classList.toggle('on',b.dataset.v===mkt));
+  document.getElementById('allLb').checked=allLb;
+  document.getElementById('meta').innerHTML=`기준일 <b>${fmtD(M.asof)}</b> 종가 · 1개월 기준가 ${fmtD(M.d1)} · 3개월 기준가 ${fmtD(M.d3)} · 갱신 ${D.fetched_at} KST · <b>${rows.length}</b>개 ETF`;
+  document.getElementById('axnote').textContent=`가로 = 3개월 · 세로 = 1개월 · 십자선 = ${M.bm}`;
+  const cnt={lead:0,impr:0,weak:0,lag:0};rows.forEach(r=>cnt[r.q]++);
+  // ── 요약 ──
+  const by=q=>rows.filter(r=>r.q===q);
+  const top=(q,f,n)=>by(q).sort(f).slice(0,n).map(r=>`<b>${esc(r.lb)}</b>`).join(' · ');
+  let bh=`<b>${M.bm}</b> 3개월 <b class="${cls(M.b3)}">${pct(M.b3)}</b> · 1개월 <b class="${cls(M.b1)}">${pct(M.b1)}</b>. `+
+    `시장 대비 <b style="color:${QC.lead}">주도 ${cnt.lead}</b> · <b style="color:${QC.impr}">개선 ${cnt.impr}</b> · <b style="color:${QC.weak}">약화 ${cnt.weak}</b> · <b style="color:${QC.lag}">소외 ${cnt.lag}</b>.`;
+  if(cnt.lead)bh+=`<br>주도 상단은 ${top('lead',(a,b)=>(b.r1+b.r3)-(a.r1+a.r3),4)}.`;
+  if(cnt.impr)bh+=` 최근 1개월 돌아서는 곳은 ${top('impr',(a,b)=>b.r1-a.r1,4)}.`;
+  if(cnt.weak)bh+=` 반대로 식는 곳은 ${top('weak',(a,b)=>a.r1-b.r1,3)}.`;
+  document.getElementById('brief').innerHTML=bh;
+  // ── 산점도 ──
+  const host=document.getElementById('chart'),cw=host.clientWidth||900,mob=cw<620;
+  const W=mob?620:1120,H=mob?620:720,P={l:mob?46:58,r:16,t:20,b:mob?34:40},fs=mob?13:12,R=mob?5.5:5.5;
+  const xs=rows.map(r=>r.r3).concat(M.b3),ys=rows.map(r=>r.r1).concat(M.b1);
+  let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const px_=(x1-x0)*.07||1,py_=(y1-y0)*.09||1;x0-=px_;x1+=px_*1.6;y0-=py_;y1+=py_;
+  const X=v=>P.l+(W-P.l-P.r)*(v-x0)/(x1-x0),Y=v=>P.t+(H-P.t-P.b)*(1-(v-y0)/(y1-y0));
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="모멘텀 지도 산점도">`;
+  ticks(x0,x1,mob?5:7).forEach(v=>{s+=`<line x1="${X(v)}" x2="${X(v)}" y1="${P.t}" y2="${H-P.b}" stroke="#232732"/>`+
+    `<text x="${X(v)}" y="${H-P.b+18}" fill="#8a93a3" font-size="${fs}" text-anchor="middle">${pct(v,0)}</text>`});
+  ticks(y0,y1,6).forEach(v=>{s+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#232732"/>`+
+    `<text x="${P.l-8}" y="${Y(v)+4}" fill="#8a93a3" font-size="${fs}" text-anchor="end">${pct(v,0)}</text>`});
+  const bx=X(M.b3),byy=Y(M.b1);
+  s+=`<line x1="${bx}" x2="${bx}" y1="${P.t}" y2="${H-P.b}" stroke="#7d8696" stroke-dasharray="5 4"/>`+
+     `<line x1="${P.l}" x2="${W-P.r}" y1="${byy}" y2="${byy}" stroke="#7d8696" stroke-dasharray="5 4"/>`;
+  const corner=(q,x,y,a)=>`<text x="${x}" y="${y}" fill="${QC[q]}" font-size="${fs+2}" font-weight="800" text-anchor="${a}">${QN[q]} ${cnt[q]}</text>`;
+  s+=corner('impr',P.l+8,P.t+16,'start')+corner('lead',W-P.r-8,P.t+16,'end')+corner('lag',P.l+8,H-P.b-10,'start')+corner('weak',W-P.r-8,H-P.b-10,'end');
+  // 라벨 충돌 회피: 벤치마크에서 먼 점부터 오른쪽→왼쪽→위→아래 순으로 자리 탐색, 실패 시 숨김(호버로 확인)
+  const boxes=rows.map(r=>({x0:X(r.r3)-R-1,x1:X(r.r3)+R+1,y0:Y(r.r1)-R-1,y1:Y(r.r1)+R+1}));
+  boxes.push({x0:bx-9,x1:bx+9,y0:byy-9,y1:byy+9});
+  const hit=b=>b.x0<P.l||b.x1>W-P.r||b.y0<P.t||b.y1>H-P.b||boxes.some(o=>b.x0<o.x1&&b.x1>o.x0&&b.y0<o.y1&&b.y1>o.y0);
+  const tw=t=>[...t].reduce((a,c)=>a+(c.charCodeAt(0)>255?fs*.95:fs*.6),0)+2;
+  const order=rows.map((r,i)=>i).sort((a,b)=>Math.hypot(rows[b].r3-M.b3,(rows[b].r1-M.b1)*2)-Math.hypot(rows[a].r3-M.b3,(rows[a].r1-M.b1)*2));
+  const lab={};
+  order.forEach(i=>{const r=rows[i],cx=X(r.r3),cy=Y(r.r1),w=tw(r.lb),h=fs+2;
+    const cand=[{x:cx+R+5,y:cy+4,a:'start',b:{x0:cx+R+4,x1:cx+R+5+w,y0:cy-h/2,y1:cy+h/2}},
+                {x:cx-R-5,y:cy+4,a:'end',b:{x0:cx-R-5-w,x1:cx-R-4,y0:cy-h/2,y1:cy+h/2}},
+                {x:cx,y:cy-R-5,a:'middle',b:{x0:cx-w/2,x1:cx+w/2,y0:cy-R-4-h,y1:cy-R-3}},
+                {x:cx,y:cy+R+h,a:'middle',b:{x0:cx-w/2,x1:cx+w/2,y0:cy+R+3,y1:cy+R+4+h}}];
+    const c=cand.find(c=>!hit(c.b));
+    if(c){lab[i]=c;boxes.push(c.b)}else if(allLb)lab[i]=cand[0];});
+  rows.forEach((r,i)=>{const c=lab[i];
+    s+=`<g class="pt" data-i="${i}"><circle cx="${X(r.r3)}" cy="${Y(r.r1)}" r="${R}" fill="${QC[r.q]}" stroke="#171a21" stroke-width="1.5"/>`+
+      `<circle cx="${X(r.r3)}" cy="${Y(r.r1)}" r="13" fill="transparent"/>`+
+      (c?`<text x="${c.x}" y="${c.y}" fill="#cfd5df" font-size="${fs}" font-weight="600" text-anchor="${c.a}">${esc(r.lb)}</text>`:'')+`</g>`});
+  s+=`<path d="M${bx} ${byy-9}L${bx+9} ${byy}L${bx} ${byy+9}L${bx-9} ${byy}Z" fill="#e9ecf1" stroke="#171a21" stroke-width="1.5"/></svg>`;
+  host.innerHTML=s;
+  const tip=document.getElementById('tip'),card=host.parentElement,svg=host.firstChild;
+  function show(g){const r=rows[+g.dataset.i];svg.classList.add('dimmed');g.classList.add('hl');
+    tip.innerHTML=`<b style="color:${QC[r.q]}">${QN[r.q]}</b> <b>${esc(r.lb)}</b><br><span class="s">${esc(r.tk)} · ${esc(r.nm)}</span><br>`+
+      `3개월 <b class="${cls(r.r3)}">${pct(r.r3)}</b> <span class="s">(시장 대비 ${pct(r.r3-M.b3)}p)</span><br>`+
+      `1개월 <b class="${cls(r.r1)}">${pct(r.r1)}</b> <span class="s">(시장 대비 ${pct(r.r1-M.b1)}p)</span>`;
+    tip.style.display='block';
+    const cb=card.getBoundingClientRect(),gb=g.firstChild.getBoundingClientRect();
+    let l=gb.right-cb.left+10,t=gb.top-cb.top-10;
+    if(l+tip.offsetWidth>cb.width-6)l=gb.left-cb.left-tip.offsetWidth-10;
+    tip.style.left=Math.max(6,l)+'px';tip.style.top=Math.max(6,Math.min(t,cb.height-tip.offsetHeight-6))+'px';}
+  function hide(){svg.classList.remove('dimmed');svg.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));tip.style.display='none'}
+  svg.querySelectorAll('.pt').forEach(g=>{g.addEventListener('mouseenter',()=>show(g));g.addEventListener('mouseleave',hide);
+    g.addEventListener('click',e=>{e.stopPropagation();hide();show(g)})});
+  svg.addEventListener('click',hide);
+  // ── 4분면 표 ──
+  const sorters={lead:(a,b)=>(b.r1-M.b1+b.r3-M.b3)-(a.r1-M.b1+a.r3-M.b3),impr:(a,b)=>b.r1-a.r1,weak:(a,b)=>a.r1-b.r1,lag:(a,b)=>(a.r1+a.r3)-(b.r1+b.r3)};
+  document.getElementById('quads').innerHTML=['impr','lead','lag','weak'].map(q=>{const l=by(q).sort(sorters[q]);
+    return `<div class="q"><h3 style="color:${QC[q]}">${QN[q]} ${l.length}<small>${QD[q]}</small></h3>`+(l.length?
+      `<table><thead><tr><th>ETF</th><th>3개월</th><th>1개월</th></tr></thead><tbody>`+l.map(r=>
+      `<tr><td><b>${esc(r.lb)}</b><span class="nm">${esc(mkt==='us'?r.nm:r.tk)}</span></td><td class="${cls(r.r3)}">${pct(r.r3)}</td><td class="${cls(r.r1)}">${pct(r.r1)}</td></tr>`).join('')+`</tbody></table>`
+      :`<div class="none">해당 없음</div>`)+`</div>`}).join('');
+  document.getElementById('foot').innerHTML=`유니버스: ${mkt==='us'?'미국 상장':'국내 상장'} 섹터·산업·테마 ETF ${rows.length}종 (레버리지·인버스 제외) · 매 거래일 장 마감 후 자동 갱신${mkt==='us'?' (전일 미국 세션 종가)':''}<br>
+  분배금 미반영 주가 기준. 겹치는 라벨은 자동으로 숨기며 점에 마우스를 올리면(모바일은 탭) 확인할 수 있다. 투자 판단의 참고 자료일 뿐 특정 종목의 매수·매도 추천이 아닙니다.`;
+}
+document.querySelectorAll('#mk button').forEach(b=>b.onclick=()=>{mkt=b.dataset.v;try{localStorage.setItem('mommap-mkt',mkt)}catch(e){}render()});
+document.getElementById('allLb').onchange=e=>{allLb=e.target.checked;try{localStorage.setItem('mommap-lb',allLb?'1':'0')}catch(e){}render()};
+render();
+let rsT,lastW=document.getElementById('chart').clientWidth;
+window.addEventListener('resize',()=>{clearTimeout(rsT);rsT=setTimeout(()=>{const w=document.getElementById('chart').clientWidth;
+  if(w&&(w<620)!==(lastW<620)||!lastW){lastW=w;render()}},200)});
+</script></body></html>
