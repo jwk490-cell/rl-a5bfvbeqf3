@@ -172,6 +172,12 @@ td.dot .sp{vertical-align:middle}
 .blr .bp:nth-of-type(3){grid-area:q;justify-self:end}
 .blr .mut{grid-column:2 / -1}
 .bll.wide{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.blr{grid-template-areas:"c v s" "c q s" "x x x"}
+.blr .bx{grid-area:x;font-size:12px;color:var(--sub);margin-top:4px;padding-top:6px;border-top:1px dashed var(--line)}
+.blr .bx b{color:var(--text)}
+.sd.vg{background:none;border-style:dashed;font-weight:600}
+#cm td.dot i.vg{background:none;border:2px solid var(--c);box-sizing:border-box}
+.lk{font-style:normal;font-size:11px;font-weight:700;border-radius:5px;padding:1px 6px;margin-right:6px}.lk.k-s{background:var(--accent-soft);color:var(--accent)}.lk.k-m{background:var(--surface2);color:var(--faint);border:1px solid var(--line)}
 .ldl,.cul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
 .lw{font-size:12.5px;color:var(--sub);font-weight:600}
 .ln{display:flex;flex-wrap:wrap;gap:4px 9px;align-items:baseline;margin-top:1px}
@@ -387,7 +393,7 @@ td.dot .sp{vertical-align:middle}
 <div class="card tblc" id="cmc" hidden>
   <h2>고객사 × 제품 <span>누가 어떤 기판을 사 가고, 누가 공급하나 · 줄을 누르면 지도에 표시</span></h2>
   <table id="cm"></table>
-  <p class="cap">색 점 = 실명으로 확인된 공급사(<b style="color:var(--c-simm)">심텍</b> · <b style="color:var(--c-dd)">대덕전자</b> · <b style="color:var(--c-tlb)">티엘비</b> · <b style="color:var(--c-kc)">코리아써키트</b>) · ○ = 구매는 확인됐으나 4사 중 공급사 미확인 · 빈칸 = 확인된 것 없음</p>
+  <p class="cap">색 점 = 실명으로 확인된 공급사(<b style="color:var(--c-simm)">심텍</b> · <b style="color:var(--c-dd)">대덕전자</b> · <b style="color:var(--c-tlb)">티엘비</b> · <b style="color:var(--c-kc)">코리아써키트</b>) · 빈 고리 = 사명 없이 '메모리 3사' 등으로만 서술된 공급 · ○ = 구매는 확인됐으나 4사 중 공급사 미확인 · 빈칸 = 확인된 것 없음</p>
 </div>
 
 <div class="card tblc">
@@ -507,30 +513,31 @@ function rng(id,key){ // 관련 회사 수주잔고 증감 범위(회사 전체 
   return {txt:n===1?pct(a[0]):pct(a[0])+' ~ '+pct(a[n-1]),med,n};
 }
 const TREND={up:['▲ 늘어남','var(--h5)'],down:['▼ 줄어듦','var(--h2)'],flat:['─ 변화 없음','var(--h1)']};
-function leadTop(id){const L=ui(id)&&ui(id).lead||[];return L[0]||null;}
+function leadTop(id){return ui(id)&&ui(id).lp||null;}
+const supOf=x=>(x.sup||[]).map(k=>`<i class="sd" style="--c:var(--c-${k})" title="실명으로 확인">${CO[k].n}</i>`).join('')+(x.sup_vague||[]).map(k=>`<i class="sd vg" style="--c:var(--c-${k})" title="사명 없이 '메모리 3사' 등으로만 서술">${CO[k].n}?</i>`).join('');
 function metric(id){ // 지도·표에 찍을 값 {txt,color}
   if(mode==='yoy'||mode==='qoq'){const r=rng(id,mode);return r?{txt:r.txt,c:hc(r.med)}:{txt:'확인 없음',c:'var(--h0)'};}
-  if(mode==='lead'){const l=leadTop(id);return l?{txt:(l.kind==='기판'?'':'소재 ')+l.now,c:(TREND[l.trend]||TREND.flat)[1]}:{txt:'숫자 없음',c:'var(--h0)'};}
+  if(mode==='lead'){const l=leadTop(id);return l?{txt:l.txt,c:(TREND[l.trend]||TREND.flat)[1]}:{txt:'숫자 없음',c:'var(--h0)'};}
   return null;
 }
 const rpill=(id,key)=>{const r=rng(id,key);return r?`<span class="rp" style="--hc:${hc(r.med)}">${r.txt}</span>`:'<span class="rp none">–</span>';};
-const lpill=id=>{const l=leadTop(id);return l?`<span class="rp" style="--hc:${(TREND[l.trend]||TREND.flat)[1]}">${l.kind==='기판'?'':'소재 '}${esc(l.now)}</span>`:'<span class="rp none">숫자 없음</span>';};
+const lpill=id=>{const l=leadTop(id);return l?`<span class="rp" style="--hc:${(TREND[l.trend]||TREND.flat)[1]}">${esc(l.txt)}</span>`:'<span class="rp none">숫자 없음</span>';};
 const kid=id=>`<button class="kid" data-it="${id}"><span class="kn">${NUM[IT[id].no-1]} ${esc(IT[id].n)}<small>${esc(IT[id].use)}</small></span>${U?`<span class="ks">${rpill(id,'yoy')}</span>`:''}</button>`;
 function spark(b){const v=b.v,mx=Math.max.apply(null,v.filter(x=>x!=null));
   return `<svg class="spk" viewBox="0 0 ${v.length*9-3} 24" aria-hidden="true">`+v.map((x,i)=>{if(x==null)return '';const h=Math.max(2,x/mx*22);return `<rect x="${i*9}" y="${24-h}" width="6" height="${h}" rx="1.5" class="${i===v.length-1?'l':''}"><title>${b.q[i]} ${num(x)}${b.unit}</title></rect>`;}).join('')+'</svg>';}
 function blRow(k){const b=bl(k);
   if(!b)return `<li class="blr">${chip(k)}<span class="mut">수주잔고 확인 없음</span></li>`;
   return `<li class="blr">${chip(k)}<span class="bv">${num(b.v[b.v.length-1])}<small>${esc(b.unit)} · ${esc(b.q[b.q.length-1])}말</small></span>${spark(b)}
-    <span class="bp"><small>QoQ</small><b style="color:${hc(b.qoq)}">${pct(b.qoq)}</b></span><span class="bp"><small>YoY</small><b style="color:${hc(b.yoy)}">${pct(b.yoy)}</b></span></li>`;}
+    <span class="bp"><small>QoQ</small><b style="color:${hc(b.qoq)}">${pct(b.qoq)}</b></span><span class="bp"><small>YoY</small><b style="color:${hc(b.yoy)}">${pct(b.yoy)}</b></span>${b.btb?`<span class="bx">분기 수주÷납품 <b>${b.btb}배</b> · 잔고 = 분기 납품액의 <b>${b.cover}개월치</b></span>`:''}</li>`;}
 function leadHtml(id){const L=ui(id)&&ui(id).lead||[];
   if(!L.length)return '<p class="mut">숫자로 확인된 리드타임 없음</p>';
   return '<ul class="ldl">'+L.map(l=>{const t=TREND[l.trend]||TREND.flat;
-    return `<li><div class="lw">${esc(l.what)}</div><div class="ln"><b>${esc(l.now)}</b>${l.base?`<span>← ${esc(l.base)}</span>`:''}<i style="color:${t[1]}">${t[0]}</i></div>
+    return `<li><div class="lw"><em class="lk k-${l.kind==='기판'?'s':'m'}">${esc(l.kind)}</em>${esc(l.what)}</div><div class="ln"><b>${esc(l.now)}</b>${l.base?`<span>← ${esc(l.base)}</span>`:''}<i style="color:${t[1]}">${t[0]}</i></div>
     <div class="ns">${esc(l.asof||'')}${l.src?' · '+(l.url?`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.src)} ↗</a>`:esc(l.src)):''}</div></li>`;}).join('')+'</ul>';}
 function custFor(id){return cust().map((c,i)=>({c,i,x:c.items&&c.items[id]})).filter(o=>o.x);}
 function custHtml(id){const a=custFor(id);
   if(!a.length)return '<p class="mut">실명으로 확인된 고객사 없음</p>';
-  return '<ul class="cul">'+a.map(o=>`<li><button class="cub" data-cu="${o.i}">${esc(o.c.name)}</button>${(o.x.sup||[]).map(k=>`<i class="sd" style="--c:var(--c-${k})" title="${CO[k].n}">${CO[k].n}</i>`).join('')}
+  return '<ul class="cul">'+a.map(o=>`<li><button class="cub" data-cu="${o.i}">${esc(o.c.name)}</button>${supOf(o.x)}
     ${o.x.note?`<div class="cn">${esc(o.x.note)}</div>`:''}${o.x.basis?`<div class="ns">${esc(o.x.basis)}</div>`:''}</li>`).join('')+'</ul>';}
 const DIR={up:['▲','up'],down:['▼','dn'],flat:['─','fl']};
 function newsHtml(arr,tagged){
@@ -565,20 +572,21 @@ function render(){
        <div class="ld">${esc(c.lead)}</div>${dl(c.pts)}
        <div class="sec">세부 분류${U?' <span>오른쪽 = 관련 회사 수주잔고 YoY 범위</span>':''}</div><div class="kids">${c.kids.map(kid).join('')}</div>`;
   }else if(sel.t==='co'){const c=CO[sel.id],its=ORDER.filter(i=>IT[i].co.includes(sel.id)),u=U&&U.companies&&U.companies[sel.id],b=bl(sel.id);
-    const cu=cust().map((x,i)=>({x,i,its:ORDER.filter(id=>x.items&&x.items[id]&&(x.items[id].sup||[]).includes(sel.id))})).filter(o=>o.its.length);
+    const cu=cust().map((x,i)=>({x,i,its:ORDER.filter(id=>x.items&&x.items[id]&&(x.items[id].sup||[]).concat(x.items[id].sup_vague||[]).includes(sel.id))})).filter(o=>o.its.length);
     h=`<div class="crumb">회사로 보기</div><h3>${c.n}<span class="code">${c.code}</span></h3>
        ${u&&u.biz?`<div class="ld">${esc(u.biz)}</div>`:`<div class="ld">그림에서 밝게 남은 부분이 ${c.n}와(과) 연결된 기판.</div>`}
        ${b?`<div class="sec">수주잔고 <span>${esc(b.q[0])}~${esc(b.q[b.q.length-1])} 분기말</span></div><ul class="bll">${blRow(sel.id)}</ul>
-            <p class="ns">${esc(b.basis||'')}${b.parts?' · '+esc(b.parts):''}${b.note?' · '+esc(b.note):''}</p>`:''}
+            ${b.parts?`<p class="pr"><b>품목별</b> ${esc(b.parts)}</p>`:''}${b.note?`<p class="pr"><b>참고</b> ${esc(b.note)}</p>`:''}
+            <details class="more"><summary>집계 기준</summary><p class="ns">${esc(b.basis||'')}${b.url?` <a href="${esc(b.url)}" target="_blank" rel="noopener">DART 원문 ↗</a>`:''}</p></details>`:''}
        ${u&&u.latest?`<p class="pr"><b>최근 실적·증설</b> ${esc(u.latest)}</p>`:''}
-       ${cu.length?`<div class="sec">고객사 <span>실명으로 확인된 공급 관계</span></div><ul class="cul">${cu.map(o=>`<li><button class="cub" data-cu="${o.i}">${esc(o.x.name)}</button><span class="cn">${o.its.map(id=>NUM[IT[id].no-1]+' '+esc(IT[id].n)).join(' · ')}</span></li>`).join('')}</ul>`:''}
+       ${cu.length?`<div class="sec">고객사 <span>확인된 공급 관계</span></div><ul class="cul">${cu.map(o=>`<li><button class="cub" data-cu="${o.i}">${esc(o.x.name)}</button><span class="cn">${o.its.map(id=>NUM[IT[id].no-1]+' '+esc(IT[id].n)+((o.x.items[id].sup||[]).includes(sel.id)?'':' (사명 미기재)')).join(' · ')}</span></li>`).join('')}</ul>`:''}
        <div class="sec">관련 기판 ${its.length}개</div><div class="kids">${its.map(kid).join('')}</div>
        ${u?`<div class="sec">최신 소식</div>${newsHtml(u.news)}`:''}`;
   }else if(sel.t==='cu'){const c=cust()[sel.id],its=ORDER.filter(id=>c.items&&c.items[id]);
     h=`<div class="crumb">고객사로 보기</div><h3>${esc(c.name)}</h3><div class="use">${esc([c.kind,c.role].filter(Boolean).join(' · '))}</div>
        <div class="ld">그림에서 밝게 남은 부분이 ${esc(c.name)}이(가) 사 가는 기판. 색 칩은 실명으로 확인된 공급사.</div>
        <div class="sec">사 가는 기판 ${its.length}개</div>
-       <ul class="cul">${its.map(id=>{const x=c.items[id];return `<li><button class="cub" data-it="${id}">${NUM[IT[id].no-1]} ${esc(IT[id].n)}</button>${(x.sup||[]).map(k=>`<i class="sd" style="--c:var(--c-${k})">${CO[k].n}</i>`).join('')||'<i class="sd none">공급사 미확인</i>'}
+       <ul class="cul">${its.map(id=>{const x=c.items[id];return `<li><button class="cub" data-it="${id}">${NUM[IT[id].no-1]} ${esc(IT[id].n)}</button>${supOf(x)||'<i class="sd none">공급사 미확인</i>'}
          ${x.note?`<div class="cn">${esc(x.note)}</div>`:''}${x.basis?`<div class="ns">${esc(x.basis)}</div>`:''}</li>`;}).join('')}</ul>`;
   }else{
     h=`<h3>기판, 세 가지로 나누면</h3><div class="use">그림의 부품이나 아래 항목을 눌러 보세요</div>
@@ -636,7 +644,8 @@ function matrix(){
   $('#cus').innerHTML='<span class="lbl">고객사로 보기</span>'+a.map((c,i)=>`<button class="chip cu" data-cu="${i}">${esc(c.name)}</button>`).join('');
   $('#cm').innerHTML='<thead><tr><th>고객사</th>'+ORDER.map(i=>`<th class="pc" data-it="${i}">${NUM[IT[i].no-1]} ${esc(IT[i].n)}</th>`).join('')+'</tr></thead><tbody>'+
     a.map((c,i)=>`<tr data-cu="${i}"><td class="cat">${esc(c.name)}<small>${esc(c.kind||'')}</small></td>${ORDER.map(id=>{const x=c.items&&c.items[id];
-      return `<td class="dot">${!x?'':(x.sup&&x.sup.length?x.sup.map(k=>`<i style="--c:var(--c-${k})" title="${CO[k].n}"></i>`).join(' '):'<span class="buy" title="구매는 확인, 공급사 미확인">○</span>')}</td>`;}).join('')}</tr>`).join('')+'</tbody>';
+      const a=(x&&x.sup||[]).map(k=>`<i style="--c:var(--c-${k})" title="${CO[k].n} — 실명 확인"></i>`),v=(x&&x.sup_vague||[]).map(k=>`<i class="vg" style="--c:var(--c-${k})" title="${CO[k].n} — 사명 없이 서술"></i>`);
+      return `<td class="dot">${!x?'':(a.concat(v).join(' ')||'<span class="buy" title="구매는 확인, 공급사 미확인">○</span>')}</td>`;}).join('')}</tr>`).join('')+'</tbody>';
 }
 function feed(){
   if(!U){$('#feedc').hidden=true;return;}
