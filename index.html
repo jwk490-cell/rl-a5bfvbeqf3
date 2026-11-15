@@ -88,13 +88,10 @@ body.subon .panel.embed iframe{height:calc(100vh - 99px - 51px)}
 .favstar.on{opacity:1!important;color:#f5c451}
 @media(max-width:900px){.favstar{opacity:.45}}
 #favGroup{color:#f5c451}
-.favmv{display:none;flex:none;margin-left:6px;gap:2px}
-#favList .favmv{display:inline-flex;opacity:.4;transition:opacity .12s}
-#favList .navitem:hover .favmv{opacity:1}
-.favmv i{font-style:normal;font-size:9px;line-height:1;padding:3px 4px;border-radius:5px;color:var(--faint);cursor:pointer}
-.favmv i:hover{background:var(--line);color:var(--text)}
-#favList .navitem[draggable="true"]{cursor:grab}
-@media(max-width:900px){#favList .favmv{opacity:.7}.favmv i{font-size:11px;padding:5px 6px}}
+#favList .navitem{cursor:grab;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#favList .navitem.favdrag{cursor:grabbing;background:var(--accent-soft);box-shadow:0 2px 10px rgba(0,0,0,.25)}
+body.favdragging{cursor:grabbing;user-select:none}
+body.favdragging #nav{touch-action:none;overflow:hidden}
 .archhead{display:flex;align-items:center;gap:6px;width:100%;margin-top:18px;padding:10px 12px 6px;border:none;
   background:transparent;color:var(--faint);font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.04em;
   border-top:1px solid var(--line);cursor:pointer;text-align:left}
@@ -3820,7 +3817,7 @@ function qtPeerRender(s){
 })();
 
 /* ── 일시 숨김 탭 (261116 1NE 지시) — 되살리려면 목록에서 빼면 된다 ── */
-const HIDDEN_TABS=new Set(['meridian','leaders','rrgsec','rstime','telegram']);
+const HIDDEN_TABS=new Set(['meridian','leaders','rrgsec','rstime','telegram','semietf','semirebal','semicand','caps','etfgap']);
 /* ── 종목 분석으로 통합된 탭 (261116 1NE 지시) — 탭만 내리고 페이지·데이터·패널은 그대로 보존.
       옛 주소(#dd·#backlog·#util·#cost)는 종목 분석으로 보낸다. 되살리려면 목록에서 빼면 된다 ── */
 const MERGED_TABS={dd:'quote',backlog:'quote',util:'quote',cost:'quote'};
@@ -3957,12 +3954,6 @@ function favSaveOrder(){                                  // 화면에 보이는
   favSet=new Set([...vis,...[...favSet].filter(t=>!vis.includes(t))]);
   try{localStorage.setItem('rl-favs',JSON.stringify([...favSet]));}catch(_){}
 }
-function favMove(tab,d){
-  const el=favList.querySelector(`.navitem[data-tab="${tab}"]`);if(!el)return;
-  if(d<0&&el.previousElementSibling)favList.insertBefore(el,el.previousElementSibling);
-  else if(d>0&&el.nextElementSibling)favList.insertBefore(el.nextElementSibling,el);
-  favSaveOrder();
-}
 function favApply(){
   const favs=[];
   archNav.querySelectorAll('.navitem[data-tab]').forEach(b=>{
@@ -3972,7 +3963,6 @@ function favApply(){
   const ord=[...favSet];favs.sort((x,y)=>ord.indexOf(x.dataset.tab)-ord.indexOf(y.dataset.tab));   // 저장 순서 = 내가 정한 순서
   favs.forEach(b=>favList.appendChild(b));
   favGroup.style.display=favs.length?'':'none';
-  archNav.querySelectorAll('.navitem[data-tab]').forEach(b=>{b.draggable=b.parentElement===favList;});
   document.querySelectorAll('.favstar').forEach(s=>{
     const t=s.parentElement.dataset.tab;
     s.classList.toggle('on',favSet.has(t));
@@ -3983,14 +3973,26 @@ document.querySelectorAll('#nav .navitem[data-tab]').forEach(b=>{
   if(b.dataset.tab==='home')return;
   const s=document.createElement('span');
   s.className='favstar';s.textContent='☆';s.title='즐겨찾기';
-  const mv=document.createElement('span');mv.className='favmv';        // 즐겨찾기 안에서만 보이는 ▲▼
-  mv.innerHTML='<i data-d="-1" title="위로">▲</i><i data-d="1" title="아래로">▼</i>';
-  mv.addEventListener('click',e=>{e.stopPropagation();const d=+e.target.dataset.d;if(d)favMove(b.dataset.tab,d);});
-  b.appendChild(mv);
-  b.addEventListener('dragstart',e=>{if(b.parentElement!==favList){e.preventDefault();return;}favDrag=b;e.dataTransfer.effectAllowed='move';});
-  b.addEventListener('dragover',e=>{if(favDrag&&b.parentElement===favList&&favDrag!==b){e.preventDefault();
-    const r=b.getBoundingClientRect();favList.insertBefore(favDrag,e.clientY<r.top+r.height/2?b:b.nextSibling);}});
-  b.addEventListener('dragend',()=>{if(!favDrag)return;favDrag=null;favSaveOrder();});
+  // 즐겨찾기 순서 = 드래그 (마우스: 6px 이상 끌면 시작 / 터치: 0.35초 누르고 있으면 시작)
+  b.addEventListener('pointerdown',e=>{
+    if(b.parentElement!==favList||e.button>0)return;
+    const y0=e.clientY,touch=e.pointerType!=='mouse';let on=false,lp=null;
+    const start=()=>{on=true;favDrag=b;b.classList.add('favdrag');document.body.classList.add('favdragging');};
+    if(touch)lp=setTimeout(start,350);
+    const mv=ev=>{
+      if(!on){if(touch){if(Math.abs(ev.clientY-y0)>8)clearTimeout(lp);return;}
+        if(Math.abs(ev.clientY-y0)<6)return;start();}
+      ev.preventDefault();
+      const over=[...favList.children].find(el=>{const r=el.getBoundingClientRect();return ev.clientY>=r.top&&ev.clientY<=r.bottom;});
+      if(over&&over!==b){const r=over.getBoundingClientRect();favList.insertBefore(b,ev.clientY<r.top+r.height/2?over:over.nextSibling);}
+    };
+    const up=()=>{clearTimeout(lp);document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up);
+      if(!on)return;favDrag=null;b.classList.remove('favdrag');document.body.classList.remove('favdragging');
+      favSaveOrder();const eat=ev=>{ev.stopImmediatePropagation();ev.preventDefault();};   // 드래그 끝 클릭은 탭 열기로 치지 않음
+      b.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>b.removeEventListener('click',eat,{capture:true}),80);};
+    document.addEventListener('pointermove',mv,{passive:false});document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up);
+  });
+  b.addEventListener('contextmenu',e=>{if(favDrag)e.preventDefault();});
   s.addEventListener('click',e=>{
     e.stopPropagation();
     const t=b.dataset.tab;
