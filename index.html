@@ -657,8 +657,10 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="pbrgrowth">저PBR × 컨센 성장 <small>매일</small></button>
     <button class="navitem" data-tab="kospitop">코스피 상위 × OP 컨센 <small>매일</small></button>
     <button class="navitem" data-tab="kosdaqtop">코스닥 상위 × OP 컨센 <small>매일</small></button>
-    <button class="navitem" data-tab="krcapmap">韓 시총 상위 30 지도 <small>NEW</small></button>
-    <button class="navitem" data-tab="uscapmap">美 시총 상위 30 지도 <small>NEW</small></button>
+    <button class="navitem" data-tab="capmap">과거 시총 상위 30 변화 (韓/美/日) <small>3개</small></button>
+    <button class="navitem subtab" data-tab="krcapmap">韓 시총 상위 30 변화</button>
+    <button class="navitem subtab" data-tab="uscapmap">美 시총 상위 30 변화</button>
+    <button class="navitem subtab" data-tab="jpcapmap">日 시총 상위 30 변화 <small>NEW</small></button>
     <div class="navgroup">매크로 데이터</div>
     <button class="navitem" data-tab="ram">메모리 가격</button>
     <button class="navitem" data-tab="semiexport">반도체/전기전자 수출 추이</button>
@@ -777,8 +779,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
           <button class="card" data-go="pbrgrowth"><h3>저PBR × 컨센 성장 스크리너 <span class="tag">평일 16:55</span></h3><p>PBR 1배 이하 종목을 26E→27E 컨센서스 성장률 4지표(매출·영업이익·지배순이익·ROE)로 랭킹 — 직전결산/26E BPS 기준 토글, 시장·시총 필터, 종목별 3개년 컨센 상세</p></button>
           <button class="card" data-go="kospitop"><h3>코스피 시총 상위 × 영업이익 컨센서스 <span class="tag">평일 20:15</span></h3><p>코스피 시총 상위 50(100·150 전환) 종목의 연간 영업이익 2025A·26E·27E·28E 컨센서스와 증가율(CAGR), 주가 수익률 1M~2Y(코스피 지수 대비), PER 26E~28E·PBR, 매일 20:15 누적되는 시총 순위 변동(전일·1주·1개월, 진입·이탈)</p></button>
           <button class="card" data-go="kosdaqtop"><h3>코스닥 시총 상위 × 영업이익 컨센서스 <span class="tag">평일 20:15</span></h3><p>코스닥 시총 상위 50(100·150 전환) 종목의 연간 영업이익 2025A·26E·27E·28E 컨센서스와 증가율(CAGR), 주가 수익률 1M~2Y(코스닥 지수 대비), PER 26E~28E·PBR, 매일 20:15 누적되는 시총 순위 변동(전일·1주·1개월, 진입·이탈)</p></button>
-          <button class="card" data-go="krcapmap"><h3>韓 시총 상위 30 지도 <span class="tag">2000~</span></h3><p>2000년 1월부터 매월 말 코스피+코스닥 시가총액 상위 30 트리맵 — 재생·연도 이동, 섹터/12개월 변화 색, 연말 순위 추이표, 상위 30 내 섹터 비중 추이, 종목별 시총·순위 상세(상장폐지 종목 포함)</p></button>
-          <button class="card" data-go="uscapmap"><h3>美 시총 상위 30 지도 <span class="tag">2000~</span></h3><p>2000년 1월부터 매월 말 미국 시가총액 상위 30 트리맵 — GE·엑슨·시스코 시대에서 빅테크·엔비디아까지, 연말 순위 추이표, 섹터 비중 추이, 기업별 상세(엔론·월드컴 등 상장폐지 포함)</p></button>
+          <button class="card" data-go="capmap"><h3>과거 시총 상위 30 변화 (韓/美/日) <span class="tag">2000~</span></h3><p>매월 말 시가총액 상위 30 트리맵을 한국·미국·일본 세부 탭으로 — 재생·연도 이동, 섹터/12개월 변화 색, 연말 순위 추이표, 상위 30 내 섹터 비중 추이, 종목별 시총·순위 상세(상장폐지 종목 포함)</p></button>
           <button class="card" data-go="dd"><h3>전고대비 <span class="tag">낙폭 트래킹</span></h3><p>전고점 대비 낙폭 추이 + −15% 이상 하락 구간 기록</p></button>
         </div>
       </section>
@@ -1027,6 +1028,10 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
 
     <section class="panel embed" id="tab-uscapmap">
       <iframe data-src="capmap.html?m=us" title="美 시총 상위 30 지도"></iframe>
+    </section>
+
+    <section class="panel embed" id="tab-jpcapmap">
+      <iframe data-src="capmap.html?m=jp" title="日 시총 상위 30 지도"></iframe>
     </section>
 
     <section class="panel embed" id="tab-kospitop">
@@ -3828,6 +3833,7 @@ document.querySelectorAll('.navitem[data-tab],.card[data-go]').forEach(el=>{
 /* ── 묶음 탭: 사이드바 한 칸 + 패널 위 하위 탭 바 (261116) ── */
 const TAB_GROUPS={
   jpmarket:{label:'日 시장',subs:[['jphigh','신고가'],['jpflow','수급'],['jpsector','주도 섹터'],['jpearn','결산 스크리닝'],['jpval','밸류에이션 · 가이던스']]},
+  capmap:{label:'과거 시총 상위 30 변화',subs:[['krcapmap','🇰🇷 韓'],['uscapmap','🇺🇸 美'],['jpcapmap','🇯🇵 日']]},
   krflow:{label:'韓 수급',subs:[['invflow','일일 수급'],['supply','수급/거래량 증감'],['streak','수급 연속'],['binjip','빈집찾기'],['etccorp','기타법인'],['buyback','자사주 매수']]}};
 const SUB2GRP={};for(const g in TAB_GROUPS)for(const [t] of TAB_GROUPS[g].subs)SUB2GRP[t]=g;
 const subBar=document.createElement('div');subBar.className='subbar';subBar.id='subBar';
@@ -3854,7 +3860,7 @@ function openTab(tab){
   const f=panel.querySelector('iframe[data-src]');
   // 자주 갱신되는 대시보드는 10분 단위 캐시버스터를 붙여 낡은 페이지가 남지 않게 한다
   const FRESH={binjip:1,creditdd:1,invflow:1,oprevision:1,backlog:1,basket7:1,supply:1,flowosc:1,util:1,screening:1,cost:1,vs:1,macd:1,mommap:1,buyback:1,pbrgrowth:1,kospitop:1,kosdaqtop:1,etccorp:1,
-               rrgsec:1,rrgstk:1,leaders:1,meridian:1,brregime:1,mktsize:1,ircal:1,krcapmap:1,uscapmap:1,jpearn:1,jpval:1,pcbmap:1,ytnotes:1};
+               rrgsec:1,rrgstk:1,leaders:1,meridian:1,brregime:1,mktsize:1,ircal:1,krcapmap:1,uscapmap:1,jpcapmap:1,jpearn:1,jpval:1,pcbmap:1,ytnotes:1};
   if(f&&!f.src){f.src=f.dataset.src+(FRESH[tab]?(f.dataset.src.includes('?')?'&':'?')+'v='+Math.floor(Date.now()/6e5):'');}
   if(tab==='telegram')loadTG(false);
   if(tab==='home')homeStart();

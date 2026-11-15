@@ -96,6 +96,7 @@ svg text{fill:var(--faint);font-size:10.5px;font-variant-numeric:tabular-nums}
 .tip .l i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
 .foot{color:var(--faint);font-size:11.5px;line-height:1.7}
 .foot b{color:var(--sub)}
+html.emb #mkt{display:none}
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 @media (max-width:860px){.grid2{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:640px){
@@ -112,7 +113,7 @@ svg text{fill:var(--faint);font-size:10.5px;font-variant-numeric:tabular-nums}
       <h1 id="ttl">시가총액 상위 30 지도</h1>
       <div class="sub" id="sub">불러오는 중…</div>
     </div>
-    <div class="seg big" id="mkt"><button data-m="kr">🇰🇷 한국</button><button data-m="us">🇺🇸 미국</button></div>
+    <div class="seg big" id="mkt"><button data-m="kr">🇰🇷 한국</button><button data-m="us">🇺🇸 미국</button><button data-m="jp">🇯🇵 일본</button></div>
   </div>
 
   <div class="card">
@@ -161,13 +162,15 @@ svg text{fill:var(--faint);font-size:10.5px;font-variant-numeric:tabular-nums}
 const $=s=>document.querySelector(s);
 const SEC_COL=i=>`var(--c${i+1})`;
 const P=new URLSearchParams(location.search);
-let M=(P.get('m')==='us')?'us':'kr';
+let M=({us:1,jp:1})[P.get('m')]?P.get('m'):'kr';
+const MKN={kr:'한국',us:'미국',jp:'일본'};
+if(window.top!==window.self) document.documentElement.classList.add('emb');   // 허브 안에서는 허브의 韓/美/日 세부 탭이 전환을 맡는다
 let D=null, idx=0, timer=null, speed=320, cmode='sec', rmode='now', selId=null, RANKS=null;
 const CACHE={};
 
-function fmtCap(v){            // KR: 억원 → 조, US: $M → $B/T
+function fmtCap(v){            // KR: 억원 → 조, JP: 억엔 → 조엔, US: $M → $B/T
   if(v==null) return '–';
-  if(M==='kr'){const j=v/1e4; return j>=100?Math.round(j).toLocaleString()+'조':j>=10?j.toFixed(1)+'조':j.toFixed(2)+'조';}
+  if(M!=='us'){const j=v/1e4, u=M==='jp'?'조엔':'조'; return j>=100?Math.round(j).toLocaleString()+u:j>=10?j.toFixed(1)+u:j.toFixed(2)+u;}
   const b=v/1e3; return b>=1000?'$'+(b/1e3).toFixed(2)+'T':b>=100?'$'+Math.round(b)+'B':'$'+b.toFixed(1)+'B';
 }
 const pct=(a,b)=>(a!=null&&b!=null&&b>0)?(a/b-1)*100:null;
@@ -431,7 +434,7 @@ async function load(m){
   if(!CACHE[M]){const r=await fetch(`data/capmap_${M}.json?v=`+Date.now()); CACHE[M]=await r.json();}
   D=CACHE[M]; for(const k in COS) delete COS[k]; for(const c of D.cos) COS[c.id]=c;
   computeRanks();
-  $('#ttl').textContent=(M==='kr'?'한국':'미국')+' 시가총액 상위 30 지도';
+  $('#ttl').textContent=MKN[M]+' 시가총액 상위 30 지도'; document.title='과거 시총 상위 30 변화 · '+MKN[M];
   $('#sub').innerHTML=D.subtitle;
   $('#foot').innerHTML=D.foot;
   $('#tm').innerHTML=''; selId=null; $('#detailCard').style.display='none';
