@@ -3679,9 +3679,16 @@ function qtPeerRender(s){
   document.addEventListener('click',e=>{if(!e.target.closest('#qtSearch,#qtDrop'))drop.style.display='none';});
 })();
 
+/* ── 일시 숨김 탭 (261116 1NE 지시) — 되살리려면 목록에서 빼면 된다 ── */
+const HIDDEN_TABS=new Set(['meridian','leaders','rrgsec','rstime','telegram']);
+document.querySelectorAll('.navitem[data-tab],.card[data-go]').forEach(el=>{
+  if(HIDDEN_TABS.has(el.dataset.tab||el.dataset.go))el.remove();
+});
+
 /* ── 탭 전환 (iframe은 첫 진입 시에만 로드) ── */
 const items=document.querySelectorAll('.navitem'),panels=document.querySelectorAll('.panel');
 function openTab(tab){
+  if(HIDDEN_TABS.has(tab)){history.replaceState(null,'','#home');return;}  // 홈은 기본 표시 — openTab('home')은 로드 시점에 homeTimer TDZ 오류
   const btn=document.querySelector(`.navitem[data-tab="${tab}"]`);if(!btn)return;
   items.forEach(b=>b.classList.remove('on'));
   panels.forEach(p=>p.classList.remove('on'));
