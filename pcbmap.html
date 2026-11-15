@@ -172,7 +172,9 @@ td.dot .sp{vertical-align:middle}
 .blr .bp:nth-of-type(3){grid-area:q;justify-self:end}
 .blr .mut{grid-column:2 / -1}
 .bll.wide{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.blr{grid-template-areas:"c v s" "c q s" "x x x"}
+.blr{grid-template-columns:auto auto minmax(0,1fr) 66px;grid-template-areas:"c v v s" "c q y s" "x x x x"}
+.blr .bp:nth-of-type(3){grid-area:y;justify-self:start}
+.blr .mut{grid-column:2 / -1}
 .blr .bx{grid-area:x;font-size:12px;color:var(--sub);margin-top:4px;padding-top:6px;border-top:1px dashed var(--line)}
 .blr .bx b{color:var(--text)}
 .sd.vg{background:none;border-style:dashed;font-weight:600}
@@ -641,7 +643,7 @@ function table(){
 function matrix(){
   $('#blc').hidden=!U;if(U)$('#bl4').innerHTML=COS.map(blRow).join('');
   const a=cust();$('#cmc').hidden=!a.length;if(!a.length)return;
-  $('#cus').innerHTML='<span class="lbl">고객사로 보기</span>'+a.map((c,i)=>`<button class="chip cu" data-cu="${i}">${esc(c.name)}</button>`).join('');
+  $('#cus').innerHTML='<span class="lbl">고객사로 보기</span>'+a.map((c,i)=>`<button class="chip cu" data-cu="${i}" title="${esc(c.name)}">${esc(c.name.split('(')[0])}</button>`).join('');
   $('#cm').innerHTML='<thead><tr><th>고객사</th>'+ORDER.map(i=>`<th class="pc" data-it="${i}">${NUM[IT[i].no-1]} ${esc(IT[i].n)}</th>`).join('')+'</tr></thead><tbody>'+
     a.map((c,i)=>`<tr data-cu="${i}"><td class="cat">${esc(c.name)}<small>${esc(c.kind||'')}</small></td>${ORDER.map(id=>{const x=c.items&&c.items[id];
       const a=(x&&x.sup||[]).map(k=>`<i style="--c:var(--c-${k})" title="${CO[k].n} — 실명 확인"></i>`),v=(x&&x.sup_vague||[]).map(k=>`<i class="vg" style="--c:var(--c-${k})" title="${CO[k].n} — 사명 없이 서술"></i>`);
