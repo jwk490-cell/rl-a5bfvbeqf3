@@ -637,6 +637,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="semirebal">반도체 ETF 리밸런싱 <small>9/10</small></button>
     <button class="navitem" data-tab="semicand">반도체 편입 후보 <small>9/11</small></button>
     <button class="navitem" data-tab="align">정배열 트래커</button>
+    <button class="navitem" data-tab="kretfsortino">韓 ETF 소르티노·상대강도 <small>NEW</small></button>
     <button class="navitem" data-tab="macd">MACD 트래커</button>
     <button class="navitem" data-tab="mommap">모멘텀 지도</button>
     <button class="navitem subtab" data-tab="buyback">자사주 매수 트래커</button>
@@ -752,6 +753,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
           <button class="card" data-go="semirebal"><h3>반도체 ETF 리밸런싱 <span class="tag">KRX 반도체 9월 정기변경</span></h3><p>KODEX·TIGER 반도체 cap 20% 시나리오 — 35종목 유출입 금액 ÷ ADTV·종가 단일가 배수, 6월 삼성전기 교본</p></button>
           <button class="card" data-go="semicand"><h3>반도체 편입 후보 <span class="tag">KRX 반도체 9월 정기변경</span></h3><p>현행 35종 밖 소부장·기판 25종을 GICS → 중대형 TMI 규모 → 거래대금 90% 관문으로 판정, 편입 시 예상 비중·매수액</p></button>
           <button class="card" data-go="align"><h3>정배열 트래커 <span class="tag">韓 종목 · 韓 ETF · 美 ETF</span></h3><p>완전(현재가&gt;4주&gt;13주&gt;26주&gt;52주)·이평 정배열 유지일 랭킹 — 수급150 종목 / 국내 ETF 46종 / 미국 ETF 96종 3판 통합</p></button>
+          <button class="card" data-go="kretfsortino"><h3>韓 ETF 소르티노·상대강도 <span class="tag">매일</span></h3><p>6개월 수익률÷하방표준편차 상위 20 — 10일·20일·10주선 필터별 일자 추이, 상대강도, 이평선 위 종목 수</p></button>
           <button class="card" data-go="macd"><h3>MACD 트래커 <span class="tag">韓 종목 · 12·26·9</span></h3><p>수급150 종목 일봉 MACD 국면 4분면(강세·회복·조정·약세) — 골든/데드크로스 유지일, 0선 돌파, 히스토그램 바닥 반전 선행 시그널</p></button>
           <button class="card" data-go="mommap"><h3>모멘텀 지도 <span class="tag">韓 ETF · 美 ETF</span></h3><p>섹터·테마 ETF의 3개월×1개월 수익률 산점도 — 벤치마크(코스피·S&amp;P500) 십자선 기준 주도·개선·약화·소외 4분면</p></button>
           <button class="card" data-go="buyback"><h3>자사주 매수 트래커 <span class="tag">매 거래일 저녁 갱신</span></h3><p>전 상장사 자기주식 취득 신청·체결 일별 추적 — 내일 매수 신청 랭킹, 당일 체결률·단가·금액, 진행률·예상 종료일, 거래량 대비 매수 비중</p></button>
@@ -991,6 +993,9 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
       <iframe data-src="align.html" title="정배열 트래커"></iframe>
     </section>
 
+    <section class="panel embed" id="tab-kretfsortino">
+      <iframe data-src="kretfsortino.html" title="韓 ETF 소르티노·상대강도"></iframe>
+    </section>
     <section class="panel embed" id="tab-macd">
       <iframe data-src="macd.html" title="MACD 트래커"></iframe>
     </section>
@@ -4121,7 +4126,7 @@ const RR_TABS={
   ircal:{m:'x',note:'30분마다 자동 동기화됩니다 — 탭 안의 ↻ 버튼으로 최신 파일을 다시 읽습니다'},
   krwrap:{m:'a',eta:'~2분'}, uswrap:{m:'a',eta:'~2분'}, sector:{m:'a',eta:'~3분'}, disparity:{m:'a',eta:'~2분'},
   supply:{m:'a',eta:'~7분'}, invflow:{m:'x',note:'장중 5분마다 잠정치, 장 마감 후 KRX 확정치로 자동 교체됩니다'}, streak:{m:'a',eta:'~3분'}, flowosc:{m:'a',eta:'~3분'}, binjip:{m:'x',note:'평일 21:25 확정치로 자동 갱신됩니다'}, creditdd:{m:'x',note:'금투협 공시(1~2영업일 지연)를 평일 아침·저녁 자동 반영합니다'}, krhigh:{m:'a',eta:'~10분'}, ushigh:{m:'a',eta:'~5분'}, jphigh:{m:'a',eta:'~1분'}, jpflow:{m:'a',eta:'~2분'}, jpsector:{m:'a',eta:'~1분'},
-  rs:{m:'a',eta:'~5분'}, semietf:{m:'a',eta:'~2분'}, semirebal:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, semicand:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, align:{m:'a',eta:'~15분'}, macd:{m:'a',eta:'~2분'}, mommap:{m:'x',note:'매 거래일 16:55 자동 갱신 탭입니다'}, buyback:{m:'a',eta:'~4분'}, pbrgrowth:{m:'a',eta:'~3분'}, kospitop:{m:'a',eta:'~1분'}, kosdaqtop:{m:'a',eta:'~1분'}, brregime:{m:'a',eta:'~3분'}, etccorp:{m:'a',eta:'~1분'},
+  rs:{m:'a',eta:'~5분'}, semietf:{m:'a',eta:'~2분'}, semirebal:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, semicand:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, align:{m:'a',eta:'~15분'}, kretfsortino:{m:'a',eta:'~1분'}, macd:{m:'a',eta:'~2분'}, mommap:{m:'x',note:'매 거래일 16:55 자동 갱신 탭입니다'}, buyback:{m:'a',eta:'~4분'}, pbrgrowth:{m:'a',eta:'~3분'}, kospitop:{m:'a',eta:'~1분'}, kosdaqtop:{m:'a',eta:'~1분'}, brregime:{m:'a',eta:'~3분'}, etccorp:{m:'a',eta:'~1분'},
   caps:{m:'a',eta:'~2분'}, gap:{m:'a',eta:'~2분'}, dd:{m:'a',eta:'~2분'}, ram:{m:'a',eta:'~2분'},
   etfgap:{m:'l'}, basket7:{m:'a',eta:'~5분'}, semiexport:{m:'a',eta:'~2분'},
   export:{m:'a',eta:'~1분'}, corpexport:{m:'a',eta:'~3분'},

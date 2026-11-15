@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="ko" class="ht-kretfsortino"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>韓 ETF 소르티노 · 상대강도</title>
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1e222b;--ink:#e9ecf1;--sub:#a4adbd;--line:#2a2f3a;
+--gold:#e6b93f;--teal:#5db4a4;--red:#e0606a;--green:#5cbf8a;--blue:#5a9bd8;--purple:#a98fd6;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font-family:'Pretendard','Malgun Gothic',-apple-system,sans-serif;letter-spacing:-.01em}
+.wrap{max-width:1280px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:24px;font-weight:800;margin:0 0 4px}
+h2{font-size:16px;font-weight:800;margin:28px 0 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h2 small{font-size:11.5px;color:var(--sub);font-weight:500}
+.meta{color:var(--sub);font-size:12.5px}.meta b{color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:16px 0 4px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:0}
+.stat .lbl{font-size:11.5px;color:var(--sub);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat .val{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat .val small{font-size:12px;color:var(--sub);font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:var(--panel);color:var(--sub);font:inherit;font-size:12.5px;font-weight:700;padding:6px 13px;cursor:pointer}
+.seg button.on{background:var(--gold);color:#14151a}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.scroll{overflow:auto}
+table{border-collapse:collapse;width:100%}
+th{font-size:11px;color:var(--sub);text-align:right;padding:8px 9px;border-bottom:1px solid var(--line);font-weight:700;white-space:nowrap;background:var(--panel);position:sticky;top:0}
+td{font-size:12.5px;text-align:right;padding:7px 9px;border-bottom:1px solid #20242e;white-space:nowrap;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:rgba(255,255,255,.03)}
+/* 일자별 상위 20 */
+#hist td,#hist th{text-align:center;font-size:11.5px;padding:7px 8px;min-width:92px;white-space:normal;line-height:1.3}
+#hist th:first-child,#hist td:first-child{position:sticky;left:0;background:var(--panel);min-width:78px;white-space:nowrap;font-weight:700;color:var(--sub);z-index:1}
+#hist td.none{color:#4a5060}
+#hist td.new{color:var(--gold);font-weight:700}
+#hist td.st{color:var(--teal)}
+#hist tr.today td{background:rgba(230,185,63,.06)}
+#hist tr.today td:first-child{color:var(--ink)}
+/* 전체 순위 */
+#rank th{cursor:pointer;user-select:none}
+#rank th.sorted{color:var(--gold)}
+#rank th:nth-child(1),#rank td:nth-child(1){text-align:center;width:38px;color:var(--sub)}
+#rank th:nth-child(2),#rank td:nth-child(2){text-align:left}
+.nm{font-weight:700}.cd{color:var(--sub);font-size:10.5px;margin-left:6px;font-weight:500}
+.tag{font-size:10px;color:var(--teal);border:1px solid var(--teal);border-radius:5px;padding:0 4px;margin-left:6px}
+.pos{color:var(--red)}.neg{color:var(--blue)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#333946}
+.dot.on{background:var(--green)}
+.sbar{display:inline-block;height:7px;border-radius:4px;background:linear-gradient(90deg,var(--gold),#f0d27a);vertical-align:1px;margin-left:7px}
+.sbar.ng{background:#3a4660}
+.rsb{display:inline-block;min-width:30px;border-radius:6px;padding:1px 6px;font-weight:700;text-align:center}
+.rk{font-size:10.5px;margin-left:5px}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.cardc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.cardc .ct{font-size:13px;font-weight:800;margin-bottom:2px}
+.cardc .cs{font-size:11.5px;color:var(--sub);margin-bottom:8px}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--sub);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
+.expl{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 17px;font-size:12.5px;color:var(--sub);line-height:1.8;margin-top:30px}
+.expl b{color:var(--ink)}.expl p{margin:0 0 7px}.expl p:last-child{margin:0}
+@media(max-width:820px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.g2{grid-template-columns:minmax(0,1fr)}.hidemb{display:none}}
+</style><link rel="stylesheet" href="hub-theme.css"></head><body><div class="wrap">
+<h1>韓 ETF 소르티노 · 상대강도</h1>
+<div class="meta" id="meta"></div>
+<div class="stats" id="stats"></div>
+
+<h2>소르티노 상위 20 · 일자별 <span class="seg" id="seg"></span><small id="histnote"></small></h2>
+<div class="box"><div class="scroll" style="max-height:560px"><table id="hist"></table></div></div>
+
+<h2>이평선 위 종목 수 · 상대강도 분포</h2>
+<div class="g2">
+  <div class="cardc"><div class="ct">이평선 위 종목 수 추이</div><div class="cs" id="brsub"></div><div id="brchart"></div>
+    <div class="legend"><span><i style="border-color:var(--gold)"></i>10일선 위</span><span><i style="border-color:var(--teal)"></i>20일선 위</span><span><i style="border-color:var(--purple)"></i>10주선 위</span></div></div>
+  <div class="cardc"><div class="ct">상대강도 × 소르티노</div><div class="cs">가로 = 상대강도(6개월 수익률 백분위), 세로 = 소르티노 · 오른쪽 위일수록 강하고 덜 흔들림</div><div id="scatter"></div>
+    <div class="legend"><span><i style="border-color:var(--green)"></i>10주선 위</span><span><i style="border-color:#6b7385"></i>10주선 아래</span></div></div>
+</div>
+
+<h2>전체 순위 <small>헤더를 누르면 정렬 · 순위 옆 ▲▼ = 5거래일 전 대비 소르티노 순위 변화</small></h2>
+<div class="box"><div class="scroll"><table id="rank"></table></div></div>
+
+<div class="expl" id="expl"></div>
+</div>
+<script>
+const D={"asof":"2026-11-13","fetched_at":"2026-11-16 08:32","total":48,"topn":20,"names":{"091160":"KODEX 반도체","396500":"TIGER 반도체TOP10","305720":"KODEX 2차전지산업","364980":"TIGER 2차전지TOP10","091180":"KODEX 자동차","466930":"SOL 자동차TOP3플러스","091170":"KODEX 은행","466940":"TIGER 은행고배당플러스TOP10","102970":"KODEX 증권","140700":"KODEX 보험","117680":"KODEX 철강","117460":"KODEX 에너지화학","117700":"KODEX 건설","102960":"KODEX 기계장비","466920":"SOL 조선TOP3플러스","494670":"TIGER 조선TOP10","449450":"PLUS K방산","463250":"TIGER K방산&우주","434730":"HANARO 원자력iSelect","433500":"ACE 원자력TOP10","445290":"KODEX 로봇액티브","469070":"RISE AI&로봇","139260":"TIGER 200 IT","266370":"KODEX IT","157490":"TIGER 소프트웨어","365000":"TIGER 인터넷TOP10","300950":"KODEX 게임산업","364990":"TIGER 게임TOP10","228810":"TIGER 미디어컨텐츠","395290":"HANARO Fn K-POP&미디어","228800":"TIGER 여행레저","388280":"RISE K엔터&여행레저","228790":"TIGER 화장품","0008T0":"SOL 화장품TOP3플러스","244580":"KODEX 바이오","364970":"TIGER 바이오TOP10","261070":"TIGER 코스닥150바이오테크","143860":"TIGER 헬스케어","266420":"KODEX 헬스케어","266410":"KODEX 필수소비재","140710":"KODEX 운송","329200":"TIGER 리츠부동산인프라","385510":"KODEX 신재생에너지액티브","367770":"RISE 수소경제테마","457990":"PLUS 태양광&ESS","381560":"HANARO Fn전기&수소차","005930":"삼성전자","000660":"SK하이닉스"},"bench6":-32.4,"rows":[{"c":"140700","n":"KODEX 보험","st":false,"px":17155,"sor":0.18,"r6":3.8,"dn":21.4,"rs":99,"ex":36.2,"d1":-0.3,"w1":-5.5,"m1":-8.2,"rk5":0,"d10":false,"d20":false,"w10":false},{"c":"091170","n":"KODEX 은행","st":false,"px":14850,"sor":-0.15,"r6":-2.5,"dn":17.4,"rs":98,"ex":29.8,"d1":3.2,"w1":3.8,"m1":1.1,"rk5":4,"d10":true,"d20":true,"w10":false},{"c":"140710","n":"KODEX 운송","st":false,"px":6655,"sor":-0.2,"r6":-3.4,"dn":17.0,"rs":96,"ex":29.0,"d1":0.8,"w1":3.3,"m1":-0.5,"rk5":0,"d10":true,"d20":true,"w10":true},{"c":"466940","n":"TIGER 은행고배당플러스TOP10","st":false,"px":23765,"sor":-0.42,"r6":-6.7,"dn":16.1,"rs":94,"ex":25.7,"d1":3.0,"w1":2.2,"m1":-0.2,"rk5":4,"d10":true,"d20":true,"w10":false},{"c":"005930","n":"삼성전자","st":true,"px":206000,"sor":-0.62,"r6":-26.5,"dn":43.1,"rs":67,"ex":5.9,"d1":-1.0,"w1":9.2,"m1":-1.9,"rk5":-1,"d10":false,"d20":false,"w10":false},{"c":"364970","n":"TIGER 바이오TOP10","st":false,"px":6545,"sor":-0.64,"r6":-13.4,"dn":20.8,"rs":90,"ex":19.0,"d1":0.0,"w1":-3.4,"m1":4.9,"rk5":5,"d10":false,"d20":false,"w10":false},{"c":"266370","n":"KODEX IT","st":false,"px":51725,"sor":-0.67,"r6":-28.9,"dn":43.1,"rs":62,"ex":3.4,"d1":-1.1,"w1":7.4,"m1":-10.7,"rk5":0,"d10":false,"d20":false,"w10":false},{"c":"139260","n":"TIGER 200 IT","st":false,"px":99500,"sor":-0.67,"r6":-30.5,"dn":45.3,"rs":58,"ex":1.9,"d1":-1.8,"w1":5.6,"m1":-8.0,"rk5":-3,"d10":false,"d20":false,"w10":false},{"c":"000660","n":"SK하이닉스","st":true,"px":1216000,"sor":-0.68,"r6":-35.3,"dn":51.8,"rs":52,"ex":-2.9,"d1":-3.0,"w1":7.4,"m1":-3.6,"rk5":-7,"d10":false,"d20":false,"w10":false},{"c":"091160","n":"KODEX 반도체","st":false,"px":98520,"sor":-0.79,"r6":-35.6,"dn":45.3,"rs":50,"ex":-3.3,"d1":-0.8,"w1":15.4,"m1":-12.3,"rk5":0,"d10":true,"d20":false,"w10":false},{"c":"228790","n":"TIGER 화장품","st":false,"px":3325,"sor":-0.82,"r6":-17.0,"dn":20.8,"rs":85,"ex":15.3,"d1":-1.3,"w1":-3.9,"m1":-12.5,"rk5":-2,"d10":false,"d20":false,"w10":false},{"c":"157490","n":"TIGER 소프트웨어","st":false,"px":7465,"sor":-0.92,"r6":-20.1,"dn":21.8,"rs":83,"ex":12.2,"d1":-1.1,"w1":-3.7,"m1":4.1,"rk5":0,"d10":false,"d20":true,"w10":false},{"c":"0008T0","n":"SOL 화장품TOP3플러스","st":false,"px":12985,"sor":-0.92,"r6":-21.2,"dn":23.0,"rs":79,"ex":11.1,"d1":-1.7,"w1":-3.8,"m1":-13.9,"rk5":0,"d10":false,"d20":false,"w10":false},{"c":"396500","n":"TIGER 반도체TOP10","st":false,"px":27315,"sor":-0.95,"r6":-44.5,"dn":46.7,"rs":27,"ex":-12.2,"d1":-1.9,"w1":10.3,"m1":-5.2,"rk5":2,"d10":false,"d20":false,"w10":false},{"c":"117700","n":"KODEX 건설","st":false,"px":5955,"sor":-1.05,"r6":-35.8,"dn":34.2,"rs":48,"ex":-3.4,"d1":1.9,"w1":7.4,"m1":5.6,"rk5":9,"d10":true,"d20":true,"w10":false},{"c":"381560","n":"HANARO Fn전기&수소차","st":false,"px":13620,"sor":-1.05,"r6":-31.3,"dn":29.8,"rs":56,"ex":1.1,"d1":1.3,"w1":0.7,"m1":-13.8,"rk5":1,"d10":false,"d20":false,"w10":false},{"c":"457990","n":"PLUS 태양광&ESS","st":false,"px":28140,"sor":-1.06,"r6":-43.9,"dn":41.5,"rs":29,"ex":-11.5,"d1":-1.0,"w1":-3.0,"m1":-16.4,"rk5":2,"d10":false,"d20":false,"w10":false},{"c":"266410","n":"KODEX 필수소비재","st":false,"px":8385,"sor":-1.06,"r6":-16.4,"dn":15.4,"rs":88,"ex":16.0,"d1":-0.2,"w1":-5.7,"m1":-7.6,"rk5":-3,"d10":false,"d20":false,"w10":false},{"c":"395290","n":"HANARO Fn K-POP&미디어","st":false,"px":4960,"sor":-1.1,"r6":-25.5,"dn":23.3,"rs":75,"ex":6.8,"d1":-1.1,"w1":2.4,"m1":2.3,"rk5":11,"d10":true,"d20":true,"w10":true},{"c":"364980","n":"TIGER 2차전지TOP10","st":false,"px":8905,"sor":-1.12,"r6":-38.1,"dn":33.9,"rs":42,"ex":-5.8,"d1":-0.1,"w1":1.9,"m1":-13.1,"rk5":0,"d10":false,"d20":false,"w10":false},{"c":"388280","n":"RISE K엔터&여행레저","st":false,"px":6655,"sor":-1.14,"r6":-20.4,"dn":17.9,"rs":81,"ex":12.0,"d1":-0.6,"w1":-0.7,"m1":0.5,"rk5":2,"d10":true,"d20":true,"w10":false},{"c":"266420","n":"KODEX 헬스케어","st":false,"px":15005,"sor":-1.18,"r6":-25.9,"dn":22.0,"rs":73,"ex":6.4,"d1":-0.6,"w1":-1.3,"m1":2.8,"rk5":4,"d10":false,"d20":false,"w10":false},{"c":"466930","n":"SOL 자동차TOP3플러스","st":false,"px":18410,"sor":-1.19,"r6":-36.5,"dn":30.7,"rs":46,"ex":-4.1,"d1":0.4,"w1":-1.1,"m1":-8.5,"rk5":-9,"d10":false,"d20":false,"w10":false},{"c":"445290","n":"KODEX 로봇액티브","st":false,"px":24855,"sor":-1.19,"r6":-39.0,"dn":32.8,"rs":40,"ex":-6.7,"d1":1.3,"w1":4.4,"m1":-1.4,"rk5":-6,"d10":true,"d20":false,"w10":false},{"c":"143860","n":"TIGER 헬스케어","st":false,"px":33100,"sor":-1.19,"r6":-26.0,"dn":21.8,"rs":71,"ex":6.4,"d1":-0.8,"w1":-1.6,"m1":3.0,"rk5":3,"d10":false,"d20":false,"w10":false},{"c":"385510","n":"KODEX 신재생에너지액티브","st":false,"px":31250,"sor":-1.23,"r6":-46.6,"dn":38.0,"rs":25,"ex":-14.2,"d1":-0.7,"w1":2.9,"m1":-11.9,"rk5":3,"d10":false,"d20":false,"w10":false},{"c":"305720","n":"KODEX 2차전지산업","st":false,"px":12780,"sor":-1.25,"r6":-41.8,"dn":33.6,"rs":33,"ex":-9.4,"d1":-0.6,"w1":3.3,"m1":-14.0,"rk5":0,"d10":false,"d20":false,"w10":false},{"c":"228800","n":"TIGER 여행레저","st":false,"px":2540,"sor":-1.26,"r6":-21.8,"dn":17.3,"rs":77,"ex":10.5,"d1":-1.2,"w1":2.8,"m1":0.6,"rk5":5,"d10":true,"d20":true,"w10":false},{"c":"364990","n":"TIGER 게임TOP10","st":false,"px":4150,"sor":-1.27,"r6":-26.0,"dn":20.4,"rs":69,"ex":6.3,"d1":-3.2,"w1":-8.5,"m1":-3.0,"rk5":-7,"d10":false,"d20":false,"w10":false},{"c":"329200","n":"TIGER 리츠부동산인프라","st":false,"px":3690,"sor":-1.3,"r6":-12.6,"dn":9.7,"rs":92,"ex":19.7,"d1":1.7,"w1":-0.4,"m1":-5.8,"rk5":4,"d10":false,"d20":false,"w10":false},{"c":"228810","n":"TIGER 미디어컨텐츠","st":false,"px":3065,"sor":-1.35,"r6":-30.3,"dn":22.4,"rs":60,"ex":2.1,"d1":0.0,"w1":1.2,"m1":0.0,"rk5":12,"d10":true,"d20":false,"w10":false},{"c":"365000","n":"TIGER 인터넷TOP10","st":false,"px":3195,"sor":-1.36,"r6":-34.1,"dn":25.0,"rs":54,"ex":-1.8,"d1":-1.1,"w1":4.8,"m1":-1.5,"rk5":0,"d10":true,"d20":true,"w10":false},{"c":"117460","n":"KODEX 에너지화학","st":false,"px":10945,"sor":-1.39,"r6":-39.8,"dn":28.6,"rs":35,"ex":-7.5,"d1":-0.5,"w1":2.0,"m1":-17.2,"rk5":2,"d10":false,"d20":false,"w10":false},{"c":"244580","n":"KODEX 바이오","st":false,"px":7215,"sor":-1.41,"r6":-38.1,"dn":27.1,"rs":44,"ex":-5.7,"d1":-1.2,"w1":2.3,"m1":1.5,"rk5":2,"d10":true,"d20":false,"w10":false},{"c":"469070","n":"RISE AI&로봇","st":false,"px":8825,"sor":-1.42,"r6":-47.2,"dn":33.2,"rs":23,"ex":-14.8,"d1":1.6,"w1":3.8,"m1":-1.7,"rk5":-4,"d10":true,"d20":false,"w10":false},{"c":"300950","n":"KODEX 게임산업","st":false,"px":4830,"sor":-1.46,"r6":-26.7,"dn":18.3,"rs":65,"ex":5.7,"d1":-3.3,"w1":-10.5,"m1":-4.8,"rk5":-11,"d10":false,"d20":false,"w10":false},{"c":"091180","n":"KODEX 자동차","st":false,"px":22240,"sor":-1.48,"r6":-39.7,"dn":26.8,"rs":38,"ex":-7.3,"d1":1.3,"w1":-0.6,"m1":-4.4,"rk5":-16,"d10":true,"d20":false,"w10":false},{"c":"463250","n":"TIGER K방산&우주","st":false,"px":21510,"sor":-1.51,"r6":-54.5,"dn":36.1,"rs":17,"ex":-22.2,"d1":-2.7,"w1":2.4,"m1":-20.9,"rk5":0,"d10":false,"d20":false,"w10":false},{"c":"261070","n":"TIGER 코스닥150바이오테크","st":false,"px":8820,"sor":-1.58,"r6":-48.8,"dn":31.0,"rs":21,"ex":-16.5,"d1":-1.5,"w1":-3.2,"m1":-10.4,"rk5":1,"d10":false,"d20":false,"w10":false},{"c":"449450","n":"PLUS K방산","st":false,"px":32185,"sor":-1.6,"r6":-56.7,"dn":35.4,"rs":8,"ex":-24.3,"d1":-2.1,"w1":1.5,"m1":-22.1,"rk5":5,"d10":false,"d20":false,"w10":false},{"c":"434730","n":"HANARO 원자력iSelect","st":false,"px":37180,"sor":-1.61,"r6":-59.4,"dn":36.8,"rs":2,"ex":-27.0,"d1":-1.7,"w1":6.2,"m1":-16.0,"rk5":1,"d10":false,"d20":false,"w10":false},{"c":"117680","n":"KODEX 철강","st":false,"px":9965,"sor":-1.63,"r6":-42.7,"dn":26.1,"rs":31,"ex":-10.4,"d1":-1.1,"w1":0.5,"m1":-8.3,"rk5":-1,"d10":false,"d20":false,"w10":false},{"c":"433500","n":"ACE 원자력TOP10","st":false,"px":36355,"sor":-1.64,"r6":-59.1,"dn":35.9,"rs":4,"ex":-26.7,"d1":-1.3,"w1":3.8,"m1":-19.0,"rk5":1,"d10":false,"d20":false,"w10":false},{"c":"367770","n":"RISE 수소경제테마","st":false,"px":15530,"sor":-1.71,"r6":-51.9,"dn":30.4,"rs":19,"ex":-19.6,"d1":-0.4,"w1":1.8,"m1":-13.0,"rk5":-5,"d10":false,"d20":false,"w10":false},{"c":"102960","n":"KODEX 기계장비","st":false,"px":9280,"sor":-1.72,"r6":-56.7,"dn":32.9,"rs":6,"ex":-24.3,"d1":1.3,"w1":6.2,"m1":-15.7,"rk5":1,"d10":false,"d20":false,"w10":false},{"c":"466920","n":"SOL 조선TOP3플러스","st":false,"px":18390,"sor":-1.79,"r6":-55.8,"dn":31.2,"rs":12,"ex":-23.4,"d1":0.2,"w1":2.4,"m1":-16.5,"rk5":1,"d10":false,"d20":false,"w10":false},{"c":"102970","n":"KODEX 증권","st":false,"px":13585,"sor":-1.81,"r6":-56.1,"dn":31.0,"rs":10,"ex":-23.8,"d1":2.6,"w1":1.3,"m1":-6.5,"rk5":-10,"d10":false,"d20":false,"w10":false},{"c":"494670","n":"TIGER 조선TOP10","st":false,"px":14485,"sor":-1.82,"r6":-55.4,"dn":30.5,"rs":15,"ex":-23.1,"d1":0.2,"w1":2.6,"m1":-16.9,"rk5":0,"d10":false,"d20":false,"w10":false}],"hist":{"d10":[{"d":"2026-11-13","l":["091170","140710","466940","091160","117700","395290","388280","445290","228800","228810","365000","244580","469070","091180"]},{"d":"2026-11-12","l":["140710","091170","091160","157490","117700","395290","388280","143860","385510","228800","365000","244580","228810"]},{"d":"2026-11-11","l":["140710","091170","466940","091160","157490","445290","457990","364990","117700","388280","266420","143860","385510","305720","469070","365000","228800","244580","117680"]},{"d":"2026-11-10","l":["140710","091170","157490","117700","388280","364990","300950","228800","365000","244580"]},{"d":"2026-11-09","l":["157490","364990","388280","300950"]},{"d":"2026-11-06","l":["140710","091170","466940","364970","157490","266410","364990","388280","300950","266420","143860","395290","228800","228810"]},{"d":"2026-11-05","l":["140710","091170","466940","228790","364970","266410","0008T0","157490","457990","091180","388280","364990","266420","143860","300950","395290","228800","244580","228810"]},{"d":"2026-11-04","l":["140700","000660","140710","364970","457990","364980","157490","385510","305720","388280","364990","300950","228800","466920","494670"]},{"d":"2026-11-03","l":["140700","000660","140710","388280","228800","466920","494670"]},{"d":"2026-11-02","l":["140700","000660","139260","005930","266370","140710","396500","445290","117700","388280","117680","228800","102970","466920"]},{"d":"2026-10-30","l":["140700","000660","139260","266370","005930","091170","396500","466940","102970"]},{"d":"2026-10-29","l":["140700","000660","139260","005930","266370","091160","396500","466930","466940","445290","117700","469070","102970"]},{"d":"2026-10-28","l":["140700","000660","139260","005930","266370","091160","396500","466930","445290","157490","117700","469070","434730","433500","102970"]},{"d":"2026-10-27","l":["000660","139260","005930","396500","117700","329200"]},{"d":"2026-10-26","l":["117700"]},{"d":"2026-10-23","l":["364970","117700","329200","266420","143860"]},{"d":"2026-10-22","l":["364970","117700","364990","300950","395290","266420","143860","228810"]},{"d":"2026-10-21","l":["266410","364970","364990","395290","300950","266420","143860","244580","261070","228810"]},{"d":"2026-10-20","l":["266410","364970","364990","395290","300950","266420","143860","228810"]},{"d":"2026-10-19","l":["266410","364980","305720","388280","157490","091180","364970","364990","329200","300950","395290","117680","266420","143860","228810","261070"]}],"d20":[{"d":"2026-11-13","l":["091170","140710","466940","157490","117700","395290","388280","228800","365000"]},{"d":"2026-11-12","l":["140710","091170","157490","395290","388280","228800","365000"]},{"d":"2026-11-11","l":["140710","091170","157490","364990","117700","388280","143860","365000","228800","244580"]},{"d":"2026-11-10","l":["140710","157490","117700","388280","364990","300950","228800"]},{"d":"2026-11-09","l":["157490","364990","300950"]},{"d":"2026-11-06","l":["364970","157490","364990","388280","300950","143860"]},{"d":"2026-11-05","l":["140710","091170","364970","266410","157490","388280","364990","266420","143860","300950","228800"]},{"d":"2026-11-04","l":["140710","364970","364990","300950","228800"]},{"d":"2026-11-03","l":["140710","228800"]},{"d":"2026-11-02","l":["000660","140710","364970"]},{"d":"2026-10-30","l":["140700"]},{"d":"2026-10-29","l":["140700","000660"]},{"d":"2026-10-28","l":["005930","157490","117700","395290","228810"]},{"d":"2026-10-27","l":[]},{"d":"2026-10-26","l":[]},{"d":"2026-10-23","l":["364970","395290","228810"]},{"d":"2026-10-22","l":["364970","395290","228810"]},{"d":"2026-10-21","l":["364980","305720","364970","395290","266420","143860","228810"]},{"d":"2026-10-20","l":["364980","305720","364970","395290","266420","143860","228810"]},{"d":"2026-10-19","l":["457990","140710","266410","364980","305720","364970","364990","300950","395290","266420","143860","228810","261070"]}],"w10":[{"d":"2026-11-13","l":["140710","395290"]},{"d":"2026-11-12","l":["140710","395290"]},{"d":"2026-11-11","l":["157490","228800"]},{"d":"2026-11-10","l":["140710","157490","364990","300950"]},{"d":"2026-11-09","l":["364990","300950"]},{"d":"2026-11-06","l":["364990","300950"]},{"d":"2026-11-05","l":["140710","364970","364990","300950"]},{"d":"2026-11-04","l":["140710"]},{"d":"2026-11-03","l":["140710"]},{"d":"2026-11-02","l":["140710"]},{"d":"2026-10-30","l":[]},{"d":"2026-10-29","l":[]},{"d":"2026-10-28","l":["395290","228810"]},{"d":"2026-10-27","l":[]},{"d":"2026-10-26","l":[]},{"d":"2026-10-23","l":["395290"]},{"d":"2026-10-22","l":["395290","228810"]},{"d":"2026-10-21","l":["364980","305720","395290","228810"]},{"d":"2026-10-20","l":["364980","305720","395290","228810"]},{"d":"2026-10-19","l":["457990","140710","364980","305720","117460","395290","228810"]}]},"breadth":{"dates":["2026-05-20","2026-05-21","2026-05-22","2026-05-26","2026-05-27","2026-05-28","2026-05-29","2026-06-01","2026-06-02","2026-06-04","2026-06-05","2026-06-08","2026-06-09","2026-06-10","2026-06-11","2026-06-12","2026-06-15","2026-06-16","2026-06-17","2026-06-18","2026-06-19","2026-06-22","2026-06-23","2026-06-24","2026-06-25","2026-06-26","2026-06-29","2026-06-30","2026-07-01","2026-07-02","2026-07-03","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-27","2026-07-28","2026-07-29","2026-07-30","2026-07-31","2026-08-03","2026-08-04","2026-08-05","2026-08-06","2026-08-07","2026-08-10","2026-08-11","2026-08-12","2026-08-13","2026-08-14","2026-08-18","2026-08-19","2026-08-20","2026-08-21","2026-08-24","2026-08-25","2026-08-26","2026-08-27","2026-08-28","2026-08-31","2026-09-01","2026-09-02","2026-09-03","2026-09-04","2026-09-07","2026-09-08","2026-09-09","2026-09-10","2026-09-11","2026-09-14","2026-09-15","2026-09-16","2026-09-17","2026-09-18","2026-09-21","2026-09-22","2026-09-23","2026-09-28","2026-09-29","2026-09-30","2026-10-01","2026-10-02","2026-10-06","2026-10-07","2026-10-08","2026-10-12","2026-10-13","2026-10-14","2026-10-15","2026-10-16","2026-10-19","2026-10-20","2026-10-21","2026-10-22","2026-10-23","2026-10-26","2026-10-27","2026-10-28","2026-10-29","2026-10-30","2026-11-02","2026-11-03","2026-11-04","2026-11-05","2026-11-06","2026-11-09","2026-11-10","2026-11-11","2026-11-12","2026-11-13"],"tot":[48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48],"d10":[1,11,30,38,26,22,25,23,16,19,7,0,5,4,10,21,38,42,45,31,22,7,2,6,7,1,10,9,18,18,21,23,18,13,4,9,5,2,10,6,0,0,11,35,25,31,8,4,5,25,20,37,47,42,41,46,47,43,42,44,28,11,20,10,15,22,24,30,32,33,29,5,10,14,27,19,24,24,22,16,12,7,9,13,10,13,11,20,14,13,25,31,29,25,10,4,3,5,2,4,16,8,10,8,5,1,6,15,13,9,14,7,15,19,14,4,10,19,13,14],"d20":[9,13,13,15,19,13,15,15,16,18,15,4,14,5,7,11,27,27,32,21,14,7,3,6,8,6,12,9,17,10,15,10,13,9,5,8,5,4,6,7,3,5,3,24,12,17,3,1,4,8,6,29,36,39,40,40,39,44,44,45,42,34,38,30,32,36,34,35,36,28,26,11,12,16,23,18,25,26,23,16,10,10,13,16,13,14,8,17,12,12,22,25,25,25,12,5,4,7,2,2,13,7,7,3,3,0,0,5,2,1,3,2,5,11,6,3,7,10,7,9],"w10":[14,27,34,28,23,21,23,22,19,21,18,13,14,12,13,16,21,22,20,15,13,11,9,9,9,8,9,8,10,9,11,11,9,6,4,7,5,3,5,5,2,3,2,5,5,6,4,2,5,4,3,8,8,11,14,22,20,20,22,30,20,17,19,12,17,22,25,27,28,28,25,17,16,22,30,26,29,29,31,23,21,21,24,28,27,27,24,25,23,20,23,23,23,21,13,10,7,6,3,5,7,4,4,2,1,0,0,2,0,0,1,1,1,4,2,2,4,2,2,2]},"mas":[{"k":"d10","n":10,"l":"10일선"},{"k":"d20","n":20,"l":"20일선"},{"k":"w10","n":50,"l":"10주선"}]};
+const NM=D.names, MAS=D.mas, $=id=>document.getElementById(id);
+const sg=v=>v==null?'-':(v>0?'+':'')+v, cls=v=>v==null?'':(v>=0?'pos':'neg');
+const short=n=>n;
+$('meta').innerHTML='기준일 <b>'+D.asof+'</b> · 수집 '+D.fetched_at+' · '+D.total+'종 (국내 섹터·테마 ETF + 삼성전자·SK하이닉스) · 코스피 6개월 <b class="'+cls(D.bench6)+'">'+sg(D.bench6)+'%</b>';
+
+/* 요약 타일 */
+(function(){
+  const cnt=k=>D.rows.filter(r=>r[k]).length;
+  const none=k=>Math.max(0,D.topn-D.hist[k][0].l.length);
+  const top=D.rows[0];
+  let h='<div class="stat"><div class="lbl">소르티노 1위</div><div class="val" style="font-size:16px;line-height:1.5">'+top.n+'<br><small>'+top.sor+' · 6M '+sg(top.r6)+'%</small></div></div>';
+  MAS.forEach(m=>{h+='<div class="stat"><div class="lbl">'+m.l+' 위</div><div class="val">'+cnt(m.k)+'<small> / '+D.total+' · None '+none(m.k)+'칸</small></div></div>';});
+  h+='<div class="stat"><div class="lbl">상대강도 70 이상</div><div class="val">'+D.rows.filter(r=>r.rs>=70).length+'<small> / '+D.total+'</small></div></div>';
+  $('stats').innerHTML=h;
+})();
+
+/* 일자별 상위 20 */
+let curK='w10';
+function drawHist(){
+  const H=D.hist[curK]; const stset=new Set(D.rows.filter(r=>r.st).map(r=>r.c));
+  let h='<thead><tr><th>일자</th>'+Array.from({length:D.topn},(_,i)=>'<th>'+(i+1)+'</th>').join('')+'</tr></thead><tbody>';
+  H.forEach((row,ri)=>{
+    const prev=H[ri+1]?new Set(H[ri+1].l):null;
+    h+='<tr'+(ri===0?' class="today"':'')+'><td>'+row.d+'</td>';
+    for(let i=0;i<D.topn;i++){
+      const c=row.l[i];
+      if(!c){h+='<td class="none">None</td>';continue;}
+      const isNew=prev&&!prev.has(c);
+      h+='<td class="'+(isNew?'new':(stset.has(c)?'st':''))+'">'+(NM[c]||c)+'</td>';
+    }
+    h+='</tr>';
+  });
+  $('hist').innerHTML=h+'</tbody>';
+  const m=MAS.find(x=>x.k===curK);
+  $('histnote').textContent='종가가 '+m.l+' 위인 종목만 · 노란색 = 전일 목록에 없던 신규 진입';
+  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.k===curK));
+}
+$('seg').innerHTML=MAS.slice().reverse().map(m=>'<button data-k="'+m.k+'">'+m.l+' 이상</button>').join('');
+$('seg').onclick=e=>{const k=e.target.dataset.k;if(k){curK=k;drawHist();}};
+drawHist();
+
+/* 이평선 위 종목 수 추이 */
+(function(){
+  const B=D.breadth,W=600,H=230,PL=30,PR=8,PT=10,PB=22,n=B.dates.length;
+  const mx=Math.max(...B.tot), x=i=>PL+i/(n-1)*(W-PL-PR), y=v=>PT+(1-v/mx)*(H-PT-PB);
+  let s='<svg viewBox="0 0 '+W+' '+H+'">';
+  for(let g=0;g<=4;g++){const v=Math.round(mx*g/4);s+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--line)" stroke-width="1"/><text x="'+(PL-5)+'" y="'+(y(v)+3)+'" fill="var(--sub)" font-size="10" text-anchor="end">'+v+'</text>';}
+  [0,Math.floor(n/3),Math.floor(n*2/3),n-1].forEach((i,j)=>{s+='<text x="'+x(i)+'" y="'+(H-6)+'" fill="var(--sub)" font-size="10" text-anchor="'+(j===0?'start':j===3?'end':'middle')+'">'+B.dates[i].slice(2)+'</text>';});
+  [['d10','var(--gold)'],['d20','var(--teal)'],['w10','var(--purple)']].forEach(([k,c])=>{
+    s+='<polyline fill="none" stroke="'+c+'" stroke-width="1.8" points="'+B[k].map((v,i)=>x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ')+'"/>';
+    s+='<circle cx="'+x(n-1)+'" cy="'+y(B[k][n-1])+'" r="3" fill="'+c+'"/>';});
+  $('brchart').innerHTML=s+'</svg>';
+  $('brsub').textContent='최근 '+n+'거래일 · 전체 '+B.tot[n-1]+'종 중 종가가 각 이평선 위에 있는 종목 수';
+})();
+
+/* 상대강도 × 소르티노 산점도 */
+(function(){
+  const R=D.rows,W=600,H=230,PL=34,PR=10,PT=10,PB=24;
+  const ys=R.map(r=>r.sor), lo=Math.min(0,...ys), hi=Math.max(...ys);
+  const x=v=>PL+v/100*(W-PL-PR), y=v=>PT+(hi-v)/((hi-lo)||1)*(H-PT-PB);
+  let s='<svg viewBox="0 0 '+W+' '+H+'">';
+  s+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+y(0)+'" y2="'+y(0)+'" stroke="var(--line)"/>';
+  s+='<line x1="'+x(70)+'" x2="'+x(70)+'" y1="'+PT+'" y2="'+(H-PB)+'" stroke="var(--line)" stroke-dasharray="3 3"/><text x="'+(x(70)+3)+'" y="'+(PT+9)+'" fill="var(--sub)" font-size="9.5">RS 70</text>';
+  [0,25,50,75,100].forEach(v=>{s+='<text x="'+x(v)+'" y="'+(H-8)+'" fill="var(--sub)" font-size="10" text-anchor="middle">'+v+'</text>';});
+  [lo,(lo+hi)/2,hi].forEach(v=>{s+='<text x="'+(PL-5)+'" y="'+(y(v)+3)+'" fill="var(--sub)" font-size="10" text-anchor="end">'+v.toFixed(1)+'</text>';});
+  R.forEach(r=>{s+='<circle cx="'+x(r.rs).toFixed(1)+'" cy="'+y(r.sor).toFixed(1)+'" r="4" fill="'+(r.w10?'var(--green)':'#6b7385')+'" fill-opacity=".8"><title>'+r.n+' · RS '+r.rs+' · 소르티노 '+r.sor+'</title></circle>';});
+  R.slice(0,6).forEach((r,i)=>{s+='<text x="'+(x(r.rs)-6).toFixed(1)+'" y="'+(y(r.sor)+3+(i%2?9:0)).toFixed(1)+'" fill="var(--ink)" font-size="9.5" text-anchor="end">'+r.n+'</text>';});
+  $('scatter').innerHTML=s+'</svg>';
+})();
+
+/* 전체 순위표 */
+const COLS=[['#',null],['종목','n'],['소르티노','sor'],['6M 수익률','r6'],['하방편차','dn'],['상대강도','rs'],['코스피 대비','ex'],['1일','d1'],['1주','w1'],['1개월','m1'],['10일선','d10'],['20일선','d20'],['10주선','w10']];
+let sk='sor',sd=-1;
+function drawRank(){
+  const R=D.rows.slice().sort((a,b)=>{const x=a[sk],y=b[sk];if(typeof x==='string')return sd*x.localeCompare(y);return sd*((x??-1e9)-(y??-1e9));});
+  const mx=Math.max(...D.rows.map(r=>Math.abs(r.sor)));
+  const rank={};D.rows.forEach((r,i)=>rank[r.c]=i+1);
+  let h='<thead><tr>'+COLS.map(([l,k],i)=>'<th data-k="'+(k||'')+'" class="'+(k===sk?'sorted':'')+(i>=7&&i<=9?' hidemb':'')+'">'+l+(k===sk?(sd<0?' ▼':' ▲'):'')+'</th>').join('')+'</tr></thead><tbody>';
+  R.forEach(r=>{
+    const rk=r.rk5?('<span class="rk '+(r.rk5>0?'pos':'neg')+'">'+(r.rk5>0?'▲':'▼')+Math.abs(r.rk5)+'</span>'):'';
+    const hue=r.rs>=70?'rgba(224,96,106,'+(0.18+(r.rs-70)/30*0.42).toFixed(2)+')':r.rs<=30?'rgba(90,155,216,'+(0.18+(30-r.rs)/30*0.42).toFixed(2)+')':'rgba(255,255,255,.05)';
+    h+='<tr><td>'+rank[r.c]+rk+'</td><td><span class="nm">'+r.n+'</span>'+(r.st?'<span class="tag">종목</span>':'')+'<span class="cd hidemb">'+r.c+'</span></td>'
+      +'<td><b>'+r.sor.toFixed(2)+'</b><span class="sbar'+(r.sor<0?' ng':'')+'" style="width:'+(Math.abs(r.sor)/mx*70).toFixed(0)+'px"></span></td>'
+      +'<td class="'+cls(r.r6)+'">'+sg(r.r6)+'%</td><td>'+r.dn+'%</td>'
+      +'<td><span class="rsb" style="background:'+hue+'">'+r.rs+'</span></td>'
+      +'<td class="'+cls(r.ex)+'">'+sg(r.ex)+'%p</td>'
+      +['d1','w1','m1'].map(k=>'<td class="hidemb '+cls(r[k])+'">'+sg(r[k])+(r[k]==null?'':'%')+'</td>').join('')
+      +['d10','d20','w10'].map(k=>'<td style="text-align:center"><span class="dot'+(r[k]?' on':'')+'"></span></td>').join('')+'</tr>';
+  });
+  $('rank').innerHTML=h+'</tbody>';
+}
+$('rank').onclick=e=>{const th=e.target.closest('th');if(!th||!th.dataset.k)return;const k=th.dataset.k;if(k===sk)sd=-sd;else{sk=k;sd=k==='n'?1:-1;}drawRank();};
+drawRank();
+
+$('expl').innerHTML='<p><b>소르티노</b> = 6개월(126거래일) 수익률 ÷ 같은 기간 하방표준편차. 하방표준편차는 하락한 날의 일수익률만으로 계산한 변동성(126일 환산)이라, 오를 때의 변동은 감점하지 않는다. 많이 오르면서 빠질 때 덜 빠진 종목이 위로 온다.</p>'
++'<p><b>상위 20 · 일자별</b> — 그날 종가가 10일선 / 20일선 / 10주선(50일) 위에 있는 종목만 남겨 소르티노 순으로 20칸을 채운다. 조건을 충족한 종목이 20개에 못 미치면 남는 칸은 None. None이 많을수록 추세가 살아 있는 섹터가 적다는 뜻이다.</p>'
++'<p><b>상대강도</b> = 유니버스 안에서 6개월 수익률의 백분위(1~99). <b>코스피 대비</b> = 6개월 수익률 − 코스피 6개월 수익률(%p).</p>'
++'<p>유니버스는 국내 섹터·테마 ETF(해외지수·레버리지·인버스·채권·배당전략 제외)에 삼성전자·SK하이닉스를 더한 '+D.total+'종. 가격은 분배금 반영 수정종가. 평일 장 마감 후 갱신.</p>';
+</script></body></html>
