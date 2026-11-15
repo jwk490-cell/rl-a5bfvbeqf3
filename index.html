@@ -3036,7 +3036,8 @@ function qtRender(){
 const QT_DD={};
 async function qtDDRender(s){
   const el=document.getElementById('qtDDSec');if(!el)return;
-  const sh=parseInt(s.c,10)%40;if(isNaN(sh)||!/^\d+$/.test(s.c)){el.innerHTML='';return;}
+  if(!/^\d+$/.test(s.c)){el.innerHTML='';return;}
+  const sh=Math.floor(parseInt(s.c,10)/10)%40;
   const key=String(sh).padStart(2,'0');
   if(!QT_DD[key])QT_DD[key]=getJson('data/dd/d'+key+'.json').catch(()=>({}));
   const d=(await QT_DD[key])[s.c];
