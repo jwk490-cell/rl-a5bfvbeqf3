@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>유튜브 영상 정리</title>
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
+<script>
+(function(){var qt=(location.search.match(/[?&]theme=(dark|light)/)||[])[1];function ap(){var t='dark';try{t=localStorage.getItem('rl-theme')||'dark';}catch(e){}if(qt)t=qt;document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}
+ap();window.addEventListener('storage',function(e){if(e.key==='rl-theme')ap();});})();
+</script>
+<style>
+:root{--bg:#f2f4f6;--surface:#fff;--surface2:#f7f8fa;--line:#e3e7ec;--text:#191f28;--sub:#4e5968;--faint:#8b95a1;--accent:#3168f0;--accent-soft:rgba(49,104,240,.08);--scrim:rgba(20,24,32,.45)}
+:root[data-theme="dark"]{--bg:#101014;--surface:#1a1b20;--surface2:#202127;--line:#2a2c34;--text:#e9ebee;--sub:#a3abb6;--faint:#737b87;--accent:#5b8af7;--accent-soft:rgba(91,138,247,.16);--scrim:rgba(0,0,0,.6)}
+*{box-sizing:border-box;font-family:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",-apple-system,sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{padding:16px}
+.wrap{max-width:1400px;margin:0 auto}
+header{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0}
+header .upd{font-size:12px;color:var(--faint)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.seg{display:inline-flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:3px}
+.seg button{border:0;background:none;color:var(--sub);font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.seg button small{font-weight:600;color:var(--faint);margin-left:5px}
+.seg button.on{background:var(--accent-soft);color:var(--accent)}
+.seg button.on small{color:var(--accent)}
+.sp{flex:1}
+#q{flex:0 1 260px;min-width:150px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13.5px;color:var(--text);outline:none}
+#q:focus{border-color:var(--accent)}
+#q::placeholder{color:var(--faint)}
+.chl{font-size:12.5px;color:var(--faint);margin:-4px 2px 12px}
+.chl a{color:var(--accent);text-decoration:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.grid.list{grid-template-columns:minmax(0,1fr)}
+.card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
+.card:hover,.card:focus-visible{border-color:var(--accent)}
+.th{position:relative;aspect-ratio:16/9;background:var(--surface2)}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th .dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.78);color:#fff;font-size:11.5px;font-weight:700;padding:2px 6px;border-radius:5px}
+.cb{padding:12px 13px 13px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.dt{font-size:12px;color:var(--faint);font-weight:600}
+.ti{font-size:14.5px;font-weight:700;line-height:1.42;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.gist{font-size:12.5px;color:var(--sub);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.kw{display:flex;flex-wrap:wrap;gap:5px}
+.kw span{font-size:11.5px;color:var(--sub);background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.grid.list .card{flex-direction:row}
+.grid.list .th{flex:0 0 220px;aspect-ratio:auto;min-height:124px}
+.grid.list .cb{flex:1}
+.empty{color:var(--faint);font-size:13.5px;padding:40px 8px;text-align:center}
+#ov{position:fixed;inset:0;background:var(--scrim);display:flex;justify-content:flex-end;z-index:10}
+#ov[hidden]{display:none}
+#dr{width:min(760px,100%);height:100%;background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column}
+.dh{padding:14px 18px 12px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.dh .mt{flex:1;min-width:0}
+.dh .ch{font-size:12px;color:var(--accent);font-weight:700}
+.dh h2{font-size:17px;line-height:1.4;margin:4px 0 6px}
+.dh .info{font-size:12.5px;color:var(--faint)}
+.dh .info a{color:var(--accent);text-decoration:none;font-weight:700;margin-left:8px}
+.ib{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:9px;border:1px solid var(--line);color:var(--sub);font-size:16px;flex:0 0 auto}
+.ib:hover{color:var(--text);border-color:var(--accent)}
+.ib:disabled{opacity:.35;cursor:default}
+.db{overflow:auto;padding:6px 20px 30px}
+.db .tags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px}
+.db .tags span{font-size:12px;border-radius:6px;padding:3px 8px;background:var(--surface2);border:1px solid var(--line);color:var(--sub)}
+.db .tags span.p{color:var(--accent);background:var(--accent-soft);border-color:transparent;font-weight:600}
+.db h3{font-size:14.5px;margin:20px 0 8px;font-weight:800}
+.db h3.first{color:var(--accent)}
+.db ul{margin:0;padding-left:19px;display:grid;gap:6px}
+.db li{font-size:14px;line-height:1.62}
+.db .concl{background:var(--surface2);border-radius:11px;padding:2px 14px 13px;margin-top:10px}
+@media (max-width:640px){.grid.list .card{flex-direction:column}.grid.list .th{flex:none;aspect-ratio:16/9}.dh h2{font-size:15.5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>유튜브 영상 정리</h1><span class="upd" id="upd"></span></header>
+<div class="bar">
+  <div class="seg" id="chs"></div>
+  <div class="sp"></div>
+  <input id="q" type="search" placeholder="제목·인물·키워드 검색" aria-label="검색">
+  <div class="seg" id="vw"><button data-v="grid" class="on">바둑판</button><button data-v="list">목록</button></div>
+</div>
+<div class="chl" id="chl"></div>
+<div class="grid" id="grid"></div>
+</div>
+
+<div id="ov" hidden>
+  <div id="dr" role="dialog" aria-modal="true" aria-labelledby="dtitle">
+    <div class="dh">
+      <div class="mt"><div class="ch" id="dch"></div><h2 id="dtitle"></h2><div class="info" id="dinfo"></div></div>
+      <button class="ib" id="prev" title="더 최근 영상" aria-label="더 최근 영상">↑</button>
+      <button class="ib" id="next" title="이전 영상" aria-label="이전 영상">↓</button>
+      <button class="ib" id="cls" title="닫기" aria-label="닫기">✕</button>
+    </div>
+    <div class="db" id="dbody"></div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const WD='일월화수목금토';
+const fd=d=>{const x=new Date(d+'T00:00:00');return `${+d.slice(5,7)}/${+d.slice(8,10)} (${WD[x.getDay()]})`;};
+const fm=m=>{const s=Math.round(m*60);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+let D=null,ci=0,view='grid',list=[],cur=-1;
+try{view=localStorage.getItem('rl-yt-view')||'grid';}catch(e){}
+
+function draw(){
+  const c=D.channels[ci],q=$('#q').value.trim().toLowerCase();
+  list=c.videos.filter(v=>!q||(v.t+' '+v.p.join(' ')+' '+v.k.join(' ')).toLowerCase().includes(q));
+  $('#chs').innerHTML=D.channels.map((x,i)=>`<button data-i="${i}" class="${i===ci?'on':''}">${esc(x.label||x.name)}<small>${x.videos.length}</small></button>`).join('');
+  $('#chl').innerHTML=`최근 영상이 위 · ${c.videos.length}편`+(c.url?` · <a href="${esc(c.url)}" target="_blank" rel="noopener">채널 열기 ↗</a>`:'');
+  const g=$('#grid');g.className='grid'+(view==='list'?' list':'');
+  g.innerHTML=list.length?list.map((v,i)=>{const gist=(v.s[0]&&v.s[0].b[0])||'';
+    return `<button class="card" data-n="${i}"><div class="th"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg"><span class="dur">${fm(v.m)}</span></div>
+    <div class="cb"><div class="dt">${fd(v.d)}</div><div class="ti">${esc(v.t)}</div><div class="gist">${esc(gist)}</div>
+    <div class="kw">${v.k.slice(0,4).map(k=>`<span>${esc(k)}</span>`).join('')}</div></div></button>`;}).join(''):'<div class="empty">검색 결과가 없습니다</div>';
+  $('#vw').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+}
+function open(n){
+  cur=n;const v=list[n],c=D.channels[ci];
+  $('#dch').textContent=c.label||c.name;$('#dtitle').textContent=v.t;
+  $('#dinfo').innerHTML=`${fd(v.d)} · ${fm(v.m)}<a href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">원본 영상 보기 ↗</a>`;
+  $('#dbody').innerHTML=`<div class="tags">${v.p.map(x=>`<span class="p">${esc(x)}</span>`).join('')}${v.k.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`+
+    v.s.map((s,i)=>{const b=`<h3 class="${i===0?'first':''}">#${esc(s.h)}</h3><ul>${s.b.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;return i===0?`<div class="concl">${b}</div>`:b;}).join('');
+  $('#prev').disabled=n<=0;$('#next').disabled=n>=list.length-1;
+  $('#ov').hidden=false;$('#dbody').scrollTop=0;
+  try{history.replaceState(null,'','#v='+v.id);}catch(e){}
+}
+function close(){ $('#ov').hidden=true;cur=-1;try{history.replaceState(null,'',location.pathname+location.search);}catch(e){} }
+
+$('#chs').onclick=e=>{const b=e.target.closest('button');if(b){ci=+b.dataset.i;try{localStorage.setItem('rl-yt-ch',D.channels[ci].name);}catch(e){}draw();}};
+$('#vw').onclick=e=>{const b=e.target.closest('button');if(b){view=b.dataset.v;try{localStorage.setItem('rl-yt-view',view);}catch(e){}draw();}};
+$('#q').oninput=draw;
+$('#grid').onclick=e=>{const c=e.target.closest('.card');if(c)open(+c.dataset.n);};
+$('#grid').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const c=e.target.closest('.card');if(c){e.preventDefault();open(+c.dataset.n);}}};
+$('#ov').onclick=e=>{if(e.target.id==='ov')close();};
+$('#cls').onclick=close;$('#prev').onclick=()=>cur>0&&open(cur-1);$('#next').onclick=()=>cur<list.length-1&&open(cur+1);
+document.addEventListener('keydown',e=>{if($('#ov').hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowUp'&&cur>0){e.preventDefault();open(cur-1);}if(e.key==='ArrowDown'&&cur<list.length-1){e.preventDefault();open(cur+1);}});
+
+fetch('data/ytnotes.json?v='+Math.floor(Date.now()/6e5)).then(r=>r.json()).then(j=>{
+  D=j;$('#upd').textContent=j.updated+' 기준 · '+j.channels.reduce((a,c)=>a+c.videos.length,0)+'편';
+  let sv='';try{sv=localStorage.getItem('rl-yt-ch')||'';}catch(e){}
+  const h=(location.hash.match(/v=([\w-]+)/)||[])[1];
+  D.channels.forEach((c,i)=>{if(c.name===sv)ci=i;});
+  if(h)D.channels.forEach((c,i)=>{if(c.videos.some(v=>v.id===h))ci=i;});
+  draw();
+  if(h){const n=list.findIndex(v=>v.id===h);if(n>=0)open(n);}
+}).catch(()=>{$('#grid').innerHTML='<div class="empty">데이터를 불러오지 못했습니다</div>';});
+</script>
+</body>
+</html>
