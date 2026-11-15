@@ -88,6 +88,13 @@ body.subon .panel.embed iframe{height:calc(100vh - 99px - 51px)}
 .favstar.on{opacity:1!important;color:#f5c451}
 @media(max-width:900px){.favstar{opacity:.45}}
 #favGroup{color:#f5c451}
+.favmv{display:none;flex:none;margin-left:6px;gap:2px}
+#favList .favmv{display:inline-flex;opacity:.4;transition:opacity .12s}
+#favList .navitem:hover .favmv{opacity:1}
+.favmv i{font-style:normal;font-size:9px;line-height:1;padding:3px 4px;border-radius:5px;color:var(--faint);cursor:pointer}
+.favmv i:hover{background:var(--line);color:var(--text)}
+#favList .navitem[draggable="true"]{cursor:grab}
+@media(max-width:900px){#favList .favmv{opacity:.7}.favmv i{font-size:11px;padding:5px 6px}}
 .archhead{display:flex;align-items:center;gap:6px;width:100%;margin-top:18px;padding:10px 12px 6px;border:none;
   background:transparent;color:var(--faint);font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.04em;
   border-top:1px solid var(--line);cursor:pointer;text-align:left}
@@ -3868,7 +3875,6 @@ function openTab(tab){
   if(tab==='term')termStart();
   if(tab==='ram')ramLoad();
   if(tab==='deepresearch')drLoad();
-  if(window.rrOnTab)rrOnTab(tab);
   document.getElementById('nav').classList.remove('open');
   history.replaceState(null,'','#'+tab);
 }
@@ -3939,14 +3945,28 @@ const favGroup=document.getElementById('favGroup'),
       favList=document.getElementById('favList');
 let favSet=new Set();
 try{const s=JSON.parse(localStorage.getItem('rl-favs'));if(Array.isArray(s))favSet=new Set(s);}catch(_){}
+let favDrag=null;
+function favSaveOrder(){                                  // 화면에 보이는 순서대로 저장 (보관 중인 즐겨찾기는 뒤에 유지)
+  const vis=[...favList.querySelectorAll('.navitem[data-tab]')].map(b=>b.dataset.tab);
+  favSet=new Set([...vis,...[...favSet].filter(t=>!vis.includes(t))]);
+  try{localStorage.setItem('rl-favs',JSON.stringify([...favSet]));}catch(_){}
+}
+function favMove(tab,d){
+  const el=favList.querySelector(`.navitem[data-tab="${tab}"]`);if(!el)return;
+  if(d<0&&el.previousElementSibling)favList.insertBefore(el,el.previousElementSibling);
+  else if(d>0&&el.nextElementSibling)favList.insertBefore(el.nextElementSibling,el);
+  favSaveOrder();
+}
 function favApply(){
   const favs=[];
   archNav.querySelectorAll('.navitem[data-tab]').forEach(b=>{
     const t=b.dataset.tab;
     if(t!=='home'&&!b.classList.contains('subtab')&&favSet.has(t)&&!archSet.has(t))favs.push(b);  // 보관된 탭은 보관 그룹 우선
   });
+  const ord=[...favSet];favs.sort((x,y)=>ord.indexOf(x.dataset.tab)-ord.indexOf(y.dataset.tab));   // 저장 순서 = 내가 정한 순서
   favs.forEach(b=>favList.appendChild(b));
   favGroup.style.display=favs.length?'':'none';
+  archNav.querySelectorAll('.navitem[data-tab]').forEach(b=>{b.draggable=b.parentElement===favList;});
   document.querySelectorAll('.favstar').forEach(s=>{
     const t=s.parentElement.dataset.tab;
     s.classList.toggle('on',favSet.has(t));
@@ -3957,6 +3977,14 @@ document.querySelectorAll('#nav .navitem[data-tab]').forEach(b=>{
   if(b.dataset.tab==='home')return;
   const s=document.createElement('span');
   s.className='favstar';s.textContent='☆';s.title='즐겨찾기';
+  const mv=document.createElement('span');mv.className='favmv';        // 즐겨찾기 안에서만 보이는 ▲▼
+  mv.innerHTML='<i data-d="-1" title="위로">▲</i><i data-d="1" title="아래로">▼</i>';
+  mv.addEventListener('click',e=>{e.stopPropagation();const d=+e.target.dataset.d;if(d)favMove(b.dataset.tab,d);});
+  b.appendChild(mv);
+  b.addEventListener('dragstart',e=>{if(b.parentElement!==favList){e.preventDefault();return;}favDrag=b;e.dataTransfer.effectAllowed='move';});
+  b.addEventListener('dragover',e=>{if(favDrag&&b.parentElement===favList&&favDrag!==b){e.preventDefault();
+    const r=b.getBoundingClientRect();favList.insertBefore(favDrag,e.clientY<r.top+r.height/2?b:b.nextSibling);}});
+  b.addEventListener('dragend',()=>{if(!favDrag)return;favDrag=null;favSaveOrder();});
   s.addEventListener('click',e=>{
     e.stopPropagation();
     const t=b.dataset.tab;
@@ -4096,123 +4124,5 @@ new MutationObserver(()=>cpAttach()).observe(document.body,{childList:true,subtr
 cpAttach();
 </script>
 
-<!-- ── 수동 갱신 버튼 (전 탭 공통) — Worker 큐 → 맥 rl_refresh_poll.py가 즉시 실행 ── -->
-<div id="rlFab" style="display:none">
-  <button id="rrBtn" type="button">↻ 수동 갱신</button>
-  <span id="rrStat"></span>
-</div>
-<style>
-#rlFab{position:fixed;right:16px;bottom:16px;z-index:70;display:flex;align-items:center;gap:9px;
-  background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 8px 6px 14px;
-  box-shadow:var(--shadow);font-size:12px;color:var(--dim2);max-width:min(86vw,460px)}
-#rlFab #rrStat{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;order:-1}
-#rlFab #rrStat:empty{display:none}
-#rrBtn{border:1px solid var(--line);background:var(--hover);color:var(--text);font:inherit;font-size:12px;
-  font-weight:700;border-radius:999px;padding:6px 12px;cursor:pointer}
-#rrBtn:hover{filter:brightness(1.12)}
-@media(max-width:860px){#rlFab{right:10px;bottom:10px}}
-</style>
-<script>
-/* 갱신 요청은 매번 비밀번호 입력 — 서버(worker.js)가 해시 검증, 저장하지 않는다 */
-const RL_API=location.hostname==='research-lab.jwk490.workers.dev'?'':'https://research-lab.jwk490.workers.dev';
-const RR_TABS={
-  oprevision:{m:'x',note:'OP 리비전 안에서 데이터를 새로 읽습니다'},
-  jpearn:{m:'x',note:'평일 18:40 당일 속보, 07:30 확정치로 자동 갱신됩니다'},
-  jpval:{m:'a',eta:'~1분'},
-  krcapmap:{m:'x',note:'2000.01~2026.11 월말 스냅샷 탭입니다 — 자동 갱신 대상이 아닙니다'}, uscapmap:{m:'x',note:'2000.01~2026.11 월말 스냅샷 탭입니다 — 자동 갱신 대상이 아닙니다'},
-  home:{m:'x'},
-  raoni:{m:'a',eta:'~1분'}, term:{m:'a',eta:'~1분'}, quote:{m:'a',eta:'~5분'},
-  weekly:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'},
-  ircal:{m:'x',note:'30분마다 자동 동기화됩니다 — 탭 안의 ↻ 버튼으로 최신 파일을 다시 읽습니다'},
-  krwrap:{m:'a',eta:'~2분'}, uswrap:{m:'a',eta:'~2분'}, sector:{m:'a',eta:'~3분'}, disparity:{m:'a',eta:'~2분'},
-  supply:{m:'a',eta:'~7분'}, invflow:{m:'x',note:'장중 5분마다 잠정치, 장 마감 후 KRX 확정치로 자동 교체됩니다'}, streak:{m:'a',eta:'~3분'}, flowosc:{m:'a',eta:'~3분'}, binjip:{m:'x',note:'평일 21:25 확정치로 자동 갱신됩니다'}, creditdd:{m:'x',note:'금투협 공시(1~2영업일 지연)를 평일 아침·저녁 자동 반영합니다'}, krhigh:{m:'a',eta:'~10분'}, ushigh:{m:'a',eta:'~5분'}, jphigh:{m:'a',eta:'~1분'}, jpflow:{m:'a',eta:'~2분'}, jpsector:{m:'a',eta:'~1분'},
-  rs:{m:'a',eta:'~5분'}, semietf:{m:'a',eta:'~2분'}, semirebal:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, semicand:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, align:{m:'a',eta:'~15분'}, kretfsortino:{m:'a',eta:'~1분'}, macd:{m:'a',eta:'~2분'}, mommap:{m:'x',note:'매 거래일 16:55 자동 갱신 탭입니다'}, buyback:{m:'a',eta:'~4분'}, pbrgrowth:{m:'a',eta:'~3분'}, kospitop:{m:'a',eta:'~1분'}, kosdaqtop:{m:'a',eta:'~1분'}, brregime:{m:'a',eta:'~3분'}, etccorp:{m:'a',eta:'~1분'},
-  caps:{m:'a',eta:'~2분'}, gap:{m:'a',eta:'~2분'}, dd:{m:'a',eta:'~2분'}, ram:{m:'a',eta:'~2분'},
-  etfgap:{m:'l'}, basket7:{m:'a',eta:'~5분'}, semiexport:{m:'a',eta:'~2분'},
-  export:{m:'a',eta:'~1분'}, corpexport:{m:'a',eta:'~3분'},
-  trade10:{m:'a',eta:'~3분'}, taiwan:{m:'a',eta:'~3분'}, chem:{m:'a',eta:'~1분'}, chemmap:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'},
-  credit:{m:'a',eta:'~3분'},
-  telegram:{m:'a',eta:'~2분'}, taerin:{m:'a',eta:'~2분'}, thememap:{m:'a',eta:'~3분'}, pcbmap:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'}, ytnotes:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'},
-  deepresearch:{m:'x',note:'수동 발행 탭입니다'},
-  mktsize:{m:'x',note:'수동 취합 탭입니다 — 자동 갱신 대상이 아닙니다'},
-  reportscreen:{m:'x',note:'장중 자동 갱신 — 수동 갱신 불필요'},
-  leadflow:{m:'a',eta:'~5분'}, rstime:{m:'a',eta:'~10분'},
-  backlog:{m:'a',eta:'수십 분 (전수 재추출)'}, util:{m:'a',eta:'~5분'}, screening:{m:'a',eta:'~1분'},
-  cost:{m:'a',eta:'~3분'}, vs:{m:'a',eta:'~3분'}, rrgsec:{m:'a',eta:'~7분'}, rrgstk:{m:'a',eta:'~7분'}
-};
-let rrTab='home',rrKey=null,rrTimer=null;
-function rrCfg(t){return RR_TABS[t]||{m:'a',eta:'~수 분'};}
-function rrFmt(ts){return new Date(ts).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});}
-function rrOnTab(tab){rrTab=tab;clearInterval(rrTimer);rrRender(null);}
-async function rrCall(path,payload,key){
-  const r=await fetch(RL_API+path,{method:payload?'POST':'GET',
-    headers:{'X-RL-Key':key,...(payload?{'Content-Type':'application/json'}:{})},
-    body:payload?JSON.stringify(payload):undefined});
-  if(r.status===401)throw new Error('unauthorized');
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  return r.json();
-}
-async function rrClick(){
-  const cfg=rrCfg(rrTab);
-  if(cfg.m==='l'){alert('이 탭은 실시간 자동 갱신됩니다.');return;}
-  if(cfg.m==='x'){alert(cfg.note||'수동 취합 탭입니다.');return;}
-  const pw=prompt('갱신 비밀번호 (매번 입력)');
-  if(!pw)return;
-  try{
-    const res=await rrCall('/api/refresh',{tab:rrTab},pw);
-    rrKey=pw;rrRender(res.job);rrPoll();
-  }catch(e){alert(e.message==='unauthorized'?'비밀번호가 올바르지 않습니다.':'요청 실패: '+e.message);}
-}
-function rrPoll(){
-  clearInterval(rrTimer);
-  const tab=rrTab;
-  rrTimer=setInterval(async()=>{
-    if(rrTab!==tab){clearInterval(rrTimer);return;}
-    try{
-      const res=await rrCall('/api/refresh/status?tab='+tab,null,rrKey);
-      rrRender(res.job);
-      if(res.job&&['done','failed','skipped'].includes(res.job.status)){
-        clearInterval(rrTimer);
-        if(res.job.status==='done')rrDone(tab);
-      }
-    }catch(e){clearInterval(rrTimer);}
-  },6000);
-}
-function rrDone(tab){
-  // git push 후 사이트 재빌드에 ~1분 — 75초 카운트다운 뒤 자동 새로고침
-  let left=75;const st=document.getElementById('rrStat');
-  const cd=setInterval(()=>{
-    if(rrTab!==tab){clearInterval(cd);return;}
-    left--;
-    st.innerHTML='갱신 완료 — <u style="cursor:pointer" id="rrNow">지금 새로고침</u> ('+left+'초 후 자동)';
-    const n=document.getElementById('rrNow');if(n)n.onclick=()=>{clearInterval(cd);rrReload(tab);};
-    if(left<=0){clearInterval(cd);rrReload(tab);}
-  },1000);
-}
-function rrReload(tab){
-  const panel=document.getElementById('tab-'+tab);
-  const f=panel&&panel.querySelector('iframe[data-src]');
-  if(f){f.src=f.dataset.src+(f.dataset.src.includes('?')?'&':'?')+'v='+Date.now();rrRender(null);}
-  else location.reload();
-}
-function rrRender(job){
-  const cfg=rrCfg(rrTab),box=document.getElementById('rlFab'),
-        st=document.getElementById('rrStat'),btn=document.getElementById('rrBtn');
-  if(rrTab==='home'){box.style.display='none';return;}
-  box.style.display='flex';btn.style.display='';
-  if(cfg.m==='l'){btn.style.display='none';st.textContent='실시간 자동 갱신 탭';return;}
-  if(cfg.m==='x'){btn.style.display='none';st.textContent='수동 취합 탭';return;}
-  if(!job){st.textContent='';return;}
-  if(job.status==='queued')st.textContent='대기 중 — 1분 내 시작';
-  else if(job.status==='running')st.textContent='갱신 중 '+(cfg.eta||'')+' — '+rrFmt(job.started_at||job.requested_at)+' 시작';
-  else if(job.status==='failed'){
-    st.innerHTML='<span style="color:var(--down);cursor:pointer" id="rrErr">갱신 실패 — 로그 보기</span>';
-    const e2=document.getElementById('rrErr');if(e2)e2.onclick=()=>alert(job.note||'로그 없음');
-  }else if(job.status==='skipped')st.textContent='자동 갱신 체인이 없는 탭';
-  else if(job.status==='done')st.textContent='갱신 완료 '+rrFmt(job.finished_at)+(job.note?' — '+job.note:'');
-}
-document.getElementById('rrBtn').addEventListener('click',rrClick);
-rrOnTab(location.hash?location.hash.slice(1):'home');
-</script>
 </body>
 </html>
