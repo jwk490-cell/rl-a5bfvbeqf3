@@ -1,15 +1,15 @@
 {
- "build_id": "e8d07c96925c",
- "created_at": "2026-11-13T22:55:21+09:00",
+ "build_id": "9e953bdef148",
+ "created_at": "2026-11-17T07:54:11+09:00",
  "parser_version": "v4",
  "coverage": {
-  "companies": 1604,
-  "with_series": 1455,
-  "observations": 24417,
+  "companies": 1640,
+  "with_series": 1489,
+  "observations": 25282,
   "periods": [
    "2020.09",
    "2026.09"
   ],
-  "docs_missing": 144
+  "docs_missing": 146
  }
 }
