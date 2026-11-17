@@ -58,7 +58,17 @@ header{display:flex;align-items:center;gap:12px;padding:0 24px;height:58px;flex:
 .layout{display:flex;flex:1;min-height:0}
 nav{width:232px;flex:none;background:var(--surface);border-right:1px solid var(--line);
   padding:18px 12px 32px;overflow-y:auto}
-nav .sbrand{padding:2px 12px 16px}
+nav .sbrand{padding:2px 12px 16px;min-width:0}
+nav .navtop{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.navcol{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--sub);font-family:inherit;
+  font-size:15px;line-height:1;width:30px;height:28px;border-radius:9px;cursor:pointer;margin-top:2px}
+.navcol:hover{color:var(--accent);border-color:var(--accent-line)}
+nav{transition:width .15s}
+@media(min-width:861px){
+  body.navmin nav{width:46px;padding:18px 7px;overflow:hidden}
+  body.navmin nav>*:not(.navtop),body.navmin nav .sbrand{display:none}
+  body.navmin nav .navtop{justify-content:center}
+}
 nav .sbrand b{display:block;font-size:17px;font-weight:800;letter-spacing:-.02em}
 nav .sbrand span{font-size:12px;color:var(--faint)}
 .navgroup{padding:18px 12px 6px;font-size:11px;font-weight:700;color:var(--faint);letter-spacing:.04em}
@@ -581,6 +591,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
 /* ───────── 모바일 ───────── */
 @media(max-width:860px){
   #menuBtn{display:inline-flex}
+  .navcol{display:none}
   nav{position:fixed;top:58px;left:0;bottom:0;z-index:40;transform:translateX(-100%);
     transition:transform .2s;box-shadow:4px 0 22px rgba(0,0,0,.25)}
   nav.open{transform:none}
@@ -607,7 +618,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
 
   <!-- ───────── 사이드바 ───────── -->
   <nav id="nav">
-    <div class="sbrand"><b>Research Lab</b><span>KRX · 실시간 리서치 데스크</span></div>
+    <div class="navtop"><div class="sbrand"><b>Research Lab</b><span>KRX · 실시간 리서치 데스크</span></div><button class="navcol" id="navCollapse" type="button" title="탭 접기">«</button></div>
     <button class="navitem on" data-tab="home">홈</button>
     <div class="navgroup" id="favGroup" style="display:none">★ 즐겨찾기</div>
     <div id="favList"></div>
@@ -696,6 +707,15 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="archmanage" id="archManage" type="button">⚙ 보관 관리</button>
     <div class="archhint">탭을 클릭하면 보관 ↔ 해제됩니다. (홈 제외)</div>
   </nav>
+<script>
+(function(){const btn=document.getElementById('navCollapse');
+ const set=(m,save)=>{document.body.classList.toggle('navmin',m);btn.textContent=m?'»':'«';btn.title=m?'탭 펼치기':'탭 접기';
+  if(save){try{localStorage.setItem('rl-navmin',m?'1':'0')}catch(_){}
+   setTimeout(()=>window.dispatchEvent(new Event('resize')),180);}};
+ let m=false;try{m=localStorage.getItem('rl-navmin')==='1'}catch(_){}
+ set(m,false);
+ btn.addEventListener('click',()=>set(!document.body.classList.contains('navmin'),true));})();
+</script>
 
   <!-- ───────── 메인 콘텐츠 ───────── -->
   <main>
