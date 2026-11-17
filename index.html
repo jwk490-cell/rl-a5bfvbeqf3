@@ -2974,6 +2974,13 @@ function nc(v,d,cls){
 const pctTag=(v,d)=>(v==null||!isFinite(v))?'':
   `<span class="yoy ${v>=0?'up':'down'}">${v>=0?'+':'-'}${Math.abs(v).toFixed(d==null?1:d)}%</span>`;
 const grw=(a,b)=>(a==null||b==null||b===0)?null:(a/Math.abs(b)-1)*100;
+/* 증감 태그 — 부호가 바뀌거나 둘 다 음수면 %가 무의미하므로 흑전·적전·적지 */
+const chgTag=(a,b)=>{
+  if(a==null||b==null||typeof a!=='number'||typeof b!=='number'||b===0)return '';
+  if(b>0&&a>=0)return pctTag((a/b-1)*100);
+  const t=b>0?['적전','down']:a>=0?['흑전','up']:[a>b?'적축':'적확',a>b?'up':'down'];
+  return `<span class="yoy ${t[1]}">${t[0]}</span>`;
+};
 /* 원천 빈칸을 다른 필드로 계산해 채운 값(quote_dart_overlay.derive) → * 표기 */
 const isDv=(r,k)=>!!(r&&r.dv&&r.dv.includes(k));
 const dvMark=(r,k)=>isDv(r,k)?'<sup class="dvm" title="원천 미제공 — 다른 항목으로 계산한 값">*</sup>':'';
@@ -3338,9 +3345,9 @@ function qtPerfRender(s,W){
       ${R.map(r=>`<th class="${r.e?'e':''}">${pLabel(r.p,r.e,freq)}${srcTh(r)}</th>`).join('')}</tr></thead><tbody>
       ${[['매출액','rev'],['영업이익','op'],['순이익','np']].map(([lbl,k])=>
         `<tr class="hl"><td class="lb">${lbl}</td>`+R.map((r,i)=>{
-          const gv=i>=(freq==='q'?4:1)?grw(r[k],R[i-(freq==='q'?4:1)][k]):null;
+          const pv=i>=(freq==='q'?4:1)?R[i-(freq==='q'?4:1)][k]:null;
           const neg=(typeof r[k]==='number'&&r[k]<0);
-          return `<td class="${[r.e?'e':'',neg?'neg':''].filter(Boolean).join(' ')}">${nf(r[k]==null?null:Math.round(r[k]),0)}${dvMark(r,k)}${gv!=null?pctTag(gv):''}</td>`;
+          return `<td class="${[r.e?'e':'',neg?'neg':''].filter(Boolean).join(' ')}">${nf(r[k]==null?null:Math.round(r[k]),0)}${dvMark(r,k)}${chgTag(r[k],pv)}</td>`;
         }).join('')+`</tr>`).join('')}
     </tbody></table></div>
     <div class="qfoot">${QT_SRC} 연결 기준 · ${freq==='q'?'전년 동기':'전년'} 대비 증감률${R.some(r=>r.src==='dart')?' · <b>D</b> = 원천 미반영 기간을 DART 분기·사업보고서 확정치로 대체':''}${R.some(r=>['rev','op','np'].some(k=>isDv(r,k)))?' · <b>*</b> = 원천 미제공, 다른 항목으로 계산(순이익=매출×순이익률 등)':''} · 매출원가를 별도 공시하지 않는 기업이 있어 비용은 <b>총비용</b>(매출액−영업이익)으로 묶어 표시합니다.</div>`
