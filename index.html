@@ -99,6 +99,10 @@ body.favdragging #nav{touch-action:none;overflow:hidden}
 .archhead .arr{display:inline-block;transition:transform .15s}
 .archhead.open .arr{transform:rotate(90deg)}
 .archlist{display:none}
+.allhead{margin-top:14px}   /* 261117 그룹 라벨 폐지 — 즐겨찾기 외 탭은 접이식 전체 탭 */
+.alllist{display:none}
+.allhead.open+.alllist{display:block}
+body.archedit .alllist{display:block}
 .archhead.open+.archlist{display:block}
 .archlist .navitem{opacity:.7}
 .archmanage{display:block;width:100%;margin-top:16px;padding:7px 12px;border:none;background:transparent;
@@ -607,19 +611,18 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem on" data-tab="home">홈</button>
     <div class="navgroup" id="favGroup" style="display:none">★ 즐겨찾기</div>
     <div id="favList"></div>
-    <div class="navgroup">실시간</div>
+    <button class="archhead allhead" id="allHead" type="button"><span class="arr">▸</span> 전체 탭</button>
+    <div class="alllist" id="allList">
     <button class="navitem" data-tab="raoni">실시간 한국주식 <small>5초</small></button>
     <button class="navitem" data-tab="term">전닉 터미널</button>
     <button class="navitem" data-tab="quote">개별종목 Analysis</button>
     <button class="navitem" data-tab="oprevision">OP 리비전 <small>NEW</small></button>
-    <div class="navgroup">시황</div>
     <button class="navitem" data-tab="weekly">주간 일정 <small>매주</small></button>
     <button class="navitem" data-tab="ircal">IR·컨콜 캘린더 <small>30분</small></button>
     <button class="navitem" data-tab="krwrap">韓 시황</button>
     <button class="navitem" data-tab="uswrap">美 시황</button>
     <button class="navitem" data-tab="sector">산업별 등락</button>
     <button class="navitem" data-tab="disparity">50일 이격도</button>
-    <div class="navgroup">수급 · 모멘텀</div>
     <button class="navitem" data-tab="krflow">韓 수급 <small>6개</small></button>
     <button class="navitem subtab" data-tab="supply">투자자별 수급/거래량 증감</button>
     <button class="navitem subtab" data-tab="invflow">투자자별 일일 수급 <small>장중</small></button>
@@ -645,7 +648,6 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="macd">MACD 트래커</button>
     <button class="navitem" data-tab="mommap">모멘텀 지도</button>
     <button class="navitem subtab" data-tab="buyback">자사주 매수 트래커</button>
-    <div class="navgroup">비교 · 밸류</div>
     <button class="navitem" data-tab="caps">시총비교</button>
     <button class="navitem" data-tab="basket7">업종 시총비중</button>
     <button class="navitem" data-tab="gap">우선주 괴리율·배당</button>
@@ -659,7 +661,6 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem subtab" data-tab="krcapmap">韓 시총 상위 30 변화</button>
     <button class="navitem subtab" data-tab="uscapmap">美 시총 상위 30 변화</button>
     <button class="navitem subtab" data-tab="jpcapmap">日 시총 상위 30 변화 <small>NEW</small></button>
-    <div class="navgroup">매크로 데이터</div>
     <button class="navitem" data-tab="ram">메모리 가격</button>
     <button class="navitem" data-tab="semiexport">반도체/전기전자 수출 추이</button>
     <button class="navitem" data-tab="export">수출 데이터</button>
@@ -669,7 +670,6 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="chem">에너지/화학 가격 동향</button>
     <button class="navitem" data-tab="chemmap">화학 밸류체인 지도 <small>NEW</small></button>
     <button class="navitem" data-tab="credit">글로벌 크레딧·유동성</button>
-    <div class="navgroup">리서치</div>
     <button class="navitem" data-tab="telegram">텔레그램 채널 요약</button>
     <button class="navitem" data-tab="taerin">태린이아빠</button>
     <button class="navitem" data-tab="ytnotes">유튜브 영상 정리 <small>NEW</small></button>
@@ -685,12 +685,12 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="screening">수주·가동률 스크리닝</button>
     <button class="navitem" data-tab="cost">비용구조 <small>DART</small></button>
     <button class="navitem" data-tab="vs">비용추정 <small>xlsx</small></button>
-    <div class="navgroup">로테이션 · 주도주</div>
     <button class="navitem" data-tab="rrgsec">수급 로테이션 맵 (업종)</button>
     <button class="navitem" data-tab="rrgstk">수급 로테이션 맵 (종목)</button>
     <button class="navitem" data-tab="leaders">주도 섹터 · 주도주</button>
     <button class="navitem" data-tab="brregime">마켓 Breadth <small>NEW</small></button>
     <button class="navitem" data-tab="meridian">롱숏 챌린지</button>
+    </div>
     <button class="archhead" id="archHead" type="button" style="display:none"><span class="arr">▸</span> 보관 <span id="archCnt"></span></button>
     <div class="archlist" id="archList"></div>
     <button class="archmanage" id="archManage" type="button">⚙ 보관 관리</button>
@@ -3901,10 +3901,13 @@ const archNav=document.getElementById('nav'),
       archList=document.getElementById('archList'),
       archManage=document.getElementById('archManage'),
       archOrder=Array.from(archNav.children);           // 사이드바 원래 순서 (복원용)
+const allHead=document.getElementById('allHead'),allList=document.getElementById('allList'),
+      allOrder=Array.from(allList.children);            // 전체 탭 원래 순서 (복원용)
 let archSet=new Set(),archEdit=false;
 try{const s=JSON.parse(localStorage.getItem('rl-archived'));if(Array.isArray(s))archSet=new Set(s);}catch(_){}
 function archApply(){
   archOrder.forEach(el=>archNav.appendChild(el));       // 전부 원위치 후 보관분만 아래로
+  allOrder.forEach(el=>allList.appendChild(el));
   const archived=[];
   archNav.querySelectorAll('.navitem[data-tab]').forEach(b=>{
     if(b.dataset.tab!=='home'&&!b.classList.contains('subtab')&&archSet.has(b.dataset.tab))archived.push(b);
@@ -3929,6 +3932,7 @@ function archApply(){
   favApply();                                            // 보관 재배치 후 즐겨찾기 재배치
 }
 archHead.addEventListener('click',()=>archHead.classList.toggle('open'));
+allHead.addEventListener('click',()=>{const o=allHead.classList.toggle('open');try{localStorage.setItem('rl-allopen',o?'1':'0')}catch(_){}});
 archNav.addEventListener('click',e=>{                   // 편집 모드: 클릭=보관 토글 (capture로 openTab 차단)
   if(!archEdit)return;
   const b=e.target.closest('.navitem');if(!b)return;
@@ -4009,6 +4013,8 @@ document.querySelectorAll('#nav .navitem[data-tab]').forEach(b=>{
   b.appendChild(s);
 });
 archApply();
+{let o=null;try{o=localStorage.getItem('rl-allopen')}catch(_){}
+ if(o==='1'||(o===null&&!favList.querySelector('.navitem')))allHead.classList.add('open');}
 
 /* ── 심층 리서치: data/research.json 렌더 ── */
 var drLoaded=false;
