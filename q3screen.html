@@ -1,0 +1,156 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3Q26 실적 스크린</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#21262d;--txt:#e6edf3;--sub:#8b949e;--faint:#6e7681;
+--red:#f85149;--org:#ffa657;--grn:#3fb950;--blu:#58a6ff;--pur:#bc8cff;--yel:#d29922}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;padding:18px 20px 60px}
+.wrap{max-width:1380px;margin:0 auto}
+h1{font-size:19px;margin-bottom:2px}
+.sub{color:var(--sub);font-size:12px;margin-bottom:12px}
+.sub b{color:var(--txt)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 13px;min-width:140px;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.chip.on{border-color:var(--blu);background:#13233a}
+.chip b{display:block;font-size:19px;line-height:1.15}
+.chip span{font-size:11px;color:var(--sub)}
+.chip small{display:block;font-size:10.5px;color:var(--faint)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.bar .lb{font-size:11px;color:var(--faint);margin-right:-4px}
+input[type=text],input[type=number]{background:var(--card);border:1px solid var(--line);color:var(--txt);font:inherit;font-size:12.5px;padding:5px 8px;border-radius:7px}
+#q{width:170px}
+.filt{display:flex;gap:4px;flex-wrap:wrap}
+.filt button,.btn{background:var(--card);border:1px solid var(--line);color:var(--sub);font:inherit;font-size:11.5px;padding:4px 10px;border-radius:999px;cursor:pointer}
+.filt button.on{color:var(--txt);border-color:var(--blu);background:#13233a}
+label.ck{font-size:11.5px;color:var(--sub);display:flex;align-items:center;gap:4px;cursor:pointer}
+.rng{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.rng .f{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--sub);min-width:0}
+.rng .f span{flex:0 0 74px;white-space:nowrap}
+.rng .f i{font-style:normal;color:var(--faint)}
+.rng input{width:56px;min-width:0;flex:1 1 0;text-align:right;padding:4px 6px}
+.rng input.act{border-color:var(--blu)}
+.tw{overflow-x:auto;margin-bottom:22px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13px}
+th{color:var(--faint);font-weight:600;font-size:11px;text-align:right;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none;vertical-align:bottom}
+th.l,td.l{text-align:left}
+th.s{color:var(--blu)}
+th small{display:block;font-weight:400;font-size:10px;color:var(--faint)}
+td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+tbody tr.row{cursor:pointer}
+tbody tr.row:hover td{background:#1c2129}
+tbody tr.row.sel td{background:#13233a}
+tr.det td{background:#0f1319;padding:10px 14px 12px;white-space:normal;cursor:default;text-align:left}
+.nm{font-weight:600}
+.cd{color:var(--faint);font-size:11px;margin-left:5px}
+.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid var(--line);color:var(--sub);margin-left:4px;vertical-align:1px}
+.tag.P{color:var(--blu);border-color:#1f3a5a}.tag.Q{color:var(--pur);border-color:#4a3566}
+.tag.W{color:var(--org);border-color:#5a3a1a}.tag.S{color:var(--yel);border-color:#5a4a1a}
+.g{color:var(--grn)}.r{color:var(--red)}.o{color:var(--org)}.fa{color:var(--faint)}
+.det .box{position:sticky;left:14px;max-width:calc(100vw - 72px)}
+.det table{font-size:12px;background:transparent;border:0;width:auto;min-width:420px}
+.det th{cursor:default;padding:4px 10px}
+.det td{padding:4px 10px}
+.det .ck3{margin:8px 0 4px;font-size:12px;color:var(--sub);line-height:1.8}
+.det a{color:var(--blu);text-decoration:none;font-size:12px;margin-right:10px}
+.note{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:12.5px;color:var(--sub);line-height:1.75}
+.note b{color:var(--txt)}
+.note h3{font-size:13px;color:var(--txt);margin:0 0 6px}
+.note ol,.note ul{padding-left:20px}
+.empty{padding:26px;text-align:center;color:var(--faint)}
+.cnt{font-size:11.5px;color:var(--faint);margin-left:auto}
+@media(max-width:640px){body{padding:14px 12px 50px}.chip{min-width:calc(50% - 4px)}}
+</style></head><body><div class="wrap">
+<h1>3Q26 실적 스크린 — 이익 가속 종목</h1>
+<div class="sub" id="sub">불러오는 중…</div>
+<div class="chips" id="chips"></div>
+
+<div class="bar">
+  <input type="text" id="q" placeholder="종목명·코드 검색">
+  <span class="lb">시장</span>
+  <div class="filt" id="mk"><button data-v="" class="on">전체</button><button data-v="KOSPI">코스피</button><button data-v="KOSDAQ">코스닥</button></div>
+  <label class="ck"><input type="checkbox" id="noBase">기저효과 주의 제외</label>
+  <label class="ck"><input type="checkbox" id="cfsOnly">연결만</label>
+  <button class="btn" id="reset">필터 초기화</button>
+  <span class="cnt" id="cnt"></span>
+</div>
+<div class="rng" id="rng"></div>
+
+<div class="tw"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+
+<div class="note">
+<h3>분류 기준</h3>
+<ol>
+<li>3Q 매출 YoY보다 <b>3Q 영업이익 YoY가 높다</b>.</li>
+<li>3Q 영업이익 YoY가 <b>2Q 영업이익 YoY보다 높다</b>.</li>
+<li>2026년 <b>3Q 영업이익이 2Q 영업이익보다 크다</b>.</li>
+<li>전년 2Q·3Q 영업이익이 모두 양수일 때만 YoY 비교대상으로 판정한다(아니면 「비교 불가」).</li>
+<li>3Q 실적값이 미입력·0이면 「업데이트 미완료」로 분류한다 — 별도 검증 권장(금융·바이오 등 매출 계정이 없는 회사, 12월 결산이 아닌 회사, 분기보고서 미제출 포함).</li>
+<li>전년 기준 분기(2Q·3Q) 영업이익이 10억원 미만이면 「기저효과 주의」 표시.</li>
+<li>숫자는 분기보고서 원본 그대로다. 연결 우선, 연결이 없으면 별도(「별도」 표시). 연결/별도 혼재·이상치는 원본 확인이 필요하다.</li>
+</ol>
+<h3 style="margin-top:10px">지표 정의</h3>
+<ul>
+<li><b>OP</b> = 3Q26 3개월 영업이익(억원) · <b>OPM</b> = 3Q 영업이익 ÷ 3Q 매출 · <b>OP Growth</b> = 3Q 영업이익 YoY · <b>OPM Growth</b> = 3Q OPM − 전년 3Q OPM(%p)</li>
+<li><b>PER</b> = 시가총액 ÷ 최근 4개 분기 순이익(2025 연간 − 2025 9개월 누적 + 2026 9개월 누적), 적자는 공란 · <b>PBR</b> = 시가총액 ÷ 3Q말 자본총계 · <b>ROE</b> = 최근 4개 분기 순이익 ÷ 평균 자본총계(2025말·3Q26말)</li>
+<li>순이익·자본은 <b>비지배지분 포함 총액</b> 기준이라 지주회사 등은 지배주주 기준 수치와 차이가 날 수 있다. 시가총액은 자료 작성 시점 값.</li>
+<li>범위 필터는 값이 없는 종목(예: 적자로 PER 공란)을 그 지표에 조건을 건 순간 제외한다.</li>
+</ul>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const ST={pass:['기준 충족','①②③ 모두 통과'],fail:['미충족','비교대상이나 ①②③ 중 탈락'],nocomp:['비교 불가','전년 2Q·3Q 영업이익 양수 아님'],pending:['업데이트 미완료','3Q 값 없음·별도 검증']};
+const RNG=[['mc','시총(억)'],['o3','OP(억)'],['opm','OPM(%)'],['yo3','OP Growth(%)'],['dopm','OPM Growth(%p)'],['per','PER(배)'],['pbr','PBR(배)'],['roe','ROE(%)']];
+const COLS=[['n','종목','l'],['mc','시총','','억'],['s3','3Q 매출','','억'],['ys','매출 YoY','','%'],['o3','3Q OP','','억'],['yo3','OP Growth','','YoY %'],['yo2','2Q OP YoY','','%'],['qoq','OP QoQ','','%'],['opm','OPM','','%'],['dopm','OPM Growth','','%p'],['per','PER','','배'],['pbr','PBR','','배'],['roe','ROE','','%']];
+let D=null,st='pass',mk='',sk='yo3',sd=-1,open=null;
+const nf=(v,d=0)=>v==null?'<span class="fa">–</span>':v.toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pc=(v,u='%')=>v==null?'<span class="fa">–</span>':`<span class="${v>0?'g':v<0?'r':''}">${v>0?'+':''}${nf(v,1)}${u}</span>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function rngVals(){const o={};document.querySelectorAll('#rng input').forEach(i=>{const v=i.value.trim();i.classList.toggle('act',v!=='');if(v!==''&&!isNaN(+v))o[i.dataset.k+i.dataset.b]=+v;});return o;}
+function rows(){
+  const q=$('#q').value.trim().toLowerCase(),R=rngVals(),nb=$('#noBase').checked,cf=$('#cfsOnly').checked;
+  let a=D.rows.filter(r=>r.st===st&&(!mk||r.m===mk)&&(!q||r.n.toLowerCase().includes(q)||r.c.includes(q))&&(!nb||!r.base)&&(!cf||r.fs==='CFS'));
+  for(const [k] of RNG){const lo=R[k+'lo'],hi=R[k+'hi'];if(lo==null&&hi==null)continue;
+    a=a.filter(r=>r[k]!=null&&(lo==null||r[k]>=lo)&&(hi==null||r[k]<=hi));}
+  a.sort((x,y)=>{if(sk==='n')return sd*x.n.localeCompare(y.n,'ko');const p=x[sk],r=y[sk];if(p==null&&r==null)return 0;if(p==null)return 1;if(r==null)return -1;return sd*(p-r);});
+  return a;
+}
+function detail(r){
+  const q=(l,s,o)=>`<tr><td class="l">${l}</td><td>${nf(s,1)}</td><td>${nf(o,1)}</td><td>${s&&o!=null?nf(o/s*100,1)+'%':'<span class="fa">–</span>'}</td></tr>`;
+  const ck=(i,t)=>r.k?`<span class="${r.k[i]?'g':'r'}">${r.k[i]?'✓':'✗'}</span> ${t}<br>`:'';
+  return `<tr class="det"><td colspan="${COLS.length+1}"><div class="box">
+  <table><thead><tr><th class="l">분기 (억원, ${r.fs==='OFS'?'별도':'연결'})</th><th>매출</th><th>영업이익</th><th>OPM</th></tr></thead><tbody>
+  ${q('2Q25',r.s2p,r.o2p)}${q('3Q25',r.s3p,r.o3p)}${q('2Q26',r.s2,r.o2)}${q('3Q26',r.s3,r.o3)}</tbody></table>
+  <div class="ck3">${ck(0,`① 3Q OP YoY ${pc(r.yo3)} &gt; 3Q 매출 YoY ${pc(r.ys)}`)}${ck(1,`② 3Q OP YoY ${pc(r.yo3)} &gt; 2Q OP YoY ${pc(r.yo2)}`)}${ck(2,`③ 3Q OP ${nf(r.o3,1)}억 &gt; 2Q OP ${nf(r.o2,1)}억`)}
+  ${r.why?`사유: ${esc(r.why)}<br>`:''}${r.base?'<span class="o">기저효과 주의</span> — 전년 2Q·3Q 영업이익 중 10억원 미만이 있어 증가율이 과장될 수 있음<br>':''}${r.mix?'<span class="o">연결/별도 혼재</span> — 2Q와 3Q 보고서 기준이 다름, 원본 확인 필요<br>':''}
+  최근 4개 분기 순이익 ${nf(r.ni,1)}억 · 현재가 ${nf(r.px)}원</div>
+  <a href="https://finance.naver.com/item/main.naver?code=${r.c}" target="_blank" rel="noopener">네이버 금융 ↗</a></div></td></tr>`;
+}
+function draw(){
+  $('#chips').innerHTML=Object.keys(ST).map(k=>`<button class="chip${k===st?' on':''}" data-s="${k}"><span>${ST[k][0]}</span><b>${nf(D.count[k]||0)}</b><small>${ST[k][1]}</small></button>`).join('');
+  $('#th').innerHTML='<tr><th class="l" style="cursor:default">#</th>'+COLS.map(c=>`<th class="${c[2]||''}${c[0]===sk?' s':''}" data-k="${c[0]}">${c[1]}${c[0]===sk?(sd<0?' ▼':' ▲'):''}${c[3]?`<small>${c[3]}</small>`:''}</th>`).join('')+'</tr>';
+  const a=rows();
+  $('#cnt').textContent=`${ST[st][0]} ${a.length.toLocaleString()}종목 표시`;
+  $('#tb').innerHTML=a.length?a.map((r,i)=>{
+    const tags=`<span class="tag ${r.m==='KOSPI'?'P':'Q'}">${r.m==='KOSPI'?'코스피':'코스닥'}</span>${r.fs==='OFS'?'<span class="tag S">별도</span>':''}${r.base?'<span class="tag W">기저효과 주의</span>':''}${r.mix?'<span class="tag W">혼재</span>':''}${r.st==='fail'&&r.k?`<span class="tag">탈락 ${['①','②','③'].filter((_,j)=>!r.k[j]).join('')}</span>`:''}${r.why&&r.st!=='fail'?`<span class="tag">${esc(r.why)}</span>`:''}`;
+    return `<tr class="row${open===r.c?' sel':''}" data-c="${r.c}"><td class="l fa">${i+1}</td><td class="l"><span class="nm">${esc(r.n)}</span><span class="cd">${r.c}</span>${tags}</td>
+    <td>${nf(r.mc)}</td><td>${nf(r.s3)}</td><td>${pc(r.ys)}</td><td>${nf(r.o3)}</td><td>${pc(r.yo3)}</td><td>${pc(r.yo2)}</td><td>${pc(r.qoq)}</td><td>${r.opm==null?'<span class="fa">–</span>':nf(r.opm,1)+'%'}</td><td>${pc(r.dopm,'p')}</td>
+    <td>${nf(r.per,1)}</td><td>${nf(r.pbr,2)}</td><td>${r.roe==null?'<span class="fa">–</span>':nf(r.roe,1)+'%'}</td></tr>`+(open===r.c?detail(r):'');
+  }).join(''):`<tr><td colspan="${COLS.length+1}" class="empty">조건에 맞는 종목이 없습니다</td></tr>`;
+}
+$('#rng').innerHTML=RNG.map(([k,l])=>`<div class="f"><span>${l}</span><input type="number" step="any" data-k="${k}" data-b="lo" placeholder="최소" aria-label="${l} 최소"><i>~</i><input type="number" step="any" data-k="${k}" data-b="hi" placeholder="최대" aria-label="${l} 최대"></div>`).join('');
+$('#rng').addEventListener('input',draw);$('#q').addEventListener('input',draw);
+$('#noBase').addEventListener('change',draw);$('#cfsOnly').addEventListener('change',draw);
+$('#mk').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;mk=b.dataset.v;document.querySelectorAll('#mk button').forEach(x=>x.classList.toggle('on',x===b));draw();});
+$('#chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;st=b.dataset.s;open=null;draw();});
+$('#th').addEventListener('click',e=>{const t=e.target.closest('th[data-k]');if(!t)return;const k=t.dataset.k;if(k===sk)sd=-sd;else{sk=k;sd=k==='n'||k==='per'||k==='pbr'?1:-1;}draw();});
+$('#tb').addEventListener('click',e=>{if(e.target.closest('a')||e.target.closest('tr.det'))return;const r=e.target.closest('tr.row');if(!r)return;open=open===r.dataset.c?null:r.dataset.c;draw();});
+$('#reset').addEventListener('click',()=>{document.querySelectorAll('#rng input').forEach(i=>i.value='');$('#q').value='';$('#noBase').checked=$('#cfsOnly').checked=false;mk='';document.querySelectorAll('#mk button').forEach((x,i)=>x.classList.toggle('on',i===0));draw();});
+fetch('data/q3screen.json?v='+Math.floor(Date.now()/6e5)).then(r=>r.json()).then(d=>{D=d;
+  const n=d.rows.length;
+  $('#sub').innerHTML=`전 상장 보통주 <b>${n.toLocaleString()}</b>종목의 2026년 3분기보고서·반기보고서 확정치 기준 · 3Q 영업이익이 매출보다 빠르게, 2Q보다 빠르게, 2Q보다 크게 늘어난 종목 <b>${(d.count.pass||0).toLocaleString()}</b>개 · 작성 <b>${d.updated}</b>`;
+  draw();}).catch(e=>{$('#sub').textContent='데이터를 불러오지 못했습니다: '+e;});
+</script></body></html>
