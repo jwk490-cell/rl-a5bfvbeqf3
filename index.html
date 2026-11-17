@@ -599,6 +599,8 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
   .panel.embed{padding:0}
   .quote-card .qprice{font-size:30px}
 }
+.dvm{font-size:9px;color:var(--faint);margin-left:1px;font-weight:600;cursor:help}
+.dvm.dart{color:var(--accent);margin-left:3px}
 </style>
 <script>
 (function(){var t=localStorage.getItem("rl-theme")||"dark";if(t==="dark")document.documentElement.classList.add("dark");})();
@@ -2966,6 +2968,10 @@ function nc(v,d,cls){
 const pctTag=(v,d)=>(v==null||!isFinite(v))?'':
   `<span class="yoy ${v>=0?'up':'down'}">${v>=0?'+':'-'}${Math.abs(v).toFixed(d==null?1:d)}%</span>`;
 const grw=(a,b)=>(a==null||b==null||b===0)?null:(a/Math.abs(b)-1)*100;
+/* 원천 빈칸을 다른 필드로 계산해 채운 값(quote_dart_overlay.derive) → * 표기 */
+const isDv=(r,k)=>!!(r&&r.dv&&r.dv.includes(k));
+const dvMark=(r,k)=>isDv(r,k)?'<sup class="dvm" title="원천 미제공 — 다른 항목으로 계산한 값">*</sup>':'';
+const srcTh=r=>r&&r.src==='dart'?'<sup class="dvm dart" title="FnGuide 미반영 — DART 분기보고서 확정치">D</sup>':'';
 
 /* ── 수급 주체 (샤드 f 열 = quote_universe.FLOW_COLS) ── */
 const QT_INV=[
@@ -3323,15 +3329,15 @@ function qtPerfRender(s,W){
       <i style="background:rgba(140,150,165,.55)"></i>총비용&nbsp;&nbsp;<i style="background:var(--accent)"></i>영업이익&nbsp;&nbsp;
       <i style="background:#37b98a"></i>매출액&nbsp;&nbsp;<span style="color:var(--faint)">점선 = 컨센서스</span></div>
     <div class="scrollx"><table class="ftab"><thead><tr><th class="lb"></th>
-      ${R.map(r=>`<th class="${r.e?'e':''}">${pLabel(r.p,r.e,freq)}</th>`).join('')}</tr></thead><tbody>
+      ${R.map(r=>`<th class="${r.e?'e':''}">${pLabel(r.p,r.e,freq)}${srcTh(r)}</th>`).join('')}</tr></thead><tbody>
       ${[['매출액','rev'],['영업이익','op'],['순이익','np']].map(([lbl,k])=>
         `<tr class="hl"><td class="lb">${lbl}</td>`+R.map((r,i)=>{
           const gv=i>=(freq==='q'?4:1)?grw(r[k],R[i-(freq==='q'?4:1)][k]):null;
           const neg=(typeof r[k]==='number'&&r[k]<0);
-          return `<td class="${[r.e?'e':'',neg?'neg':''].filter(Boolean).join(' ')}">${nf(r[k]==null?null:Math.round(r[k]),0)}${gv!=null?pctTag(gv):''}</td>`;
+          return `<td class="${[r.e?'e':'',neg?'neg':''].filter(Boolean).join(' ')}">${nf(r[k]==null?null:Math.round(r[k]),0)}${dvMark(r,k)}${gv!=null?pctTag(gv):''}</td>`;
         }).join('')+`</tr>`).join('')}
     </tbody></table></div>
-    <div class="qfoot">${QT_SRC} 연결 기준 · ${freq==='q'?'전년 동기':'전년'} 대비 증감률 · 매출원가를 별도 공시하지 않는 기업이 있어 비용은 <b>총비용</b>(매출액−영업이익)으로 묶어 표시합니다.</div>`
+    <div class="qfoot">${QT_SRC} 연결 기준 · ${freq==='q'?'전년 동기':'전년'} 대비 증감률${R.some(r=>r.src==='dart')?' · <b>D</b> = 원천 미반영 기간을 DART 분기·사업보고서 확정치로 대체':''}${R.some(r=>r.dv)?' · <b>*</b> = 원천 미제공, 다른 항목으로 계산':''} · 매출원가를 별도 공시하지 않는 기업이 있어 비용은 <b>총비용</b>(매출액−영업이익)으로 묶어 표시합니다.</div>`
     :'<div class="empty"><b>실적 데이터가 아직 없습니다</b>평일 16:20 빌드 후 이용 가능합니다.</div>'}
   </div>`;
   const bar=document.getElementById('qtPerfBar');
@@ -3402,14 +3408,14 @@ function qtProfitRender(s,W){
     <div class="clegend" style="margin:10px 0 6px">${PROF_LINES.map(([n,,c])=>
       `<i style="background:${c}"></i>${n}&nbsp;&nbsp;`).join('')}</div>
     <div class="scrollx"><table class="ftab"><thead><tr><th class="lb"></th>
-      ${R.map(r=>`<th class="${r.e?'e':''}">${pLabel(r.p,r.e,'y')}</th>`).join('')}</tr></thead><tbody>
+      ${R.map(r=>`<th class="${r.e?'e':''}">${pLabel(r.p,r.e,'y')}${srcTh(r)}</th>`).join('')}</tr></thead><tbody>
       ${PROF_ROWS.map(([lbl,k])=>R.some(r=>r[k]!=null)?
         `<tr><td class="lb">${lbl}</td>`+R.map(r=>{
           const neg=(typeof r[k]==='number'&&r[k]<0);
-          return `<td class="${[r.e?'e':'',neg?'neg':''].filter(Boolean).join(' ')}">${r[k]==null?'—':nf(r[k],1)+'%'}</td>`;
+          return `<td class="${[r.e?'e':'',neg?'neg':''].filter(Boolean).join(' ')}">${r[k]==null?'—':nf(r[k],1)+'%'+dvMark(r,k)}</td>`;
         }).join('')+`</tr>`:'').join('')}
     </tbody></table></div>
-    <div class="qfoot">${QT_SRC} 기준 · E=컨센서스 · 매출총이익률(GPM)·EBITDA마진율·ROIC·유동비율은 원천에서 제공되지 않아 제외했습니다.</div>
+    <div class="qfoot">${QT_SRC} 기준 · E=컨센서스${R.some(r=>r.dv)?' · <b>*</b> = 원천 미제공 칸을 계산으로 채움(자본유보율 E=최근 확정 자본금 기준 역산, ROE=EPS÷BPS, ROA=순이익÷자산, 배당성향=DPS÷EPS)':''} · 남은 —는 원천·계산 모두 불가(컨센서스 미커버·적자 등) · 매출총이익률(GPM)·EBITDA마진율·ROIC·유동비율은 원천에서 제공되지 않아 제외했습니다.</div>
   </div>`;
   qtRatioChart(document.getElementById('qtProfCv'),R);
 }
@@ -3458,9 +3464,9 @@ function qtValRender(s,W){
     <div class="scrollx"><table class="ftab val"><thead><tr><th class="lb">재무연월</th>
       ${VAL_COLS.map(([n])=>`<th>${n}</th>`).join('')}</tr></thead><tbody>
       ${R.map(r=>`<tr class="${r.e?'est':''}"><td class="lb">${r.p.slice(2,4)}${r.e?'(E)':'(A)'}<small>${r.p}</small></td>
-        ${VAL_COLS.map(([,k,d])=>nc(r[k],d)).join('')}</tr>`).join('')}
+        ${VAL_COLS.map(([,k,d])=>{const c=nc(r[k],d);return isDv(r,k)?c.replace('</td>',dvMark(r,k)+'</td>'):c;}).join('')}</tr>`).join('')}
     </tbody></table></div>
-    <div class="qfoot">${QT_SRC} · PER/PBR 음수는 원천에서 N/A 처리됩니다 · EV/EBITDA는 원천 미제공으로 DPS·배당수익률로 대체했습니다.</div>
+    <div class="qfoot">${QT_SRC}${R.some(r=>r.dv)?' · <b>*</b> = 계산값(E의 PER·PBR=현재가÷EPS·BPS, 배당수익률=DPS÷주가)':''} · PER/PBR 음수(적자)는 원천에서 N/A 처리됩니다 · EV/EBITDA는 원천 미제공으로 DPS·배당수익률로 대체했습니다.</div>
   </div>`;
 }
 
