@@ -63,7 +63,7 @@ nav .navtop{display:flex;align-items:flex-start;justify-content:space-between;ga
 .navcol{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--sub);font-family:inherit;
   font-size:15px;line-height:1;width:30px;height:28px;border-radius:9px;cursor:pointer;margin-top:2px}
 .navcol:hover{color:var(--accent);border-color:var(--accent-line)}
-nav{transition:width .15s}
+nav .navitem,nav .archhead{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(min-width:861px){
   body.navmin nav{width:46px;padding:18px 7px;overflow:hidden}
   body.navmin nav>*:not(.navtop),body.navmin nav .sbrand{display:none}
@@ -711,7 +711,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
 (function(){const btn=document.getElementById('navCollapse');
  const set=(m,save)=>{document.body.classList.toggle('navmin',m);btn.textContent=m?'»':'«';btn.title=m?'탭 펼치기':'탭 접기';
   if(save){try{localStorage.setItem('rl-navmin',m?'1':'0')}catch(_){}
-   setTimeout(()=>window.dispatchEvent(new Event('resize')),180);}};
+   requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));}};
  let m=false;try{m=localStorage.getItem('rl-navmin')==='1'}catch(_){}
  set(m,false);
  btn.addEventListener('click',()=>set(!document.body.classList.contains('navmin'),true));})();
