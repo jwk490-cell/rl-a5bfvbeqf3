@@ -19,6 +19,9 @@ export default {
     if (url.pathname.startsWith("/api/refresh")) {
       return handleRefresh(request, env, url);
     }
+    if (url.pathname === "/api/quote") {
+      return handleQuote(request, url);
+    }
 
     const user = env.BASIC_USER;
     const pass = env.BASIC_PASS;
@@ -48,6 +51,50 @@ export default {
     });
   },
 };
+
+// ─── 실시간 시세 프록시 (#quote 탭 5초 폴링) ───
+// 공개 시세만 중계(읽기 전용, 인증 불필요). 종목코드 형식 검증 + 최대 10종목,
+// 엣지 캐시 2초로 같은 종목 동시 조회는 원천 1회로 합친다.
+async function handleQuote(request, url) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders(request) });
+  }
+  const codes = (url.searchParams.get("c") || "").split(",").map((s) => s.trim().toUpperCase())
+    .filter((s) => /^[0-9A-Z]{6}$/.test(s)).slice(0, 10);
+  if (!codes.length) return withCors(request, json({ error: "bad code" }, 400));
+  const src = "https://polling.finance.naver.com/api/realtime/domestic/stock/" + codes.join(",");
+  let d;
+  try {
+    const r = await fetch(src, {
+      headers: { "User-Agent": "Mozilla/5.0", Referer: "https://m.stock.naver.com/" },
+      cf: { cacheTtl: 2, cacheEverything: true },
+    });
+    if (!r.ok) return withCors(request, json({ error: "upstream " + r.status }, 502));
+    d = await r.json();
+  } catch (e) {
+    return withCors(request, json({ error: "upstream" }, 502));
+  }
+  const n = (s) => {
+    if (s == null) return null;
+    const v = parseFloat(String(s).replace(/,/g, ""));
+    return isFinite(v) ? v : null;
+  };
+  const out = {};
+  for (const it of d.datas || []) {
+    const o = it.overMarketPriceInfo || {};
+    out[it.itemCode] = {
+      p: n(it.closePrice), d: n(it.compareToPreviousClosePrice), f: n(it.fluctuationsRatio),
+      o: n(it.openPrice), h: n(it.highPrice), l: n(it.lowPrice),
+      vol: n(it.accumulatedTradingVolume), tv: it.accumulatedTradingValue || null,
+      ms: it.marketStatus || null, t: it.localTradedAt || null,
+      // NXT(대체거래소) 프리·애프터마켓
+      x: o.overPrice ? { s: o.tradingSessionType || null, st: o.overMarketStatus || null,
+        p: n(o.overPrice), d: n(o.compareToPreviousClosePrice), f: n(o.fluctuationsRatio),
+        t: o.localTradedAt || null } : null,
+    };
+  }
+  return withCors(request, json({ t: Date.now(), q: out }));
+}
 
 // ─── 수동 갱신 큐 ───
 async function handleRefresh(request, env, url) {

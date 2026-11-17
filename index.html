@@ -3006,7 +3006,7 @@ function qtRender(){
         <b>${esc(s.n)}</b>
         <a class="qlink" href="https://m.stock.naver.com/domestic/stock/${s.c}/total" target="_blank" rel="noopener">네이버증권 ↗</a>
         <a class="qlink" href="https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=${encodeURIComponent(s.n)}" target="_blank" rel="noopener">DART ↗</a>
-        <span class="qhero-d">${QT.updated} · 일별 스냅샷</span>
+        <span class="qhero-d" id="qtLiveTag">${QT.updated} · 일별 스냅샷</span>
       </div>
     </div>
 
@@ -3014,9 +3014,9 @@ function qtRender(){
     <div class="qgrid pb">
       <div class="qcard">
         <div class="qlab">PRICE</div>
-        <div class="qbig ${up?'up':'down'}">${nf(s.p,0)}
+        <div class="qbig ${up?'up':'down'}" id="qtLivePx">${nf(s.p,0)}
           <span class="qdelta ${up?'up':'down'}">${up?'▲':'▼'} ${chgAbs==null?'':Math.abs(chgAbs).toLocaleString('ko-KR')} (${s.f>=0?'+':''}${(s.f??0).toFixed(2)}%)</span></div>
-        <div class="qsub2">KRW · 네이버증권 일별 종가</div>
+        <div class="qsub2" id="qtLiveSub">KRW · 네이버증권 일별 종가</div>
         <div class="qkv">
           ${[['52주 최고',nf(s.h52,0)],['52주 최저',nf(s.l52,0)],
              ['거래대금',s.tv==null?'—':(s.tv>=10000?nf(s.tv/10000,2)+'조':nf(Math.round(s.tv),0)+'억')],
@@ -3045,7 +3045,7 @@ function qtRender(){
     <div class="qcard" style="padding:16px 18px 12px">
       <div class="qch">
         <h3>주가</h3>
-        <span class="meta"><b class="${up?'up':'down'}">${nf(s.p,0)}</b> (${s.f>=0?'+':''}${(s.f??0).toFixed(2)}%) · 일봉 2년 수정주가</span>
+        <span class="meta" id="qtLiveMeta"><b class="${up?'up':'down'}">${nf(s.p,0)}</b> (${s.f>=0?'+':''}${(s.f??0).toFixed(2)}%) · 일봉 2년 수정주가</span>
         <div class="rt">
           <div class="rngwrap" id="qtCvBar">${[['day','일'],['week','주'],['month','월'],['y5','5년']].map(([k,l])=>`<button class="rng${qtCv===k?' on':''}" data-cv="${k}">${l}</button>`).join('')}</div>
           <div class="rngwrap" id="qtStyleBar">${[['candle','캔들'],['line','라인']].map(([k,l])=>`<button class="rng${qtStyle===k?' on':''}" data-st="${k}">${l}</button>`).join('')}</div>
@@ -3083,6 +3083,65 @@ function qtRender(){
   qtPackFill(s);
   qtDDRender(s);
   qtEmbSync(s);
+  qtLiveStart(s);
+}
+
+/* ── 실시간 시세 (5초 폴링 · Worker 프록시 /api/quote → 네이버 polling) ──
+   탭이 보이고 종목이 선택돼 있을 때만 돈다. 가격 카드·차트 메타·마지막 봉(일봉)을 제자리 갱신. */
+const QT_LIVE_API='https://research-lab.jwk490.workers.dev/api/quote?c=';
+let qtLiveTimer=null,qtLiveBusy=false,qtLiveLast=null;
+function qtLiveStart(s){
+  clearInterval(qtLiveTimer);qtLiveLast=null;
+  qtLiveTick(s);
+  qtLiveTimer=setInterval(()=>{
+    const tab=document.getElementById('tab-quote');
+    if(!tab||!tab.classList.contains('on')||qtSel!==s.c){clearInterval(qtLiveTimer);qtLiveTimer=null;return;}
+    if(document.hidden)return;
+    qtLiveTick(s);
+  },5000);
+}
+async function qtLiveTick(s){
+  if(qtLiveBusy)return;qtLiveBusy=true;
+  let q=null;
+  try{const r=await fetch(QT_LIVE_API+s.c,{cache:'no-store'});if(r.ok)q=((await r.json()).q||{})[s.c];}catch(_){}
+  qtLiveBusy=false;
+  if(qtSel!==s.c)return;
+  const tag=document.getElementById('qtLiveTag');
+  if(!q||q.p==null){if(tag)tag.innerHTML=`${QT.updated} · 일별 스냅샷 <span style="color:var(--dim2)">(실시간 연결 실패 — 재시도 중)</span>`;return;}
+  /* 정규장 마감 후 NXT 애프터마켓이 열려 있으면 NXT 가격을 보조 표기 */
+  const nxt=(q.x&&q.x.st==='OPEN'&&q.x.s&&q.x.s!=='REGULAR_MARKET'&&q.x.p!=null)?q.x:null;
+  const p=q.p,f=q.f??0,d=q.d??0,up=f>=0;
+  s.p=p;s.f=f;
+  const px=document.getElementById('qtLivePx');
+  if(px){
+    px.className='qbig '+(up?'up':'down');
+    px.innerHTML=`${nf(p,0)} <span class="qdelta ${up?'up':'down'}">${up?'▲':'▼'} ${nf(Math.abs(d),0)} (${f>=0?'+':''}${f.toFixed(2)}%)</span>`;
+    if(qtLiveLast!=null&&qtLiveLast!==p){px.style.transition='none';px.style.background=p>qtLiveLast?'rgba(240,68,82,.16)':'rgba(52,133,250,.16)';
+      requestAnimationFrame(()=>{px.style.transition='background .9s';px.style.background='transparent';});}
+  }
+  qtLiveLast=p;
+  const ms={OPEN:'장중',CLOSE:'장마감',PREOPEN:'장전'}[q.ms]||q.ms||'';
+  const hhmm=q.t?q.t.slice(11,19):new Date().toLocaleTimeString('ko-KR');
+  const sub=document.getElementById('qtLiveSub');
+  if(sub)sub.innerHTML=`KRW · 실시간 ${ms} · 시 ${nf(q.o,0)} 고 ${nf(q.h,0)} 저 ${nf(q.l,0)} · 거래대금 ${esc(q.tv||'—')}`
+    +(nxt?` · <b>NXT ${nf(nxt.p,0)}</b> <span class="${nxt.f>=0?'up':'down'}">(${nxt.f>=0?'+':''}${nxt.f.toFixed(2)}%)</span>`:'');
+  const meta=document.getElementById('qtLiveMeta');
+  if(meta)meta.innerHTML=`<b class="${up?'up':'down'}">${nf(p,0)}</b> (${f>=0?'+':''}${f.toFixed(2)}%) · 일봉 2년 수정주가 · 실시간`;
+  if(tag)tag.innerHTML=`<span style="color:${q.ms==='OPEN'?'var(--up)':'var(--dim2)'}">●</span> 실시간 ${ms} · ${hhmm} · 5초 자동 갱신`;
+  qtLiveBar(q);
+}
+/* 차트 마지막 봉 갱신 — 오늘 봉이 없으면 추가(일봉), 주·월봉은 마지막 봉 종가·고저만 갱신 */
+function qtLiveBar(q){
+  if(!lwChart||!qtLwMain||!qtLwLast||qtCv==='y5'||!q.t)return;
+  const today=q.t.slice(0,10);
+  const b=Object.assign({},qtLwLast);
+  if(qtCv==='day'&&today>b.time){b.time=today;b.open=q.o??q.p;b.high=q.h??q.p;b.low=q.l??q.p;}
+  else if(qtCv==='day'&&today===b.time){b.open=q.o??b.open;b.high=Math.max(b.high,q.h??q.p);b.low=Math.min(b.low,q.l??q.p);}
+  else if(today>=b.time||qtCv!=='day'){b.high=Math.max(b.high,q.p);b.low=Math.min(b.low,q.p);}
+  else return;
+  b.close=q.p;
+  try{qtLwMain.update(qtStyle==='candle'?b:{time:b.time,value:b.close});
+    if(qtLwVolS&&qtCv==='day'&&q.vol!=null)qtLwVolS.update({time:b.time,value:q.vol,color:b.close>=b.open?'rgba(240,68,82,.5)':'rgba(52,133,250,.5)'});}catch(_){}
 }
 
 /* ── 전고대비 (전 종목 · data/dd 샤드) ── */
@@ -3588,7 +3647,7 @@ function qtFlowChart(cv,rows,sels,mode){
 }
 
 /* ── TradingView Lightweight Charts (KRX는 TV 호스팅 위젯 임베드 불가 → OSS 라이브러리 + 자체 데이터) ── */
-let lwReady=null,lwChart=null,lwVol=null,QTC={};
+let lwReady=null,lwChart=null,lwVol=null,QTC={},qtLwMain=null,qtLwLast=null,qtLwVolS=null;
 function needLW(){
   if(!lwReady)lwReady=new Promise((res,rej)=>{const sc=document.createElement('script');
     sc.src='https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js';
@@ -3638,6 +3697,7 @@ async function qtDrawLw(s){
   if(qtSel!==code||!document.getElementById('qtLw'))return; /* 종목/뷰 변경 가드 */
   if(lwChart){lwChart.remove();lwChart=null;}
   if(lwVol){lwVol.remove();lwVol=null;}
+  qtLwMain=qtLwLast=qtLwVolS=null;
   el.innerHTML='';
   const volEl=document.getElementById('qtVol'),volBox=document.getElementById('qtVolBox');
   if(volEl)volEl.innerHTML='';
@@ -3719,6 +3779,8 @@ async function qtDrawLw(s){
   const vs=lwVol.addHistogramSeries({priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
   vs.setData(agg.map((r,i)=>({time:lwDate(r[0]),value:r[5],
     color:(r[4]>=r[1])?'rgba(240,68,82,.5)':'rgba(52,133,250,.5)'})));
+  {const L=agg[agg.length-1];qtLwMain=main;qtLwVolS=vs;
+   qtLwLast={time:lwDate(L[0]),open:L[1],high:L[2],low:L[3],close:L[4]};}
 
   /* 시간축 · 크로스헤어 동기화 */
   let syncing=false;
