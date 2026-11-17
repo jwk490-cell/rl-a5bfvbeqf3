@@ -646,13 +646,12 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem subtab" data-tab="etccorp">기타법인 수급 <small>매일</small></button>
     <button class="navitem" data-tab="krhigh">韓 신고가 (20·60일·52주)</button>
     <button class="navitem" data-tab="ushigh">美 신고가 (20·60일·52주)</button>
-    <button class="navitem" data-tab="jpmarket">日 시장 <small>6개</small></button>
+    <button class="navitem" data-tab="jpmarket">日 시장 <small>5개</small></button>
     <button class="navitem subtab" data-tab="jphigh">日 신고가 (20·60일·52주) <small>NEW</small></button>
     <button class="navitem subtab" data-tab="jpflow">日 수급 (신용·공매도·주체) <small>NEW</small></button>
     <button class="navitem subtab" data-tab="jpsector">日 주도 섹터 (33업종) <small>NEW</small></button>
     <button class="navitem subtab" data-tab="jpearn">日 결산 스크리닝 <small>NEW</small></button>
     <button class="navitem subtab" data-tab="jpval">日 밸류에이션 · 가이던스 <small>NEW</small></button>
-    <button class="navitem subtab" data-tab="jpq3">日 3Q26 실적 스크린 (닛케이225) <small>NEW</small></button>
     <button class="navitem" data-tab="rs">RS 분석</button>
     <button class="navitem" data-tab="semietf">반도체 ETF 수혜</button>
     <button class="navitem" data-tab="semirebal">반도체 ETF 리밸런싱 <small>9/10</small></button>
@@ -669,6 +668,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
     <button class="navitem" data-tab="dd">전고대비</button>
     <button class="navitem" data-tab="q3screen">3Q26 실적 스크린 <small>이익 가속</small></button>
     <button class="navitem" data-tab="usq3">美 3Q26 실적 스크린 <small>나스닥100</small></button>
+    <button class="navitem" data-tab="jpq3">日 3Q26 실적 스크린 <small>닛케이225</small></button>
     <button class="navitem" data-tab="pbrgrowth">저PBR × 컨센 성장 <small>매일</small></button>
     <button class="navitem" data-tab="kospitop">코스피 상위 × OP 컨센 <small>매일</small></button>
     <button class="navitem" data-tab="kosdaqtop">코스닥 상위 × OP 컨센 <small>매일</small></button>
@@ -779,7 +779,6 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
           <button class="card" data-go="jpsector"><h3>日 주도 섹터 (33업종) <span class="tag">평일 17:50</span></h3><p>도쿄증권거래소 33업종의 TOPIX 대비 상대강도(5·20·60·120일)·거래대금 쏠림·신고가 비율·20일선 위 비율·신용·공매도 비율을 점수화 — 사분면 지도와 업종별 신고가 종목</p></button>
           <button class="card" data-go="jpearn"><h3>日 결산 스크리닝 <span class="tag">평일 18:40·07:30</span></h3><p>決算短信 전수 — 회사 가이던스 상향·하향, 진척률 vs 예년 5년 중앙값, 남은 기간 감익을 가정한 '보수적' 가이던스 태그, 발표 반응·이후 수익률, 2019~ 태그 검증 백테스트</p></button>
           <button class="card" data-go="jpval"><h3>日 밸류에이션 · 가이던스 <span class="tag">평일 17:15</span></h3><p>한 탭에 두 섹션 — ① 프라임·스탠다드·그로스 시총 상위 50·100·150 × 이익 3개년 확정 + 진행 FY 회사 가이던스(초기 대비 수정·진척률), 수익률 1M~2Y(시장 지수 대비), PER TTM/Fwd·PBR·ROE, 일별 시총 순위 변동 ② 저PBR × 가이던스 성장 스크리너(매출·이익·순이익 성장·ROE Δ 4지표 평균순위, 산점도)</p></button>
-          <button class="card" data-go="jpq3"><h3>日 3Q26 실적 스크린 — 닛케이225 이익 가속 <span class="tag">7~9월 분기</span></h3><p>닛케이225 구성종목의 7~9월 분기 영업이익 YoY가 매출 YoY·직전 분기 YoY보다 높고 직전 분기보다 이익이 늘어난 종목 — 決算短信 누적 차분, 통기 가이던스 상향·하향, OP·OPM·PER·PBR·ROE 범위 필터</p></button>
           <button class="card" data-go="rs"><h3>RS 분석 <span class="tag">韓·美 ETF</span></h3><p>섹터·테마 ETF 상대강도 60/120/250일 + 소티노 — Norm ≥70 주도 시그널</p></button>
           <button class="card" data-go="semietf"><h3>반도체 ETF 수혜 <span class="tag">장중 1시간</span></h3><p>ETF 자금 유입 ÷ 유통시총 — 매수 압력 랭킹</p></button>
           <button class="card" data-go="semirebal"><h3>반도체 ETF 리밸런싱 <span class="tag">KRX 반도체 9월 정기변경</span></h3><p>KODEX·TIGER 반도체 cap 20% 시나리오 — 35종목 유출입 금액 ÷ ADTV·종가 단일가 배수, 6월 삼성전기 교본</p></button>
@@ -801,6 +800,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
           <button class="card" data-go="etfgap"><h3>ETF 괴리율 <span class="tag">5분</span></h3><p>단일종목 레버리지·인버스 시장가 vs NAV 게이지</p></button>
           <button class="card" data-go="q3screen"><h3>3Q26 실적 스크린 — 이익 가속 종목 <span class="tag">분기보고서 확정치</span></h3><p>3Q 영업이익 YoY가 매출 YoY·2Q 영업이익 YoY보다 높고 2Q보다 영업이익이 늘어난 종목 — OP·OPM·OP Growth·OPM Growth·PER·PBR·ROE 범위 필터, 기저효과 주의·연결/별도 표시</p></button>
           <button class="card" data-go="usq3"><h3>美 3Q26 실적 스크린 — 나스닥100 이익 가속 <span class="tag">SEC 확정치</span></h3><p>나스닥100 구성종목의 7~9월 분기 영업이익 YoY가 매출 YoY·직전 분기 YoY보다 높고 직전 분기보다 이익이 늘어난 종목 — 10-Q·10-K 재무 데이터, OP·OPM·PER·PBR·ROE 범위 필터</p></button>
+          <button class="card" data-go="jpq3"><h3>日 3Q26 실적 스크린 — 닛케이225 이익 가속 <span class="tag">7~9월 분기</span></h3><p>닛케이225 구성종목의 7~9월 분기 영업이익 YoY가 매출 YoY·직전 분기 YoY보다 높고 직전 분기보다 이익이 늘어난 종목 — 決算短信 누적 차분, 통기 가이던스 상향·하향, OP·OPM·PER·PBR·ROE 범위 필터</p></button>
           <button class="card" data-go="pbrgrowth"><h3>저PBR × 컨센 성장 스크리너 <span class="tag">평일 16:55</span></h3><p>PBR 1배 이하 종목을 26E→27E 컨센서스 성장률 4지표(매출·영업이익·지배순이익·ROE)로 랭킹 — 직전결산/26E BPS 기준 토글, 시장·시총 필터, 종목별 3개년 컨센 상세</p></button>
           <button class="card" data-go="kospitop"><h3>코스피 시총 상위 × 영업이익 컨센서스 <span class="tag">평일 20:15</span></h3><p>코스피 시총 상위 50(100·150 전환) 종목의 연간 영업이익 2025A·26E·27E·28E 컨센서스와 증가율(CAGR), 주가 수익률 1M~2Y(코스피 지수 대비), PER 26E~28E·PBR, 매일 20:15 누적되는 시총 순위 변동(전일·1주·1개월, 진입·이탈)</p></button>
           <button class="card" data-go="kosdaqtop"><h3>코스닥 시총 상위 × 영업이익 컨센서스 <span class="tag">평일 20:15</span></h3><p>코스닥 시총 상위 50(100·150 전환) 종목의 연간 영업이익 2025A·26E·27E·28E 컨센서스와 증가율(CAGR), 주가 수익률 1M~2Y(코스닥 지수 대비), PER 26E~28E·PBR, 매일 20:15 누적되는 시총 순위 변동(전일·1주·1개월, 진입·이탈)</p></button>
@@ -3942,7 +3942,7 @@ document.querySelectorAll('.navitem[data-tab],.card[data-go]').forEach(el=>{
 /* ── 탭 전환 (iframe은 첫 진입 시에만 로드) ── */
 /* ── 묶음 탭: 사이드바 한 칸 + 패널 위 하위 탭 바 (261116) ── */
 const TAB_GROUPS={
-  jpmarket:{label:'日 시장',subs:[['jphigh','신고가'],['jpflow','수급'],['jpsector','주도 섹터'],['jpearn','결산 스크리닝'],['jpval','밸류에이션 · 가이던스'],['jpq3','3Q 실적 스크린']]},
+  jpmarket:{label:'日 시장',subs:[['jphigh','신고가'],['jpflow','수급'],['jpsector','주도 섹터'],['jpearn','결산 스크리닝'],['jpval','밸류에이션 · 가이던스']]},
   capmap:{label:'과거 시총 상위 30 변화',subs:[['krcapmap','🇰🇷 韓'],['uscapmap','🇺🇸 美'],['jpcapmap','🇯🇵 日']]},
   krflow:{label:'韓 수급',subs:[['invflow','일일 수급'],['supply','수급/거래량 증감'],['streak','수급 연속'],['binjip','빈집찾기'],['etccorp','기타법인'],['buyback','자사주 매수']]}};
 const SUB2GRP={};for(const g in TAB_GROUPS)for(const [t] of TAB_GROUPS[g].subs)SUB2GRP[t]=g;
