@@ -64,12 +64,14 @@ tr.det td{background:#0f1319;padding:10px 14px 12px;white-space:normal;cursor:de
 .cnt{font-size:11.5px;color:var(--faint);margin-left:auto}
 @media(max-width:640px){body{padding:14px 12px 50px}.chip{min-width:calc(50% - 4px)}}
 </style></head><body><div class="wrap">
-<h1>日 3Q26 실적 스크린 — 닛케이225 이익 가속 종목</h1>
+<h1>日 3Q26 실적 스크린 — 도쿄 상장사 이익 가속 종목</h1>
 <div class="sub" id="sub">불러오는 중…</div>
 <div class="chips" id="chips"></div>
 
 <div class="bar">
   <input type="text" id="q" placeholder="종목명(일·영)·코드 검색">
+  <span class="lb">시장</span>
+  <div class="filt" id="mkt"><button data-v="">전체</button><button data-v="P" class="on">프라임</button><button data-v="S">스탠다드</button><button data-v="G">그로스</button><button data-v="N">닛케이225</button></div>
   <span class="lb">업종</span>
   <select id="mk"><option value="">전체</option></select>
   <span class="lb">통기 가이던스</span>
@@ -97,7 +99,7 @@ tr.det td{background:#0f1319;padding:10px 14px 12px;white-space:normal;cursor:de
 </ol>
 <h3 style="margin-top:10px">일본판에서 달라지는 점</h3>
 <ul>
-<li><b>대상</b> = 닛케이225 구성종목(지수 연동 ETF 보유종목 공시 기준, 빌드할 때마다 갱신).</li>
+<li><b>대상</b> = 도쿄증권거래소 프라임·스탠다드·그로스 상장사 전체(ETF·리츠·TOKYO PRO Market 제외). 처음엔 프라임만 보이며 「시장」 버튼으로 바꾼다. 「닛케이225」는 지수 연동 ETF 보유종목 공시 기준이고 빌드할 때마다 갱신한다. 위 분류 숫자는 고른 시장 기준이다.</li>
 <li><b>분기</b> = 달력 기준. 「3Q」는 2026년 7~9월, 「2Q」는 4~6월이다. 3월 결산 회사는 회계상 2Q(상반기)·1Q에 해당한다. 2·8·11월 결산처럼 분기말이 어긋나는 회사는 7~9월에 가장 가까운 분기(6~8월 또는 8~10월)를 쓰고 기간을 표시한다.</li>
 <li><b>3개월 값</b> = 決算短信은 누적 실적만 싣기 때문에 같은 회계연도의 누적값 차이로 계산했다(회계 1Q는 그대로). 전년 값은 전년 당시 공시 수치라 이후 소급 수정이 있었다면 반영되지 않는다.</li>
 <li><b>이익 지표</b> = 영업이익. 영업이익을 공시하지 않는 회사는 경상이익(은행 등), 그것도 없으면 지배주주 순이익(종합상사·일부 IFRS 회사)으로 대신하고 「경상이익 기준」·「순이익 기준」으로 표시한다 — 「영업이익 기준만」으로 걸러낼 수 있다. 은행의 매출은 경상수익이다.</li>
@@ -112,7 +114,9 @@ const $=s=>document.querySelector(s);
 const ST={pass:['기준 충족','①②③ 모두 통과'],fail:['미충족','비교대상이나 ①②③ 중 탈락'],nocomp:['비교 불가','전년 동기 두 분기 이익 양수 아님'],pending:['업데이트 미완료','결산 미발표·값 없음']};
 const RNG=[['mc','시총(억엔)'],['o3','OP(억엔)'],['opm','OPM(%)'],['yo3','OP Growth(%)'],['dopm','OPM Growth(%p)'],['gr','가이던스 수정(%)'],['per','PER(배)'],['pbr','PBR(배)'],['roe','ROE(%)']];
 const COLS=[['n','종목','l'],['mc','시총','','억엔'],['s3','3Q 매출','','억엔'],['ys','매출 YoY','','%'],['o3','3Q OP','','억엔'],['yo2','2Q OP YoY','','%'],['yo3','3Q OP YoY','','OP Growth %'],['qoq','OP QoQ','','2→3Q'],['gr','가이던스','','통기 수정'],['opm','OPM','','%'],['dopm','OPM Growth','','%p'],['per','PER','','배'],['pbr','PBR','','배'],['roe','ROE','','%']];
-let D=null,st='pass',mk='',cvf='',sk='yo3',sd=-1,open=null;
+const MKL={'':'프라임·스탠다드·그로스',P:'프라임',S:'스탠다드',G:'그로스',N:'닛케이225'};
+const inM=r=>!mf||(mf==='N'?!!r.nk:r.mk===mf);
+let D=null,st='pass',mf='P',mk='',cvf='',sk='yo3',sd=-1,open=null;
 const nf=(v,d=0)=>v==null?'<span class="fa">–</span>':v.toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const pc=(v,u='%')=>v==null?'<span class="fa">–</span>':`<span class="${v>0?'g':v<0?'r':''}">${v>0?'+':''}${nf(v,1)}${u}</span>`;
 const VC={상향:'g',유지:'',하향:'r',없음:'fa',신규:'',결산:'fa'},VL={상향:'상향',유지:'유지',하향:'하향',없음:'없음',신규:'신규',결산:'연간 결산'};
@@ -124,7 +128,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 function rngVals(){const o={};document.querySelectorAll('#rng input').forEach(i=>{const v=i.value.trim();i.classList.toggle('act',v!=='');if(v!==''&&!isNaN(+v))o[i.dataset.k+i.dataset.b]=+v;});return o;}
 function rows(){
   const q=$('#q').value.trim().toLowerCase(),R=rngVals(),nb=$('#noBase').checked,cf=$('#cfsOnly').checked;
-  let a=D.rows.filter(r=>r.st===st&&(!mk||r.sec===mk)&&(!cvf||(r.gv||'없음')===cvf||(cvf==='없음'&&r.gv==='결산'))&&(!q||r.n.toLowerCase().includes(q)||(r.en||'').toLowerCase().includes(q)||r.c.toLowerCase().includes(q))&&(!nb||!r.base)&&(!cf||r.pk==='OP'));
+  let a=D.rows.filter(r=>r.st===st&&inM(r)&&(!mk||r.sec===mk)&&(!cvf||(r.gv||'없음')===cvf||(cvf==='없음'&&r.gv==='결산'))&&(!q||r.n.toLowerCase().includes(q)||(r.en||'').toLowerCase().includes(q)||r.c.toLowerCase().includes(q))&&(!nb||!r.base)&&(!cf||r.pk==='OP'));
   for(const [k] of RNG){const lo=R[k+'lo'],hi=R[k+'hi'];if(lo==null&&hi==null)continue;
     a=a.filter(r=>r[k]!=null&&(lo==null||r[k]>=lo)&&(hi==null||r[k]<=hi));}
   a.sort((x,y)=>{if(sk==='n')return sd*x.n.localeCompare(y.n,'ko');const p=x[sk],r=y[sk];if(p==null&&r==null)return 0;if(p==null)return 1;if(r==null)return -1;return sd*(p-r);});
@@ -149,12 +153,13 @@ function detail(r){
   <a href="https://finance.yahoo.co.jp/quote/${r.c}.T" target="_blank" rel="noopener">야후 파이낸스 ↗</a></div></td></tr>`;
 }
 function draw(){
-  $('#chips').innerHTML=Object.keys(ST).map(k=>`<button class="chip${k===st?' on':''}" data-s="${k}"><span>${ST[k][0]}</span><b>${nf(D.count[k]||0)}</b><small>${ST[k][1]}</small></button>`).join('');
+  const C={};for(const r of D.rows)if(inM(r))C[r.st]=(C[r.st]||0)+1;
+  $('#chips').innerHTML=Object.keys(ST).map(k=>`<button class="chip${k===st?' on':''}" data-s="${k}"><span>${ST[k][0]}</span><b>${nf(C[k]||0)}</b><small>${ST[k][1]}</small></button>`).join('');
   $('#th').innerHTML='<tr><th class="l" style="cursor:default">#</th>'+COLS.map(c=>`<th class="${c[2]||''}${c[0]===sk?' s':''}" data-k="${c[0]}">${c[1]}${c[0]===sk?(sd<0?' ▼':' ▲'):''}${c[3]?`<small>${c[3]}</small>`:''}</th>`).join('')+'</tr>';
   const a=rows();
   $('#cnt').textContent=`${ST[st][0]} ${a.length.toLocaleString()}종목 표시`;
   $('#tb').innerHTML=a.length?a.map((r,i)=>{
-    const tags=`<span class="tag P">${esc(r.sec||'')}</span>${r.pk&&r.pk!=='OP'?`<span class="tag S">${PK[r.pk]} 기준</span>`:''}${r.base?'<span class="tag W">기저효과 주의</span>':''}${r.pq3&&r.pq3!=='26.07~09'?`<span class="tag S">${r.fye}월 결산 · ${r.pq3}월</span>`:''}${r.st==='fail'&&r.k?`<span class="tag">탈락 ${['①','②','③'].filter((_,j)=>!r.k[j]).join('')}</span>`:''}${r.why&&r.st!=='fail'?`<span class="tag">${esc(r.why)}</span>`:''}`;
+    const tags=`${mf!=='P'&&mf!=='S'&&mf!=='G'&&r.mk?`<span class="tag">${MKL[r.mk]}</span>`:''}${r.nk&&mf!=='N'?'<span class="tag S">닛케이225</span>':''}<span class="tag P">${esc(r.sec||'')}</span>${r.pk&&r.pk!=='OP'?`<span class="tag S">${PK[r.pk]} 기준</span>`:''}${r.base?'<span class="tag W">기저효과 주의</span>':''}${r.pq3&&r.pq3!=='26.07~09'?`<span class="tag S">${r.fye}월 결산 · ${r.pq3}월</span>`:''}${r.st==='fail'&&r.k?`<span class="tag">탈락 ${['①','②','③'].filter((_,j)=>!r.k[j]).join('')}</span>`:''}${r.why&&r.st!=='fail'?`<span class="tag">${esc(r.why)}</span>`:''}`;
     return `<tr class="row${open===r.c?' sel':''}" data-c="${r.c}"><td class="l fa">${i+1}</td><td class="l"><span class="nm">${esc(r.n)}</span><span class="cd">${r.c}</span>${tags}</td>
     <td>${nf(r.mc)}</td><td>${nf(r.s3)}</td><td>${pc(r.ys)}</td><td>${nf(r.o3)}</td><td>${pc(r.yo2)}</td><td>${pc(r.yo3)}</td><td>${pc(r.qoq)}</td><td>${cons(r)}</td><td>${r.opm==null?'<span class="fa">–</span>':nf(r.opm,1)+'%'}</td><td>${pc(r.dopm,'p')}</td>
     <td>${nf(r.per,1)}</td><td>${nf(r.pbr,2)}</td><td>${r.roe==null?'<span class="fa">–</span>':nf(r.roe,1)+'%'}</td></tr>`+(open===r.c?detail(r):'');
@@ -164,6 +169,7 @@ $('#rng').innerHTML=RNG.map(([k,l])=>`<div class="f"><span>${l}</span><input typ
 $('#rng').addEventListener('input',draw);$('#q').addEventListener('input',draw);
 $('#noBase').addEventListener('change',draw);$('#cfsOnly').addEventListener('change',draw);
 $('#mk').addEventListener('change',e=>{mk=e.target.value;draw();});
+$('#mkt').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;mf=b.dataset.v;open=null;document.querySelectorAll('#mkt button').forEach(x=>x.classList.toggle('on',x===b));draw();});
 $('#cv').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;cvf=b.dataset.v;document.querySelectorAll('#cv button').forEach(x=>x.classList.toggle('on',x===b));draw();});
 $('#chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;st=b.dataset.s;open=null;draw();});
 $('#th').addEventListener('click',e=>{const t=e.target.closest('th[data-k]');if(!t)return;const k=t.dataset.k;if(k===sk)sd=-sd;else{sk=k;sd=k==='n'||k==='per'||k==='pbr'?1:-1;}draw();});
@@ -171,7 +177,7 @@ $('#tb').addEventListener('click',e=>{if(e.target.closest('a')||e.target.closest
 $('#reset').addEventListener('click',()=>{document.querySelectorAll('#rng input').forEach(i=>i.value='');$('#q').value='';$('#noBase').checked=$('#cfsOnly').checked=false;mk='';cvf='';$('#mk').value='';document.querySelectorAll('#cv button').forEach(x=>x.classList.toggle('on',x.dataset.v===''));draw();});
 // ── 저장: 지금 필터·정렬된 목록 그대로 ──
 function filterText(){
-  const t=[ST[st][0]];if(mk)t.push(mk);if(cvf)t.push('가이던스 '+VL[cvf]);
+  const t=[MKL[mf],ST[st][0]];if(mk)t.push(mk);if(cvf)t.push('가이던스 '+VL[cvf]);
   if($('#noBase').checked)t.push('기저효과 주의 제외');if($('#cfsOnly').checked)t.push('영업이익 기준만');
   const q=$('#q').value.trim();if(q)t.push('검색 "'+q+'"');
   const R=rngVals();for(const [k,l] of RNG){const lo=R[k+'lo'],hi=R[k+'hi'];if(lo==null&&hi==null)continue;t.push(`${l} ${lo??''}~${hi??''}`);}
@@ -187,7 +193,7 @@ $('#saveXls').addEventListener('click',e=>busy(e.target,async()=>{
   const v=x=>x==null?'':x;
   const body=a.map((r,i)=>[i+1,r.n,r.c,r.en||'',r.sec||'',PK[r.pk]||'',v(r.mc),v(r.s3),v(r.ys),v(r.o3),v(r.yo2),v(r.yo3),v(r.qoq),r.gv?VL[r.gv]:'',v(r.g),v(r.gr),r.dd||'',v(r.opm),v(r.dopm),v(r.per),v(r.pbr),v(r.roe),v(r.s2p),v(r.o2p),v(r.s3p),v(r.o3p),v(r.s2),v(r.o2),r.pq3||'',r.base?'Y':'',[r.why,r.st==='fail'&&r.k?'탈락 '+['①','②','③'].filter((_,j)=>!r.k[j]).join(''):''].filter(Boolean).join(' / ')]);
   const ws=XLSX.utils.aoa_to_sheet([H,...body]);ws['!cols']=H.map((h,i)=>({wch:i===1||i===3?24:i===30?26:11}));ws['!freeze']={xSplit:2,ySplit:1};
-  const info=XLSX.utils.aoa_to_sheet([['日 3Q26 실적 스크린 (닛케이225)'],['조건',filterText()],['종목 수',a.length],['데이터 작성',D.updated],['저장',new Date().toLocaleString('ko-KR')],[],['금액 단위 억엔 · 決算短信 누적 차분 3개월 값 · 가이던스는 이번 분기 결산 발표일 기준']]);info['!cols']=[{wch:12},{wch:90}];
+  const info=XLSX.utils.aoa_to_sheet([['日 3Q26 실적 스크린 ('+MKL[mf]+')'],['조건',filterText()],['종목 수',a.length],['데이터 작성',D.updated],['저장',new Date().toLocaleString('ko-KR')],[],['금액 단위 억엔 · 決算短信 누적 차분 3개월 값 · 가이던스는 이번 분기 결산 발표일 기준']]);info['!cols']=[{wch:12},{wch:90}];
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'스크린');XLSX.utils.book_append_sheet(wb,info,'조건');
   XLSX.writeFile(wb,`日_3Q26_실적스크린_${stamp()}.xlsx`);
 }));
@@ -195,7 +201,7 @@ $('#saveImg').addEventListener('click',e=>busy(e.target,async()=>{
   if(!window.html2canvas)await lib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
   const src=document.querySelector('.tw table'),n=rows().length;
   const box=document.createElement('div');box.style.cssText=`position:absolute;left:-99999px;top:0;width:${Math.max(src.scrollWidth,1100)+36}px;padding:18px;background:#0d1117;color:#e6edf3`;
-  box.innerHTML=`<div style="font-size:17px;font-weight:700;margin-bottom:3px">日 3Q26 실적 스크린(닛케이225) — ${esc(ST[st][0])} ${n.toLocaleString()}종목</div><div style="font-size:12px;color:#8b949e;margin-bottom:10px">조건: ${esc(filterText())} · 데이터 ${esc(D.updated)}</div>`;
+  box.innerHTML=`<div style="font-size:17px;font-weight:700;margin-bottom:3px">日 3Q26 실적 스크린(${MKL[mf]}) — ${esc(ST[st][0])} ${n.toLocaleString()}종목</div><div style="font-size:12px;color:#8b949e;margin-bottom:10px">조건: ${esc(filterText())} · 데이터 ${esc(D.updated)}</div>`;
   const t=src.cloneNode(true);t.querySelectorAll('tr.det').forEach(x=>x.remove());t.querySelectorAll('tr.sel').forEach(x=>x.classList.remove('sel'));box.appendChild(t);document.body.appendChild(box);
   try{const scale=n>400?1:n>150?1.5:2;const cv=await html2canvas(box,{backgroundColor:'#0d1117',scale,logging:false});
     const blob=await new Promise(r=>cv.toBlob(r,'image/png'));if(!blob)throw new Error('이미지가 너무 큽니다 — 필터로 종목 수를 줄여 주세요');dl(blob,`日_3Q26_실적스크린_${stamp()}.png`);}
@@ -204,6 +210,6 @@ $('#saveImg').addEventListener('click',e=>busy(e.target,async()=>{
 fetch('data/jpq3.json?v='+Math.floor(Date.now()/6e5)).then(r=>r.json()).then(d=>{D=d;
   const n=d.rows.length,secs=[...new Set(d.rows.map(r=>r.sec).filter(Boolean))].sort((x,y)=>x.localeCompare(y,'ko'));
   $('#mk').innerHTML='<option value="">전체</option>'+secs.map(x=>`<option>${esc(x)}</option>`).join('');
-  $('#sub').innerHTML=`닛케이225 <b>${n.toLocaleString()}</b>종목 · 2026년 7~9월 분기(決算短信) 기준 · 이익이 매출보다 빠르게, 직전 분기보다 빠르게, 직전 분기보다 크게 늘어난 종목 <b>${(d.count.pass||0).toLocaleString()}</b>개 · 금액 억엔 · 밸류 ${d.val_date} · 작성 <b>${d.updated}</b>`;
+  $('#sub').innerHTML=`도쿄 상장 <b>${n.toLocaleString()}</b>종목(프라임·스탠다드·그로스) · 2026년 7~9월 분기(決算短信) 기준 · 이익이 매출보다 빠르게, 직전 분기보다 빠르게, 직전 분기보다 크게 늘어난 종목 · 금액 억엔 · 밸류 ${d.val_date} · 작성 <b>${d.updated}</b>`;
   draw();}).catch(e=>{$('#sub').textContent='데이터를 불러오지 못했습니다: '+e;});
 </script></body></html>
