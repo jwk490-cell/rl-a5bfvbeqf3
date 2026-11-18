@@ -47,6 +47,8 @@ tr.det td{background:#0f1319;padding:10px 14px 12px;white-space:normal;cursor:de
 .tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid var(--line);color:var(--sub);margin-left:4px;vertical-align:1px}
 .tag.P{color:var(--blu);border-color:#1f3a5a}.tag.Q{color:var(--pur);border-color:#4a3566}
 .tag.W{color:var(--org);border-color:#5a3a1a}.tag.S{color:var(--yel);border-color:#5a4a1a}
+.tag.T{color:var(--grn);border-color:#1f4a2a}
+h2{font-size:16px;margin:0 0 2px}h2 small{font-size:12px;font-weight:400;color:var(--sub);margin-left:6px}
 .btn.sv{color:var(--txt);border-color:#30363d}.btn.sv:disabled{opacity:.5;cursor:wait}
 .vb{font-size:10.5px;margin-left:3px}
 .g{color:var(--grn)}.r{color:var(--red)}.o{color:var(--org)}.fa{color:var(--faint)}
@@ -85,6 +87,16 @@ tr.det td{background:#0f1319;padding:10px 14px 12px;white-space:normal;cursor:de
 
 <div class="tw"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
 
+<h2>번외 — 흑자전환 <small id="tcnt"></small></h2>
+<div class="sub">전년 3Q 영업적자 → 올해 3Q 영업흑자. 증가율(YoY)이 계산되지 않아 위 스크린에서는 「비교 불가」로 빠지는 종목 가운데, 나머지 기준(② 가속 · ③ 2Q보다 큼)을 금액 기준으로 통과한 종목이다. 위 검색·시장·컨센 판정·연결만·범위 필터가 그대로 적용된다(OP Growth 범위는 제외).</div>
+<div class="bar">
+  <div class="filt" id="tm"><button data-v="pass" class="on">기준 충족</button><button data-v="all">흑자전환 전체</button></div>
+  <label class="ck"><input type="checkbox" id="tSm">소액 흑자(3Q OP 10억 미만) 제외</label>
+  <label class="ck"><input type="checkbox" id="tUp">매출 증가만</label>
+  <label class="ck"><input type="checkbox" id="tQ">2Q 적자 → 3Q 흑자만</label>
+</div>
+<div class="tw"><table><thead id="tth"></thead><tbody id="ttb"></tbody></table></div>
+
 <div class="note">
 <h3>분류 기준</h3>
 <ol>
@@ -95,6 +107,7 @@ tr.det td{background:#0f1319;padding:10px 14px 12px;white-space:normal;cursor:de
 <li>3Q 실적값이 미입력·0이면 「업데이트 미완료」로 분류한다 — 별도 검증 권장(금융·바이오 등 매출 계정이 없는 회사, 12월 결산이 아닌 회사, 분기보고서 미제출 포함).</li>
 <li>전년 기준 분기(2Q·3Q) 영업이익이 10억원 미만이면 「기저효과 주의」 표시.</li>
 <li><b>DART 보완</b>: 1차 수집에서 빠진 종목은 DART 단일회사 전체 재무제표로 채웠다. 매출 계정명이 '매출액'이 아니면(영업수익·수익·보험영업수익 등) 그 계정을 매출로 쓰고 「매출=…」로 표시한다. 12월 결산이 아닌 회사는 7~9월에 가장 가까운 회계분기를 3Q, 그 직전 분기를 2Q로 보며 「n월 결산」으로 표시한다. 은행·지주·증권처럼 손익계산서에 매출 합계가 없으면 ①은 판정할 수 없어 「업데이트 미완료」에 남기고 영업이익 증가율(②③)만 보여준다.</li>
+<li><b>번외 — 흑자전환</b>: 전년 3Q 영업이익이 0 이하이고 올해 3Q 영업이익이 양수인 종목. 4번 때문에 「비교 불가」로 분류되지만(분류·종목 수는 그대로) 하단에 따로 모았다. ①은 적자→흑자라 자동 충족으로 보고, ②는 비율 대신 <b>전년 대비 영업이익 증가액</b>(3Q 증가액 &gt; 2Q 증가액)으로, ③은 그대로(3Q OP &gt; 2Q OP) 판정한다. 3Q 영업이익 10억원 미만은 「소액 흑자」 표시.</li>
 <li>숫자는 분기보고서 원본 그대로다. 연결 우선, 연결이 없으면 별도(「별도」 표시). 연결/별도 혼재·이상치는 원본 확인이 필요하다.</li>
 </ol>
 <h3 style="margin-top:10px">지표 정의</h3>
@@ -136,6 +149,14 @@ function consLine(r){
   const mis=r.cb&&((r.cb==='별도')!==(r.fs==='OFS'))?` <span class="o">발표 기록은 ${r.cb}, 표 수치는 ${r.fs==='OFS'?'별도':'연결'} 기준</span>`:'';
   return `발표 시점 컨센(20${r.cdt.slice(0,2)}-${r.cdt.slice(2,4)}-${r.cdt.slice(4)} 발표, ${r.cb}) — <b style="color:var(--txt)">${VL[r.cv]}</b>${parts?' · '+parts:''}${mis}<br>`;
 }
+function tck(r){
+  const m=(ok,t)=>`<span class="${ok?'g':'r'}">${ok?'✓':'✗'}</span> ${t}<br>`,am=v=>(v>0?'+':'')+nf(v,1)+'억';
+  return `<b style="color:var(--txt)">흑자전환</b> — 3Q25 ${nf(r.o3p,1)}억 → 3Q26 ${nf(r.o3,1)}억${r.tq?' · 전분기(2Q26)도 적자였다가 흑자':''}<br>`
+   +m(1,`① 적자→흑자로 OPM ${pc(r.dopm,'p')} 개선(자동 충족)`)
+   +m(r.tk[0],`② 3Q OP 전년 대비 증가액 ${am(r.d3)} &gt; 2Q 증가액 ${am(r.d2)}`)
+   +m(r.tk[1],`③ 3Q OP ${nf(r.o3,1)}억 &gt; 2Q OP ${nf(r.o2,1)}억`)
+   +(r.sm?'<span class="o">소액 흑자</span> — 3Q 영업이익 10억원 미만<br>':'');
+}
 function detail(r){
   const q=(l,s,o)=>`<tr><td class="l">${l}</td><td>${nf(s,1)}</td><td>${nf(o,1)}</td><td>${s&&o!=null?nf(o/s*100,1)+'%':'<span class="fa">–</span>'}</td></tr>`;
   const kk=r.k||(r.k23?[null,...r.k23]:null);
@@ -143,7 +164,7 @@ function detail(r){
   return `<tr class="det"><td colspan="${COLS.length+1}"><div class="box">
   <table><thead><tr><th class="l">분기 (억원, ${r.fs==='OFS'?'별도':'연결'}${r.rev?' · 매출='+esc(r.rev):''})</th><th>매출</th><th>영업이익</th><th>OPM</th></tr></thead><tbody>
   ${(()=>{const L=r.pq3?[py(r.pq2),py(r.pq3),r.pq2,r.pq3].map(x=>x+'월'):['2Q25','3Q25','2Q26','3Q26'];return q(L[0],r.s2p,r.o2p)+q(L[1],r.s3p,r.o3p)+q(L[2],r.s2,r.o2)+q(L[3],r.s3,r.o3);})()}</tbody></table>
-  <div class="ck3">${ck(0,`① 3Q OP YoY ${pc(r.yo3)} &gt; 3Q 매출 YoY ${pc(r.ys)}`)}${ck(1,`② 3Q OP YoY ${pc(r.yo3)} &gt; 2Q OP YoY ${pc(r.yo2)}`)}${ck(2,`③ 3Q OP ${nf(r.o3,1)}억 &gt; 2Q OP ${nf(r.o2,1)}억`)}
+  <div class="ck3">${r.tn?tck(r):''}${ck(0,`① 3Q OP YoY ${pc(r.yo3)} &gt; 3Q 매출 YoY ${pc(r.ys)}`)}${ck(1,`② 3Q OP YoY ${pc(r.yo3)} &gt; 2Q OP YoY ${pc(r.yo2)}`)}${ck(2,`③ 3Q OP ${nf(r.o3,1)}억 &gt; 2Q OP ${nf(r.o2,1)}억`)}
   ${r.why?`사유: ${esc(r.why)}<br>`:''}${r.base?'<span class="o">기저효과 주의</span> — 전년 2Q·3Q 영업이익 중 10억원 미만이 있어 증가율이 과장될 수 있음<br>':''}${r.fye?`<span class="o">${r.fye}월 결산</span> — 7~9월에 가장 가까운 회계분기(${r.pq3}월)를 3Q, 직전 분기(${r.pq2}월)를 2Q로 비교. 회계 4분기는 연간−3분기 누적으로 계산<br>`:''}${r.src==='dart'?'<span class="fa">DART 단일회사 전체 재무제표로 보완한 종목</span><br>':''}${r.cur?`<span class="o">${r.cur} 표시 재무제표</span> — 금액은 원화 억원이 아니라 ${r.cur} 기준(증가율·마진만 유효, PER·PBR 공란)<br>`:''}${r.mix?'<span class="o">연결/별도 혼재</span> — 2Q와 3Q 보고서 기준이 다름, 원본 확인 필요<br>':''}
   ${consLine(r)}최근 4개 분기 순이익 ${nf(r.ni,1)}억 · 현재가 ${nf(r.px)}원</div>
   <a href="https://finance.naver.com/item/main.naver?code=${r.c}" target="_blank" rel="noopener">네이버 금융 ↗</a></div></td></tr>`;
@@ -154,12 +175,39 @@ function draw(){
   const a=rows();
   $('#cnt').textContent=`${ST[st][0]} ${a.length.toLocaleString()}종목 표시`;
   $('#tb').innerHTML=a.length?a.map((r,i)=>{
-    const tags=`<span class="tag ${r.m==='KOSPI'?'P':'Q'}">${r.m==='KOSPI'?'코스피':'코스닥'}</span>${r.fs==='OFS'?'<span class="tag S">별도</span>':''}${r.base?'<span class="tag W">기저효과 주의</span>':''}${r.mix?'<span class="tag W">혼재</span>':''}${r.cur?`<span class="tag W">${r.cur} 표시</span>`:''}${r.fye?`<span class="tag S">${r.fye}월 결산 · ${r.pq3}월</span>`:''}${r.rev?`<span class="tag">매출=${esc(r.rev)}</span>`:''}${r.st==='fail'&&r.k?`<span class="tag">탈락 ${['①','②','③'].filter((_,j)=>!r.k[j]).join('')}</span>`:''}${r.why&&r.st!=='fail'?`<span class="tag">${esc(r.why)}</span>`:''}`;
+    const tags=`<span class="tag ${r.m==='KOSPI'?'P':'Q'}">${r.m==='KOSPI'?'코스피':'코스닥'}</span>${r.fs==='OFS'?'<span class="tag S">별도</span>':''}${r.base?'<span class="tag W">기저효과 주의</span>':''}${r.tn?'<span class="tag T">흑자전환</span>':''}${r.mix?'<span class="tag W">혼재</span>':''}${r.cur?`<span class="tag W">${r.cur} 표시</span>`:''}${r.fye?`<span class="tag S">${r.fye}월 결산 · ${r.pq3}월</span>`:''}${r.rev?`<span class="tag">매출=${esc(r.rev)}</span>`:''}${r.st==='fail'&&r.k?`<span class="tag">탈락 ${['①','②','③'].filter((_,j)=>!r.k[j]).join('')}</span>`:''}${r.why&&r.st!=='fail'?`<span class="tag">${esc(r.why)}</span>`:''}`;
     return `<tr class="row${open===r.c?' sel':''}" data-c="${r.c}"><td class="l fa">${i+1}</td><td class="l"><span class="nm">${esc(r.n)}</span><span class="cd">${r.c}</span>${tags}</td>
     <td>${nf(r.mc)}</td><td>${nf(r.s3)}</td><td>${pc(r.ys)}</td><td>${nf(r.o3)}</td><td>${pc(r.yo2)}</td><td>${pc(r.yo3)}</td><td>${pc(r.qoq)}</td><td>${cons(r)}</td><td>${r.opm==null?'<span class="fa">–</span>':nf(r.opm,1)+'%'}</td><td>${pc(r.dopm,'p')}</td>
     <td>${nf(r.per,1)}</td><td>${nf(r.pbr,2)}</td><td>${r.roe==null?'<span class="fa">–</span>':nf(r.roe,1)+'%'}</td></tr>`+(open===r.c?detail(r):'');
   }).join(''):`<tr><td colspan="${COLS.length+1}" class="empty">조건에 맞는 종목이 없습니다</td></tr>`;
+  drawT();
 }
+const TCOLS=[['n','종목','l'],['mc','시총','','억'],['s3','3Q 매출','','억'],['ys','매출 YoY','','%'],['o3p','3Q25 OP','','억'],['o2','2Q26 OP','','억'],['o3','3Q26 OP','','억'],['d3','OP 증가액','','YoY 억'],['cd','컨센대비','','발표 시점 OP'],['opm','OPM','','%'],['dopm','OPM Growth','','%p'],['per','PER','','배'],['pbr','PBR','','배'],['roe','ROE','','%']];
+let tm='pass',tsk='o3',tsd=-1,openT=null;
+function trows(){
+  const q=$('#q').value.trim().toLowerCase(),R=rngVals(),cf=$('#cfsOnly').checked,sm=$('#tSm').checked,up=$('#tUp').checked,tq=$('#tQ').checked;
+  let a=D.rows.filter(r=>r.tn&&(tm==='all'||(r.tk[0]&&r.tk[1]))&&(!mk||r.m===mk)&&(!cvf||r.cv===cvf)&&(!q||r.n.toLowerCase().includes(q)||r.c.includes(q))&&(!cf||r.fs==='CFS')&&(!sm||!r.sm)&&(!up||r.ys>0)&&(!tq||r.tq));
+  for(const [k] of RNG){if(k==='yo3')continue;const lo=R[k+'lo'],hi=R[k+'hi'];if(lo==null&&hi==null)continue;
+    a=a.filter(r=>r[k]!=null&&(lo==null||r[k]>=lo)&&(hi==null||r[k]<=hi));}
+  a.sort((x,y)=>{if(tsk==='n')return tsd*x.n.localeCompare(y.n,'ko');const p=x[tsk],r=y[tsk];if(p==null&&r==null)return 0;if(p==null)return 1;if(r==null)return -1;return tsd*(p-r);});
+  return a;
+}
+function drawT(){
+  $('#tth').innerHTML='<tr><th class="l" style="cursor:default">#</th>'+TCOLS.map(c=>`<th class="${c[2]||''}${c[0]===tsk?' s':''}" data-k="${c[0]}">${c[1]}${c[0]===tsk?(tsd<0?' ▼':' ▲'):''}${c[3]?`<small>${c[3]}</small>`:''}</th>`).join('')+'</tr>';
+  const a=trows(),all=D.rows.filter(r=>r.tn);
+  $('#tcnt').textContent=`${a.length.toLocaleString()}종목 표시 · 흑자전환 ${all.length}개 중 기준 충족 ${all.filter(r=>r.tk[0]&&r.tk[1]).length}개`;
+  const am=v=>v==null?'<span class="fa">–</span>':`<span class="${v>0?'g':v<0?'r':''}">${nf(v)}</span>`;
+  $('#ttb').innerHTML=a.length?a.map((r,i)=>{
+    const tags=`<span class="tag ${r.m==='KOSPI'?'P':'Q'}">${r.m==='KOSPI'?'코스피':'코스닥'}</span>${r.fs==='OFS'?'<span class="tag S">별도</span>':''}${r.tq?'<span class="tag T">2Q 적자→흑자</span>':''}${r.sm?'<span class="tag W">소액 흑자</span>':''}${r.mix?'<span class="tag W">혼재</span>':''}${r.cur?`<span class="tag W">${r.cur} 표시</span>`:''}${r.fye?`<span class="tag S">${r.fye}월 결산 · ${r.pq3}월</span>`:''}${r.rev?`<span class="tag">매출=${esc(r.rev)}</span>`:''}${r.tk[0]&&r.tk[1]?'':`<span class="tag">탈락 ${['②','③'].filter((_,j)=>!r.tk[j]).join('')}</span>`}`;
+    return `<tr class="row${openT===r.c?' sel':''}" data-c="${r.c}"><td class="l fa">${i+1}</td><td class="l"><span class="nm">${esc(r.n)}</span><span class="cd">${r.c}</span>${tags}</td>
+    <td>${nf(r.mc)}</td><td>${nf(r.s3)}</td><td>${pc(r.ys)}</td><td>${am(r.o3p)}</td><td>${am(r.o2)}</td><td>${am(r.o3)}</td><td>${r.d3==null?'<span class="fa">–</span>':'<span class="g">+'+nf(r.d3)+'</span>'}</td><td>${cons(r)}</td><td>${r.opm==null?'<span class="fa">–</span>':nf(r.opm,1)+'%'}</td><td>${pc(r.dopm,'p')}</td>
+    <td>${nf(r.per,1)}</td><td>${nf(r.pbr,2)}</td><td>${r.roe==null?'<span class="fa">–</span>':nf(r.roe,1)+'%'}</td></tr>`+(openT===r.c?detail(r):'');
+  }).join(''):`<tr><td colspan="${TCOLS.length+1}" class="empty">조건에 맞는 흑자전환 종목이 없습니다</td></tr>`;
+}
+$('#tm').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;tm=b.dataset.v;document.querySelectorAll('#tm button').forEach(x=>x.classList.toggle('on',x===b));openT=null;drawT();});
+['tSm','tUp','tQ'].forEach(i=>$('#'+i).addEventListener('change',drawT));
+$('#tth').addEventListener('click',e=>{const t=e.target.closest('th[data-k]');if(!t)return;const k=t.dataset.k;if(k===tsk)tsd=-tsd;else{tsk=k;tsd=k==='n'||k==='per'||k==='pbr'?1:-1;}drawT();});
+$('#ttb').addEventListener('click',e=>{if(e.target.closest('a')||e.target.closest('tr.det'))return;const r=e.target.closest('tr.row');if(!r)return;openT=openT===r.dataset.c?null:r.dataset.c;drawT();});
 $('#rng').innerHTML=RNG.map(([k,l])=>`<div class="f"><span>${l}</span><input type="number" step="any" data-k="${k}" data-b="lo" placeholder="최소" aria-label="${l} 최소"><i>~</i><input type="number" step="any" data-k="${k}" data-b="hi" placeholder="최대" aria-label="${l} 최대"></div>`).join('');
 $('#rng').addEventListener('input',draw);$('#q').addEventListener('input',draw);
 $('#noBase').addEventListener('change',draw);$('#cfsOnly').addEventListener('change',draw);
@@ -188,7 +236,9 @@ $('#saveXls').addEventListener('click',e=>busy(e.target,async()=>{
   const body=a.map((r,i)=>[i+1,r.n,r.c,r.m==='KOSPI'?'코스피':'코스닥',r.fs==='OFS'?'별도':'연결',v(r.mc),v(r.s3),v(r.ys),v(r.o3),v(r.yo2),v(r.yo3),v(r.qoq),r.cv?VL[r.cv]:'',v(r.ce),v(r.cd),r.cdt||'',v(r.opm),v(r.dopm),v(r.per),v(r.pbr),v(r.roe),v(r.s2p),v(r.o2p),v(r.s3p),v(r.o3p),v(r.s2),v(r.o2),r.base?'Y':'',[r.why,r.mix?'연결/별도 혼재':'',r.st==='fail'&&r.k?'탈락 '+['①','②','③'].filter((_,j)=>!r.k[j]).join(''):''].filter(Boolean).join(' / ')]);
   const ws=XLSX.utils.aoa_to_sheet([H,...body]);ws['!cols']=H.map((h,i)=>({wch:i===1?18:i===28?26:11}));ws['!freeze']={xSplit:2,ySplit:1};
   const info=XLSX.utils.aoa_to_sheet([['3Q26 실적 스크린'],['조건',filterText()],['종목 수',a.length],['데이터 작성',D.updated],['저장',new Date().toLocaleString('ko-KR')],[],['금액 단위 억원 · 분기보고서 확정치 · 컨센은 실적발표 시점 기록 기준']]);info['!cols']=[{wch:12},{wch:90}];
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'스크린');XLSX.utils.book_append_sheet(wb,info,'조건');
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'스크린');const ta=trows(),TH=['#','종목','코드','시장','기준','시총(억)','3Q 매출(억)','매출 YoY(%)','3Q25 OP','2Q25 OP','2Q26 OP','3Q26 OP','3Q OP 증가액 YoY','2Q OP 증가액 YoY','② 통과','③ 통과','2Q 적자→흑자','소액 흑자','컨센 판정','OP 컨센(억)','OPM(%)','OPM Growth(%p)','PER','PBR','ROE(%)'];
+  const tws=XLSX.utils.aoa_to_sheet([TH,...ta.map((r,i)=>[i+1,r.n,r.c,r.m==='KOSPI'?'코스피':'코스닥',r.fs==='OFS'?'별도':'연결',v(r.mc),v(r.s3),v(r.ys),v(r.o3p),v(r.o2p),v(r.o2),v(r.o3),v(r.d3),v(r.d2),r.tk[0]?'Y':'',r.tk[1]?'Y':'',r.tq?'Y':'',r.sm?'Y':'',r.cv?VL[r.cv]:'',v(r.ce),v(r.opm),v(r.dopm),v(r.per),v(r.pbr),v(r.roe)])]);tws['!cols']=TH.map((h,i)=>({wch:i===1?18:12}));
+  XLSX.utils.book_append_sheet(wb,tws,'흑자전환');XLSX.utils.book_append_sheet(wb,info,'조건');
   XLSX.writeFile(wb,`3Q26_실적스크린_${stamp()}.xlsx`);
 }));
 $('#saveImg').addEventListener('click',e=>busy(e.target,async()=>{
