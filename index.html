@@ -426,6 +426,9 @@ main canvas{display:block;width:100%}
   box-shadow:0 1px 4px rgba(0,0,0,.35);border:2px solid var(--surface)}
 .brandpill{font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--accent);
   border-radius:8px;padding:2.5px 9px}
+#jsChart svg.dimmed .pt:not(.hl){opacity:.18}
+.jsquads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:720px){.jsquads{grid-template-columns:minmax(0,1fr)}}
 .ddt{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
 .ddt th{font-size:10.5px;color:var(--faint);font-weight:700;text-align:right;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
 .ddt th:first-child,.ddt td:first-child{text-align:left}
@@ -776,7 +779,7 @@ footer{flex:none;padding:14px;display:flex;align-items:center;justify-content:ce
           <button class="card" data-go="ushigh"><h3>美 신고가 (20·60일·52주) <span class="tag">매일 아침</span></h3><p>미국 세션 20일·60일·52주 신고가 종목 — 섹터별 분류, 시총·등락</p></button>
           <button class="card" data-go="jphigh"><h3>日 신고가 (20·60일·52주) <span class="tag">평일 16:45</span></h3><p>도쿄증권거래소 프라임·스탠다드·그로스 20일·60일(장중 고가)·52주(종가) 신고가 · 거래대금 3억엔↑ — 일본거래소 공식 일봉 전수판정, 33업종별 분류</p></button>
           <button class="card" data-go="jpflow"><h3>日 수급 (신용·공매도·주체) <span class="tag">평일 17:50</span></h3><p>일본은 종목별 투자주체 순매수를 공개하지 않아 대체 지표로 구성 — 신용 매수·매도잔고 시총대비 변화, 공매도 잔고 보고(0.5%↑ 보고자·펀드), 시장별 투자주체 주간 순매수</p></button>
-          <button class="card" data-go="jpsector"><h3>日 주도 섹터 (33업종) <span class="tag">평일 17:50</span></h3><p>도쿄증권거래소 33업종의 TOPIX 대비 상대강도(5·20·60·120일)·거래대금 쏠림·신고가 비율·20일선 위 비율·신용·공매도 비율을 점수화 — 사분면 지도와 업종별 신고가 종목</p></button>
+          <button class="card" data-go="jpsector"><h3>日 주도 섹터 (33업종) <span class="tag">평일 17:50</span></h3><p>도쿄증권거래소 33업종의 TOPIX 대비 상대강도(5·20·60·120일)·거래대금 쏠림·신고가 비율·20일선 위 비율·신용·공매도 비율을 점수화 — 3개월×1개월 모멘텀 지도(TOPIX 십자선)와 업종별 신고가 종목</p></button>
           <button class="card" data-go="jpearn"><h3>日 결산 스크리닝 <span class="tag">평일 18:40·07:30</span></h3><p>決算短信 전수 — 회사 가이던스 상향·하향, 진척률 vs 예년 5년 중앙값, 남은 기간 감익을 가정한 '보수적' 가이던스 태그, 발표 반응·이후 수익률, 2019~ 태그 검증 백테스트</p></button>
           <button class="card" data-go="jpval"><h3>日 밸류에이션 · 가이던스 <span class="tag">평일 17:15</span></h3><p>한 탭에 두 섹션 — ① 프라임·스탠다드·그로스 시총 상위 50·100·150 × 이익 3개년 확정 + 진행 FY 회사 가이던스(초기 대비 수정·진척률), 수익률 1M~2Y(시장 지수 대비), PER TTM/Fwd·PBR·ROE, 일별 시총 순위 변동 ② 저PBR × 가이던스 성장 스크리너(매출·이익·순이익 성장·ROE Δ 4지표 평균순위, 산점도)</p></button>
           <button class="card" data-go="rs"><h3>RS 분석 <span class="tag">韓·美 ETF</span></h3><p>섹터·테마 ETF 상대강도 60/120/250일 + 소티노 — Norm ≥70 주도 시그널</p></button>
@@ -2611,24 +2614,50 @@ async function jsLoad(){
   }
   jsRender();
 }
-function jsMap(rows){
-  /* 사분면 지도: 가로=60일 상대강도, 세로=20일 상대강도, 원 크기=거래대금 비중 */
-  const W=760,H=420,P=46,xs=rows.map(r=>r.rs60).filter(v=>v!=null),ys=rows.map(r=>r.rs20).filter(v=>v!=null);
-  const mx=Math.max(5,...xs.map(Math.abs))*1.1,my=Math.max(5,...ys.map(Math.abs))*1.1;
-  const X=v=>P+(v+mx)/(2*mx)*(W-2*P),Y=v=>H-P-(v+my)/(2*my)*(H-2*P);
-  const col={'주도':'var(--up)','부상':'var(--accent)','쇠퇴':'#e0a457','소외':'var(--down)'};
-  let g=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" font-size="11">
-    <line x1="${X(0)}" y1="${P/2}" x2="${X(0)}" y2="${H-P/2}" stroke="var(--line)"/><line x1="${P/2}" y1="${Y(0)}" x2="${W-P/2}" y2="${Y(0)}" stroke="var(--line)"/>
-    <text x="${W-P}" y="${P-14}" text-anchor="end" fill="var(--dim2)" font-weight="700">주도</text><text x="${P}" y="${P-14}" fill="var(--dim2)" font-weight="700">부상</text>
-    <text x="${P}" y="${H-12}" fill="var(--dim2)" font-weight="700">소외</text><text x="${W-P}" y="${H-12}" text-anchor="end" fill="var(--dim2)" font-weight="700">쇠퇴</text>
-    <text x="${W/2}" y="${H-12}" text-anchor="middle" fill="var(--faint)">60일 상대강도(%p) →</text>
-    <text x="14" y="${H/2}" fill="var(--faint)" transform="rotate(-90 14 ${H/2})" text-anchor="middle">20일 상대강도(%p) →</text>`;
-  rows.filter(r=>r.rs60!=null&&r.rs20!=null).forEach(r=>{
-    const rad=4+Math.sqrt(r.va_share||0)*3.2;
-    g+=`<g data-js="${r.s33}" style="cursor:pointer"><circle cx="${X(r.rs60).toFixed(1)}" cy="${Y(r.rs20).toFixed(1)}" r="${rad.toFixed(1)}" fill="${col[r.quad]||'var(--dim2)'}" fill-opacity=".28" stroke="${col[r.quad]||'var(--dim2)'}"/>
-      <text x="${X(r.rs60).toFixed(1)}" y="${(Y(r.rs20)-rad-3).toFixed(1)}" text-anchor="middle" fill="var(--text)">${esc(r.name)}</text></g>`;
-  });
-  return g+'</svg>';
+const JSQC={'주도':'#f0608f','개선':'#2dd4bf','약화':'#a98fd6','소외':'#5a9bd8'};
+const JSQD={'주도':'3개월 ↑ · 1개월 ↑','개선':'3개월 ↓ · 1개월 ↑','약화':'3개월 ↑ · 1개월 ↓','소외':'3개월 ↓ · 1개월 ↓'};
+let jsAllLb=false,jsLastW=0;
+try{jsAllLb=localStorage.getItem('jpsector-lb')==='1'}catch(e){}
+function jsMap(rows,M,cw){
+  /* 모멘텀 지도와 같은 방식: 가로=3개월·세로=1개월 지수 변동률, 십자선=TOPIX 좌표, 라벨 충돌은 그리디 회피 후 숨김 */
+  const pct=(v,d=1)=>(v>0?'+':'')+v.toFixed(d)+'%';
+  const ticks=(lo,hi,n)=>{const raw=(hi-lo)/n,p=Math.pow(10,Math.floor(Math.log10(raw)));
+    const st=[1,2,5,10].map(k=>k*p).find(x=>x>=raw)||10*p;const out=[];
+    for(let v=Math.ceil(lo/st)*st;v<=hi+1e-9;v+=st)out.push(Math.round(v*100)/100);return out};
+  const mob=cw<620,W=mob?620:1120,H=mob?620:720,P={l:mob?46:58,r:16,t:20,b:mob?34:40},fs=mob?13:12,R=5.5;
+  const xs=rows.map(r=>r.m3).concat(M.b3),ys=rows.map(r=>r.m1).concat(M.b1);
+  let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const px_=(x1-x0)*.07||1,py_=(y1-y0)*.09||1;x0-=px_;x1+=px_*1.6;y0-=py_;y1+=py_;
+  const X=v=>P.l+(W-P.l-P.r)*(v-x0)/(x1-x0),Y=v=>P.t+(H-P.t-P.b)*(1-(v-y0)/(y1-y0));
+  const cnt={};rows.forEach(r=>cnt[r.quad]=(cnt[r.quad]||0)+1);
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="日 업종 모멘텀 지도" style="display:block;width:100%;height:auto;touch-action:manipulation">`;
+  ticks(x0,x1,mob?5:7).forEach(v=>{g+=`<line x1="${X(v)}" x2="${X(v)}" y1="${P.t}" y2="${H-P.b}" stroke="var(--line2)"/>`+
+    `<text x="${X(v)}" y="${H-P.b+18}" fill="var(--faint)" font-size="${fs}" text-anchor="middle">${pct(v,0)}</text>`});
+  ticks(y0,y1,6).forEach(v=>{g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line2)"/>`+
+    `<text x="${P.l-8}" y="${Y(v)+4}" fill="var(--faint)" font-size="${fs}" text-anchor="end">${pct(v,0)}</text>`});
+  const bx=X(M.b3),byy=Y(M.b1);
+  g+=`<line x1="${bx}" x2="${bx}" y1="${P.t}" y2="${H-P.b}" stroke="var(--faint)" stroke-dasharray="5 4"/>`+
+     `<line x1="${P.l}" x2="${W-P.r}" y1="${byy}" y2="${byy}" stroke="var(--faint)" stroke-dasharray="5 4"/>`;
+  const corner=(q,x,y,a)=>`<text x="${x}" y="${y}" fill="${JSQC[q]}" font-size="${fs+2}" font-weight="800" text-anchor="${a}">${q} ${cnt[q]||0}</text>`;
+  g+=corner('개선',P.l+8,P.t+16,'start')+corner('주도',W-P.r-8,P.t+16,'end')+corner('소외',P.l+8,H-P.b-10,'start')+corner('약화',W-P.r-8,H-P.b-10,'end');
+  const boxes=rows.map(r=>({x0:X(r.m3)-R-1,x1:X(r.m3)+R+1,y0:Y(r.m1)-R-1,y1:Y(r.m1)+R+1}));
+  boxes.push({x0:bx-9,x1:bx+9,y0:byy-9,y1:byy+9});
+  const hit=b=>b.x0<P.l||b.x1>W-P.r||b.y0<P.t||b.y1>H-P.b||boxes.some(o=>b.x0<o.x1&&b.x1>o.x0&&b.y0<o.y1&&b.y1>o.y0);
+  const tw=t=>[...t].reduce((a,c)=>a+(c.charCodeAt(0)>255?fs*.95:fs*.6),0)+2;
+  const order=rows.map((r,i)=>i).sort((a,b)=>Math.hypot(rows[b].m3-M.b3,(rows[b].m1-M.b1)*2)-Math.hypot(rows[a].m3-M.b3,(rows[a].m1-M.b1)*2));
+  const lab={};
+  order.forEach(i=>{const r=rows[i],cx=X(r.m3),cy=Y(r.m1),w=tw(r.name),h=fs+2;
+    const cand=[{x:cx+R+5,y:cy+4,a:'start',b:{x0:cx+R+4,x1:cx+R+5+w,y0:cy-h/2,y1:cy+h/2}},
+                {x:cx-R-5,y:cy+4,a:'end',b:{x0:cx-R-5-w,x1:cx-R-4,y0:cy-h/2,y1:cy+h/2}},
+                {x:cx,y:cy-R-5,a:'middle',b:{x0:cx-w/2,x1:cx+w/2,y0:cy-R-4-h,y1:cy-R-3}},
+                {x:cx,y:cy+R+h,a:'middle',b:{x0:cx-w/2,x1:cx+w/2,y0:cy+R+3,y1:cy+R+4+h}}];
+    const c=cand.find(c=>!hit(c.b));
+    if(c){lab[i]=c;boxes.push(c.b)}else if(jsAllLb)lab[i]=cand[0];});
+  rows.forEach((r,i)=>{const c=lab[i];
+    g+=`<g class="pt" data-i="${i}" style="cursor:pointer"><circle cx="${X(r.m3)}" cy="${Y(r.m1)}" r="${R}" fill="${JSQC[r.quad]}" stroke="var(--surface)" stroke-width="1.5"/>`+
+      `<circle cx="${X(r.m3)}" cy="${Y(r.m1)}" r="13" fill="transparent"/>`+
+      (c?`<text x="${c.x}" y="${c.y}" fill="var(--text)" font-size="${fs}" font-weight="600" text-anchor="${c.a}">${esc(r.name)}</text>`:'')+`</g>`});
+  return g+`<path d="M${bx} ${byy-9}L${bx+9} ${byy}L${bx} ${byy+9}L${bx-9} ${byy}Z" fill="var(--text)" stroke="var(--surface)" stroke-width="1.5"/></svg>`;
 }
 function jsSpark(a){
   if(!a||a.length<2)return '';
@@ -2640,36 +2669,67 @@ function jsRender(){
   const D=JS_,meta=document.getElementById('jsMeta'),body=document.getElementById('jsBody');
   const sg=(v,d=1,u='%')=>v==null?'—':`<span class="${v>=0?'up':'down'}">${v>=0?'+':''}${v.toFixed(d)}${u}</span>`;
   const T=D.topix,bd=D.base_dt;
-  meta.innerHTML=`기준일 <b>${khFmtD(bd)}(${khWd(bd)})</b> · TOPIX ${T.close.toLocaleString('en-US',{maximumFractionDigits:2})} (1일 ${sg(T.r1,2)} · 5일 ${sg(T.r5)} · 20일 ${sg(T.r20)} · 60일 ${sg(T.r60)}) · ${esc(D.updated)} 갱신`;
+  meta.innerHTML=`기준일 <b>${khFmtD(bd)}(${khWd(bd)})</b> · TOPIX ${T.close.toLocaleString('en-US',{maximumFractionDigits:2})} (1일 ${sg(T.r1,2)} · 5일 ${sg(T.r5)} · 20일 ${sg(T.r20)} · 60일 ${sg(T.r60)}) · 1개월 기준가 ${khFmtD(T.d1)} · 3개월 기준가 ${khFmtD(T.d3)} · ${esc(D.updated)} 갱신`;
   const rows=D.rows.slice().sort((a,b)=>jsSort==='score'?(b.score??-1)-(a.score??-1):jsSort==='rs20'?(b.rs20??-99)-(a.rs20??-99):jsSort==='rs5'?(b.rs5??-99)-(a.rs5??-99):(b.va_tilt??0)-(a.va_tilt??0));
-  const qc={'주도':'var(--up)','부상':'var(--accent)','쇠퇴':'#e0a457','소외':'var(--down)'};
+  const qc=JSQC,M={b3:T.m3,b1:T.m1},pc=(v,d=1)=>(v>0?'+':'')+v.toFixed(d)+'%';
+  const mrows=D.rows.filter(r=>r.m3!=null&&r.m1!=null&&r.quad),by=q=>mrows.filter(r=>r.quad===q);
+  const top=(q,f,n)=>by(q).sort(f).slice(0,n).map(r=>`<b style="color:var(--text)">${esc(r.name)}</b>`).join(' · ');
+  const cq=q=>by(q).length;
+  let bh=`<b style="color:var(--text)">TOPIX</b> 3개월 ${sg(T.m3)} · 1개월 ${sg(T.m1)}. 시장 대비 `+['주도','개선','약화','소외'].map(q=>`<b style="color:${qc[q]}">${q} ${cq(q)}</b>`).join(' · ')+'.';
+  if(cq('주도'))bh+=`<br>주도 상단은 ${top('주도',(a,b)=>(b.m1+b.m3)-(a.m1+a.m3),4)}.`;
+  if(cq('개선'))bh+=` 최근 1개월 돌아서는 곳은 ${top('개선',(a,b)=>b.m1-a.m1,4)}.`;
+  if(cq('약화'))bh+=` 반대로 식는 곳은 ${top('약화',(a,b)=>a.m1-b.m1,3)}.`;
+  const sorters={'주도':(a,b)=>(b.m1+b.m3)-(a.m1+a.m3),'개선':(a,b)=>b.m1-a.m1,'약화':(a,b)=>a.m1-b.m1,'소외':(a,b)=>(a.m1+a.m3)-(b.m1+b.m3)};
+  const cw=body.clientWidth||900;jsLastW=cw;
   const hiBy=s=>{if(!JSHI)return [];const nm=(D.rows.find(r=>r.s33===s)||{}).name;const seen=new Set();
     return [...(JSHI.w52?JSHI.w52.items:[]).map(r=>({...r,w:'52주'})),...(JSHI.d60?JSHI.d60.items:[]).map(r=>({...r,w:'60일'}))]
       .filter(r=>r.s33===nm&&!seen.has(r.code)&&seen.add(r.code));};
-  const lead=D.rows.filter(r=>r.quad==='주도').slice(0,5).map(r=>r.name).join(' · ');
   body.innerHTML=`
-  <div class="rgrid2" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px">
-    ${['주도','부상','쇠퇴','소외'].map(q=>`<div class="rcard" style="padding:12px 15px"><div style="font-size:11.5px;color:${qc[q]};font-weight:700">${q}</div><div style="font-size:19px;font-weight:800">${D.rows.filter(r=>r.quad===q).length}개 업종</div></div>`).join('')}</div>
-  <div class="rcard" style="margin-bottom:14px"><h3 style="font-size:13.5px;margin-bottom:4px">업종 사분면 <span style="font-size:10.5px;color:var(--dim2);font-weight:600">가로=60일·세로=20일 TOPIX 대비 초과수익 · 원 크기=최근 5일 거래대금 비중 · 점수 상위 주도: ${esc(lead||'—')}</span></h3>${jsMap(D.rows)}</div>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><label style="font-size:12.5px;color:var(--sub);display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none"><input type="checkbox" id="jsAllLb"${jsAllLb?' checked':''}> 라벨 전부 표시</label></div>
+  <div class="rcard" style="margin-bottom:14px;border-left:3px solid #2dd4bf;font-size:13px;color:var(--sub);line-height:1.75">${bh}</div>
+  <div class="rcard" style="margin-bottom:14px;position:relative;padding:0;overflow:hidden"><h3 style="font-size:14px;padding:13px 18px;border-bottom:1px solid var(--line);margin:0">모멘텀 지도 <span style="font-size:11.5px;color:var(--dim2);font-weight:600;margin-left:6px">가로 = 3개월 · 세로 = 1개월 · 십자선 = TOPIX</span></h3>
+    <div id="jsChart">${jsMap(mrows,M,cw)}</div><div id="jsTip" style="position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:12px;line-height:1.6;white-space:nowrap;display:none;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.25)"></div></div>
+  <div class="jsquads">${['개선','주도','소외','약화'].map(q=>{const l=by(q).sort(sorters[q]);return `<div class="rcard" style="padding:0;overflow:hidden;min-width:0"><h3 style="margin:0;padding:11px 15px;font-size:13.5px;border-bottom:1px solid var(--line);color:${qc[q]}">${q} ${l.length}<span style="color:var(--dim2);font-weight:600;font-size:11.5px;margin-left:6px">${JSQD[q]}</span></h3>`+(l.length?
+    `<table class="ddt"><thead><tr><th style="text-align:left">업종</th><th>3개월</th><th>1개월</th></tr></thead><tbody>${l.map(r=>`<tr><td style="font-weight:700">${esc(r.name)}</td><td>${sg(r.m3)}</td><td>${sg(r.m1)}</td></tr>`).join('')}</tbody></table>`
+    :`<div style="padding:16px;text-align:center;color:var(--dim2);font-size:12.5px">해당 없음</div>`)+`</div>`}).join('')}</div>
+  <div class="rcard" style="margin:14px 0;border-left:3px solid var(--accent);font-size:13px;color:var(--sub);line-height:1.7">📐 <b style="color:var(--text)">가로 = 3개월 수익률 · 세로 = 1개월 수익률</b> (33업종 지수의 단순 변동률, 달력 90일·30일 전 종가 대비). 십자선은 TOPIX의 같은 기간 수익률 — 절대 수익률이 아니라 <b style="color:var(--text)">시장 대비 상대 위치</b>로 4분면을 나눈다.<br>
+    <b style="color:${qc['주도']}">주도</b> 3개월·1개월 모두 시장 상회 · <b style="color:${qc['개선']}">개선</b> 3개월은 뒤졌지만 최근 1개월 시장 상회(돌아서는 곳) · <b style="color:${qc['약화']}">약화</b> 3개월은 앞섰지만 최근 1개월 시장 하회(식는 곳) · <b style="color:${qc['소외']}">소외</b> 둘 다 시장 하회. 겹치는 라벨은 자동으로 숨기며 점에 마우스를 올리면(모바일은 탭) 확인할 수 있다.</div>
   <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
     <div class="rngwrap" id="jsSortBar">${[['score','점수순'],['rs5','5일 강도순'],['rs20','20일 강도순'],['tilt','거래대금 쏠림순']].map(([k,v])=>`<button class="rng${jsSort===k?' on':''}" data-s="${k}">${v}</button>`).join('')}</div>
     <span style="font-size:11.5px;color:var(--dim2)">업종을 누르면 그 업종의 오늘 60일·52주 신고가 종목이 펼쳐집니다</span></div>
   <div class="rcard"><div style="overflow-x:auto"><table class="ddt"><thead><tr>
-    <th>#</th><th style="text-align:left">업종</th><th>점수</th><th>국면</th><th>1일</th><th>5일 RS</th><th>20일 RS</th><th>60일 RS</th><th>120일 RS</th><th>20일 RS 추이</th>
+    <th>#</th><th style="text-align:left">업종</th><th>점수</th><th>국면</th><th>3개월</th><th>1개월</th><th>1일</th><th>5일 RS</th><th>20일 RS</th><th>60일 RS</th><th>120일 RS</th><th>20일 RS 추이</th>
     <th>거래대금 비중</th><th>쏠림</th><th>60일 신고가</th><th>20일선 위</th><th>신용 매수 5일Δ/시총</th><th>공매도 비율</th></tr></thead><tbody>
     ${rows.map((r,i)=>{const hi=jsOpen===r.s33?hiBy(r.s33):null;return `<tr data-js="${r.s33}" style="cursor:pointer${jsOpen===r.s33?';background:var(--surface2,rgba(127,127,127,.08))':''}"><td style="color:var(--dim2)">${i+1}</td>
       <td style="text-align:left;font-weight:700">${esc(r.name)}</td><td><b>${r.score??'—'}</b></td>
       <td style="color:${qc[r.quad]||'var(--dim2)'};font-weight:700">${r.quad||'—'}</td>
-      <td>${sg(r.r1)}</td><td>${sg(r.rs5)}</td><td>${sg(r.rs20)}</td><td>${sg(r.rs60)}</td><td>${sg(r.rs120)}</td><td>${jsSpark(r.trail)}</td>
+      <td>${sg(r.m3)}</td><td>${sg(r.m1)}</td><td>${sg(r.r1)}</td><td>${sg(r.rs5)}</td><td>${sg(r.rs20)}</td><td>${sg(r.rs60)}</td><td>${sg(r.rs120)}</td><td>${jsSpark(r.trail)}</td>
       <td>${r.va_share!=null?r.va_share.toFixed(1)+'%':'—'}</td><td>${r.va_tilt!=null?`<b style="color:${r.va_tilt>=1.2?'var(--up)':r.va_tilt<=0.8?'var(--down)':'var(--text)'}">${r.va_tilt.toFixed(2)}배</b>`:'—'}</td>
       <td>${r.h60p!=null?r.h60p.toFixed(1)+'%':'—'} <span style="color:var(--dim2);font-size:11px">${r.h60n}/${r.n}</span></td><td>${r.ma20p!=null?r.ma20p.toFixed(0)+'%':'—'}</td>
       <td>${sg(r.mg5,3,'%')}</td><td>${r.short!=null?r.short.toFixed(1)+'%':'—'} <span style="color:var(--dim2);font-size:11px">${r.short20!=null?'평균 '+r.short20.toFixed(1):''}</span></td></tr>
-      ${hi?`<tr><td></td><td colspan="15" style="text-align:left;font-size:12px;line-height:1.7;padding:8px 6px 12px">${hi.length?hi.map(x=>`<b>${esc(x.name)}</b> <span style="color:var(--dim2)">${esc(x.code)} · ${x.w}</span> ${qtChg(x.flu)}`).join(' &nbsp;·&nbsp; '):'<span style="color:var(--dim2)">오늘 이 업종의 60일·52주 신고가 종목(거래대금 3억엔↑)이 없습니다</span>'}</td></tr>`:''}`;}).join('')}</tbody></table></div>
-    <div style="font-size:11px;color:var(--dim2);margin-top:9px;line-height:1.6">RS = 업종 지수 수익률 − TOPIX 수익률(%p) · 국면: 주도(60·20일 모두 +) · 부상(20일만 +) · 쇠퇴(60일만 +) · 소외(둘 다 −) · 쏠림 = 최근 5일 거래대금 비중 ÷ 직전 60일 평균 비중 · 신고가·20일선 = 업종 내 보통주 기준 · 신용 = 매수잔고 5영업일 변화(신청일 ${D.margin_date?D.margin_date.slice(4,6)+'/'+D.margin_date.slice(6):'—'}) · 공매도 비율 = 업종 매도대금 중 공매도 비중<br>점수 = 20일 RS·60일 RS·거래대금 쏠림·60일 신고가 비율의 33업종 내 백분위 평균(0~100)</div></div>`;
+      ${hi?`<tr><td></td><td colspan="17" style="text-align:left;font-size:12px;line-height:1.7;padding:8px 6px 12px">${hi.length?hi.map(x=>`<b>${esc(x.name)}</b> <span style="color:var(--dim2)">${esc(x.code)} · ${x.w}</span> ${qtChg(x.flu)}`).join(' &nbsp;·&nbsp; '):'<span style="color:var(--dim2)">오늘 이 업종의 60일·52주 신고가 종목(거래대금 3억엔↑)이 없습니다</span>'}</td></tr>`:''}`;}).join('')}</tbody></table></div>
+    <div style="font-size:11px;color:var(--dim2);margin-top:9px;line-height:1.6">RS = 업종 지수 수익률 − TOPIX 수익률(%p) · 국면 = 위 모멘텀 지도의 4분면(3개월·1개월 수익률을 TOPIX와 비교) · 쏠림 = 최근 5일 거래대금 비중 ÷ 직전 60일 평균 비중 · 신고가·20일선 = 업종 내 보통주 기준 · 신용 = 매수잔고 5영업일 변화(신청일 ${D.margin_date?D.margin_date.slice(4,6)+'/'+D.margin_date.slice(6):'—'}) · 공매도 비율 = 업종 매도대금 중 공매도 비중<br>점수 = 20일 RS·60일 RS·거래대금 쏠림·60일 신고가 비율의 33업종 내 백분위 평균(0~100)</div></div>`;
   document.getElementById('jsSortBar').onclick=e=>{const b=e.target.closest('[data-s]');if(b){jsSort=b.dataset.s;jsRender();}};
-  body.querySelectorAll('[data-js]').forEach(el=>el.addEventListener('click',()=>{const k=el.dataset.js;jsOpen=jsOpen===k?null:k;jsRender();
-    if(el.tagName.toLowerCase()==='g'){const tr=document.querySelector(`#jsBody tr[data-js="${k}"]`);if(tr)tr.scrollIntoView({block:'center',behavior:'smooth'});}}));
+  body.querySelectorAll('tr[data-js]').forEach(el=>el.addEventListener('click',()=>{const k=el.dataset.js;jsOpen=jsOpen===k?null:k;jsRender();}));
+  document.getElementById('jsAllLb').onchange=e=>{jsAllLb=e.target.checked;try{localStorage.setItem('jpsector-lb',jsAllLb?'1':'0')}catch(_){}jsRender();};
+  const host=document.getElementById('jsChart'),tip=document.getElementById('jsTip'),card=host.parentElement,svg=host.firstChild;
+  function show(g){const r=mrows[+g.dataset.i];svg.classList.add('dimmed');g.classList.add('hl');
+    tip.innerHTML=`<b style="color:${qc[r.quad]}">${r.quad}</b> <b>${esc(r.name)}</b><br>`+
+      `3개월 ${sg(r.m3)} <span style="color:var(--dim2)">(시장 대비 ${pc(r.m3-M.b3)}p)</span><br>`+
+      `1개월 ${sg(r.m1)} <span style="color:var(--dim2)">(시장 대비 ${pc(r.m1-M.b1)}p)</span>`;
+    tip.style.display='block';
+    const cb=card.getBoundingClientRect(),gb=g.firstChild.getBoundingClientRect();
+    let l=gb.right-cb.left+10,t=gb.top-cb.top-10;
+    if(l+tip.offsetWidth>cb.width-6)l=gb.left-cb.left-tip.offsetWidth-10;
+    tip.style.left=Math.max(6,l)+'px';tip.style.top=Math.max(6,Math.min(t,cb.height-tip.offsetHeight-6))+'px';}
+  function hide(){svg.classList.remove('dimmed');svg.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));tip.style.display='none'}
+  svg.querySelectorAll('.pt').forEach(g=>{g.addEventListener('mouseenter',()=>show(g));g.addEventListener('mouseleave',hide);
+    g.addEventListener('click',e=>{e.stopPropagation();hide();show(g)})});
+  svg.addEventListener('click',hide);
 }
+let jsRsT;
+window.addEventListener('resize',()=>{clearTimeout(jsRsT);jsRsT=setTimeout(()=>{const b=document.getElementById('jsBody'),w=b&&b.clientWidth;
+  if(JS_&&w&&(w<620)!==(jsLastW<620))jsRender();},200)});
 
 /* ══════════ 美 신고가 20일·60일·52주 (data/usnewhigh.json — TradingView 스캐너) ══════════ */
 let UH=null,UHIDX=null,UHWRAP=null,uhSector='all',uhWin='w52',uhDate=null,uhYm=null;
