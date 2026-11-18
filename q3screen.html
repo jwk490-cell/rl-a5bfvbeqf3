@@ -94,6 +94,8 @@ h2{font-size:16px;margin:0 0 2px}h2 small{font-size:12px;font-weight:400;color:v
   <label class="ck"><input type="checkbox" id="tSm">소액 흑자(3Q OP 10억 미만) 제외</label>
   <label class="ck"><input type="checkbox" id="tUp">매출 증가만</label>
   <label class="ck"><input type="checkbox" id="tQ">2Q 적자 → 3Q 흑자만</label>
+  <button class="btn sv" id="tSaveImg">이미지 저장</button>
+  <button class="btn sv" id="tSaveXls">엑셀 저장</button>
 </div>
 <div class="tw"><table><thead id="tth"></thead><tbody id="ttb"></tbody></table></div>
 
@@ -236,8 +238,7 @@ $('#saveXls').addEventListener('click',e=>busy(e.target,async()=>{
   const body=a.map((r,i)=>[i+1,r.n,r.c,r.m==='KOSPI'?'코스피':'코스닥',r.fs==='OFS'?'별도':'연결',v(r.mc),v(r.s3),v(r.ys),v(r.o3),v(r.yo2),v(r.yo3),v(r.qoq),r.cv?VL[r.cv]:'',v(r.ce),v(r.cd),r.cdt||'',v(r.opm),v(r.dopm),v(r.per),v(r.pbr),v(r.roe),v(r.s2p),v(r.o2p),v(r.s3p),v(r.o3p),v(r.s2),v(r.o2),r.base?'Y':'',[r.why,r.mix?'연결/별도 혼재':'',r.st==='fail'&&r.k?'탈락 '+['①','②','③'].filter((_,j)=>!r.k[j]).join(''):''].filter(Boolean).join(' / ')]);
   const ws=XLSX.utils.aoa_to_sheet([H,...body]);ws['!cols']=H.map((h,i)=>({wch:i===1?18:i===28?26:11}));ws['!freeze']={xSplit:2,ySplit:1};
   const info=XLSX.utils.aoa_to_sheet([['3Q26 실적 스크린'],['조건',filterText()],['종목 수',a.length],['데이터 작성',D.updated],['저장',new Date().toLocaleString('ko-KR')],[],['금액 단위 억원 · 분기보고서 확정치 · 컨센은 실적발표 시점 기록 기준']]);info['!cols']=[{wch:12},{wch:90}];
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'스크린');const ta=trows(),TH=['#','종목','코드','시장','기준','시총(억)','3Q 매출(억)','매출 YoY(%)','3Q25 OP','2Q25 OP','2Q26 OP','3Q26 OP','3Q OP 증가액 YoY','2Q OP 증가액 YoY','② 통과','③ 통과','2Q 적자→흑자','소액 흑자','컨센 판정','OP 컨센(억)','OPM(%)','OPM Growth(%p)','PER','PBR','ROE(%)'];
-  const tws=XLSX.utils.aoa_to_sheet([TH,...ta.map((r,i)=>[i+1,r.n,r.c,r.m==='KOSPI'?'코스피':'코스닥',r.fs==='OFS'?'별도':'연결',v(r.mc),v(r.s3),v(r.ys),v(r.o3p),v(r.o2p),v(r.o2),v(r.o3),v(r.d3),v(r.d2),r.tk[0]?'Y':'',r.tk[1]?'Y':'',r.tq?'Y':'',r.sm?'Y':'',r.cv?VL[r.cv]:'',v(r.ce),v(r.opm),v(r.dopm),v(r.per),v(r.pbr),v(r.roe)])]);tws['!cols']=TH.map((h,i)=>({wch:i===1?18:12}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'스크린');const tws=turnSheet();
   XLSX.utils.book_append_sheet(wb,tws,'흑자전환');XLSX.utils.book_append_sheet(wb,info,'조건');
   XLSX.writeFile(wb,`3Q26_실적스크린_${stamp()}.xlsx`);
 }));
@@ -249,6 +250,31 @@ $('#saveImg').addEventListener('click',e=>busy(e.target,async()=>{
   const t=src.cloneNode(true);t.querySelectorAll('tr.det').forEach(x=>x.remove());t.querySelectorAll('tr.sel').forEach(x=>x.classList.remove('sel'));box.appendChild(t);document.body.appendChild(box);
   try{const scale=n>400?1:n>150?1.5:2;const cv=await html2canvas(box,{backgroundColor:'#0d1117',scale,logging:false});
     const blob=await new Promise(r=>cv.toBlob(r,'image/png'));if(!blob)throw new Error('이미지가 너무 큽니다 — 필터로 종목 수를 줄여 주세요');dl(blob,`3Q26_실적스크린_${stamp()}.png`);}
+  finally{box.remove();}
+}));
+function turnSheet(){const v=x=>x==null?'':x;const ta=trows(),TH=['#','종목','코드','시장','기준','시총(억)','3Q 매출(억)','매출 YoY(%)','3Q25 OP','2Q25 OP','2Q26 OP','3Q26 OP','3Q OP 증가액 YoY','2Q OP 증가액 YoY','② 통과','③ 통과','2Q 적자→흑자','소액 흑자','컨센 판정','OP 컨센(억)','OPM(%)','OPM Growth(%p)','PER','PBR','ROE(%)'];
+  const tws=XLSX.utils.aoa_to_sheet([TH,...ta.map((r,i)=>[i+1,r.n,r.c,r.m==='KOSPI'?'코스피':'코스닥',r.fs==='OFS'?'별도':'연결',v(r.mc),v(r.s3),v(r.ys),v(r.o3p),v(r.o2p),v(r.o2),v(r.o3),v(r.d3),v(r.d2),r.tk[0]?'Y':'',r.tk[1]?'Y':'',r.tq?'Y':'',r.sm?'Y':'',r.cv?VL[r.cv]:'',v(r.ce),v(r.opm),v(r.dopm),v(r.per),v(r.pbr),v(r.roe)])]);tws['!cols']=TH.map((h,i)=>({wch:i===1?18:12}));return tws;}
+function tFilterText(){
+  const t=['흑자전환 '+(tm==='all'?'전체':'기준 충족')];if(mk)t.push(mk==='KOSPI'?'코스피':'코스닥');if(cvf)t.push('컨센 '+VL[cvf]);
+  if($('#cfsOnly').checked)t.push('연결만');if($('#tSm').checked)t.push('소액 흑자 제외');if($('#tUp').checked)t.push('매출 증가만');if($('#tQ').checked)t.push('2Q 적자→3Q 흑자만');
+  const q=$('#q').value.trim();if(q)t.push('검색 "'+q+'"');
+  const R=rngVals();for(const [k,l] of RNG){if(k==='yo3')continue;const lo=R[k+'lo'],hi=R[k+'hi'];if(lo==null&&hi==null)continue;t.push(`${l} ${lo??''}~${hi??''}`);}
+  return t.join(' · ');
+}
+$('#tSaveXls').addEventListener('click',e=>busy(e.target,async()=>{
+  if(!window.XLSX)await lib('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+  const info=XLSX.utils.aoa_to_sheet([['3Q26 실적 스크린 — 번외 흑자전환'],['조건',tFilterText()],['종목 수',trows().length],['데이터 작성',D.updated],['저장',new Date().toLocaleString('ko-KR')],[],['금액 단위 억원 · 분기보고서 확정치 · 흑자전환 = 전년 3Q 영업이익 0 이하 → 올해 3Q 양수 · ②는 전년 대비 증가액 비교']]);info['!cols']=[{wch:12},{wch:90}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,turnSheet(),'흑자전환');XLSX.utils.book_append_sheet(wb,info,'조건');
+  XLSX.writeFile(wb,`3Q26_흑자전환_${stamp()}.xlsx`);
+}));
+$('#tSaveImg').addEventListener('click',e=>busy(e.target,async()=>{
+  if(!window.html2canvas)await lib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  const src=$('#tth').closest('table'),n=trows().length;
+  const box=document.createElement('div');box.style.cssText=`position:absolute;left:-99999px;top:0;width:${Math.max(src.scrollWidth,1100)+36}px;padding:18px;background:#0d1117;color:#e6edf3`;
+  box.innerHTML=`<div style="font-size:17px;font-weight:700;margin-bottom:3px">3Q26 실적 스크린 — 번외 흑자전환 ${n.toLocaleString()}종목</div><div style="font-size:12px;color:#8b949e;margin-bottom:10px">조건: ${esc(tFilterText())} · 데이터 ${esc(D.updated)}</div>`;
+  const t=src.cloneNode(true);t.querySelectorAll('tr.det').forEach(x=>x.remove());t.querySelectorAll('tr.sel').forEach(x=>x.classList.remove('sel'));box.appendChild(t);document.body.appendChild(box);
+  try{const scale=n>400?1:n>150?1.5:2;const cv=await html2canvas(box,{backgroundColor:'#0d1117',scale,logging:false});
+    const blob=await new Promise(r=>cv.toBlob(r,'image/png'));if(!blob)throw new Error('이미지가 너무 큽니다 — 필터로 종목 수를 줄여 주세요');dl(blob,`3Q26_흑자전환_${stamp()}.png`);}
   finally{box.remove();}
 }));
 fetch('data/q3screen.json?v='+Math.floor(Date.now()/6e5)).then(r=>r.json()).then(d=>{D=d;
