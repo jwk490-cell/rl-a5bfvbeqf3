@@ -41,6 +41,7 @@ header .upd{font-size:12px;color:var(--faint)}
 .th .dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.78);color:#fff;font-size:11.5px;font-weight:700;padding:2px 6px;border-radius:5px}
 .cb{padding:12px 13px 13px;display:flex;flex-direction:column;gap:7px;min-width:0}
 .dt{font-size:12px;color:var(--faint);font-weight:600}
+.dt .bn{color:var(--accent);font-weight:700}
 .ti{font-size:14.5px;font-weight:700;line-height:1.42;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .gist{font-size:12.5px;color:var(--sub);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .kw{display:flex;flex-wrap:wrap;gap:5px}
@@ -79,7 +80,7 @@ header .upd{font-size:12px;color:var(--faint)}
 <div class="bar">
   <div class="seg" id="chs"></div>
   <div class="sp"></div>
-  <input id="q" type="search" placeholder="제목·인물·키워드 검색" aria-label="검색">
+  <input id="q" type="search" placeholder="제목·블로그·인물·키워드 검색" aria-label="검색">
   <div class="seg" id="vw"><button data-v="grid" class="on">바둑판</button><button data-v="list">목록</button></div>
 </div>
 <div class="chl" id="chl"></div>
@@ -109,20 +110,20 @@ try{view=localStorage.getItem('rl-blog-view')||'grid';}catch(e){}
 
 function draw(){
   const c=D.blogs[ci],q=$('#q').value.trim().toLowerCase();
-  list=c.posts.filter(v=>!q||(v.t+' '+v.p.join(' ')+' '+v.k.join(' ')).toLowerCase().includes(q));
+  list=c.posts.filter(v=>!q||(v.t+' '+v.b+' '+v.p.join(' ')+' '+v.k.join(' ')).toLowerCase().includes(q));
   $('#chs').innerHTML=D.blogs.map((x,i)=>`<button data-i="${i}" class="${i===ci?'on':''}">${esc(x.label||x.name)}<small>${x.posts.length}</small></button>`).join('');
   $('#chl').innerHTML=`최근 글이 위 · ${c.posts.length}편`+(c.url?` · <a href="${esc(c.url)}" target="_blank" rel="noopener">블로그 열기 ↗</a>`:'');
   const g=$('#grid');g.className='grid'+(view==='list'?' list':'');
   g.innerHTML=list.length?list.map((v,i)=>{const gist=(v.s[0]&&v.s[0].b[0])||'';
     return `<button class="card" data-n="${i}"><div class="th"><div class="ph">${esc(v.t)}</div>${v.img?`<img loading="lazy" alt="" referrerpolicy="no-referrer" src="${esc(v.img)}" onerror="this.remove()">`:''}<span class="dur">${fm(v.n)}</span></div>
-    <div class="cb"><div class="dt">${fd(v.d)}</div><div class="ti">${esc(v.t)}</div><div class="gist">${esc(gist)}</div>
+    <div class="cb"><div class="dt">${fd(v.d)}${c.all||c.etc?` · <b class="bn">${esc(v.b)}</b>`:''}</div><div class="ti">${esc(v.t)}</div><div class="gist">${esc(gist)}</div>
     <div class="kw">${v.k.slice(0,4).map(k=>`<span>${esc(k)}</span>`).join('')}</div></div></button>`;}).join(''):'<div class="empty">검색 결과가 없습니다</div>';
   $('#vw').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
 }
 function open(n){
   cur=n;const v=list[n],c=D.blogs[ci];
-  $('#dch').textContent=c.label||c.name;$('#dtitle').textContent=v.t;
-  $('#dinfo').innerHTML=`${fd(v.d)} · ${fm(v.n)} 분량<a href="${esc(v.u)}" target="_blank" rel="noopener">원문 글 보기 ↗</a>`;
+  $('#dch').textContent=v.b;$('#dtitle').textContent=v.t;
+  $('#dinfo').innerHTML=`${fd(v.d)} · ${fm(v.n)} 분량${v.bu?`<a href="${esc(v.bu)}" target="_blank" rel="noopener">블로그 ↗</a>`:''}<a href="${esc(v.u)}" target="_blank" rel="noopener">원문 글 보기 ↗</a>`;
   $('#dbody').innerHTML=`<div class="tags">${v.p.map(x=>`<span class="p">${esc(x)}</span>`).join('')}${v.k.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`+
     v.s.map((s,i)=>{const b=`<h3 class="${i===0?'first':''}">#${esc(s.h)}</h3><ul>${s.b.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;return i===0?`<div class="concl">${b}</div>`:b;}).join('');
   $('#prev').disabled=n<=0;$('#next').disabled=n>=list.length-1;
@@ -141,7 +142,8 @@ $('#cls').onclick=close;$('#prev').onclick=()=>cur>0&&open(cur-1);$('#next').onc
 document.addEventListener('keydown',e=>{if($('#ov').hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowUp'&&cur>0){e.preventDefault();open(cur-1);}if(e.key==='ArrowDown'&&cur<list.length-1){e.preventDefault();open(cur+1);}});
 
 fetch('data/blognotes.json?v='+Math.floor(Date.now()/6e5)).then(r=>r.json()).then(j=>{
-  D=j;$('#upd').textContent=j.updated+' 기준 · '+j.blogs.reduce((a,c)=>a+c.posts.length,0)+'편';
+  D=j;
+  if(j.blogs.length>1){const all=[].concat(...j.blogs.map(b=>b.posts)).sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:(a.id<b.id?1:-1));j.blogs.unshift({name:'전체',url:'',all:true,posts:all});}$('#upd').textContent=j.updated+' 기준 · '+j.blogs.reduce((a,c)=>a+c.posts.length,0)+'편';
   let sv='';try{sv=localStorage.getItem('rl-blog-ch')||'';}catch(e){}
   const h=(location.hash.match(/v=([\w.-]+)/)||[])[1];
   D.blogs.forEach((c,i)=>{if(c.name===sv)ci=i;});
